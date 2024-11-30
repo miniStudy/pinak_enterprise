@@ -1137,3 +1137,296 @@ def delete_material(request):
             "status": "error",
             "message": "Material not found."
         }, status=404)
+
+@api_view(['GET'])
+def show_person_work_machine(request):
+    person_work_machine = Person_Work_Machine.objects.all().values(
+        'pwm_id',
+        'pwm_machine_name',
+        'pwm_machine_owner_name',
+        'pwm_machine_owner_number',
+        'working_machine_id__working_machine_name',
+        'pwm_person_joining_date',
+        'pwm_person_contact_number',
+        'pwm_person_payment_by',
+        'pwm_person_payment_desc',
+        'person_type_id__person_type_name',
+        'person_id__person_name',
+        'project_type_id__project_type_name',
+        'project_id__project_name',
+        'work_types_id__work_type_name',
+        'pwm_work_number',
+        'pwm_work_amount',
+        'pwm_total_amount',
+        'pwm_work_desc'
+    )
+    return Response({
+        "status": "success",
+        "data": person_work_machine
+    })
+
+
+@api_view(['POST'])
+def insert_update_person_work_machine(request):
+    pwm_id = request.data.get('pwm_id')
+    pwm_machine_name = request.data.get('pwm_machine_name')
+    pwm_machine_owner_name = request.data.get('pwm_machine_owner_name')
+    pwm_machine_owner_number = request.data.get('pwm_machine_owner_number')
+    working_machine_id = request.data.get('working_machine_id')
+    pwm_person_joining_date = request.data.get('pwm_person_joining_date')
+    pwm_person_contact_number = request.data.get('pwm_person_contact_number')
+    pwm_person_payment_by = request.data.get('pwm_person_payment_by')
+    pwm_person_payment_desc = request.data.get('pwm_person_payment_desc')
+    person_type_id = request.data.get('person_type_id')
+    person_id = request.data.get('person_id')
+    project_type_id = request.data.get('project_type_id')
+    project_id = request.data.get('project_id')
+    work_types_id = request.data.get('work_types_id')
+    pwm_work_number = request.data.get('pwm_work_number')
+    pwm_work_amount = request.data.get('pwm_work_amount')
+    pwm_total_amount = request.data.get('pwm_total_amount')
+    pwm_work_desc = request.data.get('pwm_work_desc')
+
+    working_machine_instance = Working_Machines.objects.get(pk=working_machine_id)
+    person_type_instance = Person_Type.objects.get(pk=person_type_id)
+    person_instance = Person.objects.get(pk=person_id)
+    project_type_instance = Project_Types.objects.get(pk=project_type_id)
+    project_instance = Project.objects.get(pk=project_id)
+    work_type_instance = Work_Types.objects.get(pk=work_types_id)
+
+    if pwm_id:
+        pwm = Person_Work_Machine.objects.get(pwm_id=pwm_id)
+        pwm.pwm_machine_name = pwm_machine_name
+        pwm.pwm_machine_owner_name = pwm_machine_owner_name
+        pwm.pwm_machine_owner_number = pwm_machine_owner_number
+        pwm.working_machine_id = working_machine_instance
+        pwm.pwm_person_joining_date = pwm_person_joining_date
+        pwm.pwm_person_contact_number = pwm_person_contact_number
+        pwm.pwm_person_payment_by = pwm_person_payment_by
+        pwm.pwm_person_payment_desc = pwm_person_payment_desc
+        pwm.person_type_id = person_type_instance
+        pwm.person_id = person_instance
+        pwm.project_type_id = project_type_instance
+        pwm.project_id = project_instance
+        pwm.work_types_id = work_type_instance
+        pwm.pwm_work_number = pwm_work_number
+        pwm.pwm_work_amount = pwm_work_amount
+        pwm.pwm_total_amount = pwm_total_amount
+        pwm.pwm_work_desc = pwm_work_desc
+        pwm.save()
+        message = "Person Work Machine updated successfully."
+
+    else:
+        pwm = Person_Work_Machine.objects.create(
+            pwm_machine_name=pwm_machine_name,
+            pwm_machine_owner_name=pwm_machine_owner_name,
+            pwm_machine_owner_number=pwm_machine_owner_number,
+            working_machine_id=working_machine_instance,
+            pwm_person_joining_date=pwm_person_joining_date,
+            pwm_person_contact_number=pwm_person_contact_number,
+            pwm_person_payment_by=pwm_person_payment_by,
+            pwm_person_payment_desc=pwm_person_payment_desc,
+            person_type_id=person_type_instance,
+            person_id=person_instance,
+            project_type_id=project_type_instance,
+            project_id=project_instance,
+            work_types_id=work_type_instance,
+            pwm_work_number=pwm_work_number,
+            pwm_work_amount=pwm_work_amount,
+            pwm_total_amount=pwm_total_amount,
+            pwm_work_desc=pwm_work_desc
+        )
+        message = "Person Work Machine created successfully."
+
+    return Response({
+        "status": "success",
+        "message": message,
+        "data": {
+            "pwm_id": pwm.pwm_id,
+            "pwm_machine_name": pwm.pwm_machine_name,
+            "pwm_machine_owner_name": pwm.pwm_machine_owner_name,
+            "pwm_machine_owner_number": pwm.pwm_machine_owner_number,
+            "working_machine_id": pwm.working_machine_id.working_machine_id,
+            "pwm_person_joining_date": pwm.pwm_person_joining_date,
+            "pwm_person_contact_number": pwm.pwm_person_contact_number,
+            "pwm_person_payment_by": pwm.pwm_person_payment_by,
+            "pwm_person_payment_desc": pwm.pwm_person_payment_desc,
+            "person_type_id": pwm.person_type_id.person_type_id,
+            "person_id": pwm.person_id.person_id,
+            "project_type_id": pwm.project_type_id.project_type_id,
+            "project_id": pwm.project_id.project_id,
+            "work_types_id": pwm.work_types_id.work_type_id,
+            "pwm_work_number": pwm.pwm_work_number,
+            "pwm_work_amount": pwm.pwm_work_amount,
+            "pwm_total_amount": pwm.pwm_total_amount,
+            "pwm_work_desc": pwm.pwm_work_desc
+        }
+    })
+
+@api_view(['DELETE'])
+def delete_person_work_machine(request):
+    pwm_id = request.data.get('pwm_id')
+
+    if not pwm_id:
+        return Response({
+            "status": "error",
+            "message": "PWM ID is required."
+        }, status=400)
+
+    try:
+        pwm = Person_Work_Machine.objects.get(pwm_id=pwm_id)
+        pwm.delete()
+        return Response({
+            "status": "success",
+            "message": "Person Work Machine deleted successfully."
+        })
+    except Person_Work_Machine.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "Person Work Machine not found."
+        }, status=404)
+    
+
+@api_view(['GET'])
+def show_document_types(request):
+    document_types = Document_Types.objects.all().values(
+        'document_type_id',
+        'document_type_name'
+    )
+    return Response({
+        "status": "success",
+        "data": document_types
+    })
+
+
+@api_view(['POST'])
+def insert_update_document_type(request):
+    document_type_id = request.data.get('document_type_id')
+    document_type_name = request.data.get('document_type_name')
+
+    if document_type_id:
+            document_type = Document_Types.objects.get(document_type_id=document_type_id)
+            document_type.document_type_name = document_type_name
+            document_type.save()
+            message = "Document type updated successfully."
+    else:
+        document_type = Document_Types.objects.create(
+            document_type_name=document_type_name
+        )
+        message = "Document type created successfully."
+
+    return Response({
+        "status": "success",
+        "message": message,
+        "data": {
+            "document_type_id": document_type.document_type_id,
+            "document_type_name": document_type.document_type_name
+        }
+    })
+
+@api_view(['DELETE'])
+def delete_document_type(request):
+    document_type_id = request.data.get('document_type_id')
+
+    if not document_type_id:
+        return Response({
+            "status": "error",
+            "message": "Document type ID is required."
+        }, status=400)
+
+    try:
+        document_type = Document_Types.objects.get(document_type_id=document_type_id)
+        document_type.delete()
+        return Response({
+            "status": "success",
+            "message": "Document type deleted successfully."
+        })
+    except Document_Types.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "Document type not found."
+        }, status=404)
+    
+@api_view(['GET'])
+def show_documents(request):
+    documents = Documents.objects.all().values(
+        'document_id',
+        'document_name',
+        'document_date',
+        'document_unique_code',
+        'document_file',
+        'document_type_id',
+        'document_type_id__document_type_name'
+    )
+    return Response({
+        "status": "success",
+        "data": documents
+    })
+
+
+@api_view(['POST'])
+def insert_update_document(request):
+    document_id = request.data.get('document_id')
+    document_name = request.data.get('document_name')
+    document_unique_code = request.data.get('document_unique_code')
+    document_type_id = request.data.get('document_type_id')
+    document_file = request.FILES.get('document_file')
+
+    document_type = Document_Types.objects.get(document_type_id=document_type_id)
+   
+
+    if document_id:
+            document = Documents.objects.get(document_id=document_id)
+            document.document_name = document_name
+            document.document_unique_code = document_unique_code
+            document.document_type_id = document_type
+            if document_file:
+                document.document_file = document_file
+            document.save()
+            message = "Document updated successfully."
+    else:
+        document = Documents.objects.create(
+            document_name=document_name,
+            document_unique_code=document_unique_code,
+            document_type_id=document_type,
+            document_file=document_file
+        )
+        message = "Document created successfully."
+
+    return Response({
+        "status": "success",
+        "message": message,
+        "data": {
+            "document_id": document.document_id,
+            "document_name": document.document_name,
+            "document_date": document.document_date,
+            "document_unique_code": document.document_unique_code,
+            "document_file": document.document_file.url if document.document_file else None,
+            "document_type_id": document.document_type_id.document_type_id,
+            "document_type_name": document.document_type_id.document_type_name
+        }
+    })
+
+
+@api_view(['DELETE'])
+def delete_document(request):
+    document_id = request.data.get('document_id')
+
+    if not document_id:
+        return Response({
+            "status": "error",
+            "message": "Document ID is required."
+        }, status=400)
+
+    try:
+        document = Documents.objects.get(document_id=document_id)
+        document.delete()
+        return Response({
+            "status": "success",
+            "message": "Document deleted successfully."
+        })
+    except Documents.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "Document not found."
+        }, status=404)

@@ -297,3 +297,29 @@ class Materials(models.Model):
 
     class Meta:
         db_table = 'Materials'
+
+class Document_Types(models.Model):
+    document_type_id = models.BigAutoField(primary_key=True)
+    document_type_name = models.CharField(max_length=155)
+
+    def __str__(self):
+        return f'{self.document_type_name}'
+
+    class Meta:
+        db_table = 'Document_Types'
+
+class Documents(models.Model):
+    document_id = models.BigAutoField(primary_key=True)
+    document_name = models.CharField(max_length=155)
+    document_date = models.DateField(auto_now_add=True)
+    document_unique_code = models.CharField(max_length=155, unique=True)
+    document_file = models.FileField(upload_to='uploads/')
+    document_type_id = models.ForeignKey(Document_Types, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.document_type_id.document_type_name} {self.document_name}'
+
+    class Meta:
+        db_table = 'Documents'
+
+

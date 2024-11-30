@@ -323,3 +323,10 @@ class Documents(models.Model):
         db_table = 'Documents'
 
 
+#Add Expiry Date for Document
+#Add Service Date for Vehicle Data
+#Day Wise kM for vehicle
+
+
+
+

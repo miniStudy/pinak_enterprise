@@ -36,7 +36,7 @@ class Bank_Details(models.Model):
     bank_id = models.BigAutoField(primary_key=True)
     bank_name = models.CharField(max_length=155)
     bank_branch = models.CharField(max_length=155)
-    bank_account_number = models.IntegerField()
+    bank_account_number = models.CharField(max_length=100)
     bank_ifsc_code = models.CharField(max_length=55)
     bank_account_holder = models.CharField(max_length=155)  
     bank_open_closed = models.BooleanField(default=1)

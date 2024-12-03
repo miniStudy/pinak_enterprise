@@ -62,7 +62,7 @@ def show_bank_details(request):
 
 
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def insert_update_bank_detail(request):
     bank_id = request.data.get('bank_id')
     bank_name = request.data.get('bank_name')
@@ -71,6 +71,23 @@ def insert_update_bank_detail(request):
     bank_ifsc_code = request.data.get('bank_ifsc_code')
     bank_account_holder = request.data.get('bank_account_holder')
     bank_open_closed = request.data.get('bank_open_closed')
+
+    if request.GET.get('getdata_id'):
+        bank_obj = Bank_Details.objects.get(bank_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            "bank_id": bank_obj.bank_id,
+            "bank_name": bank_obj.bank_name,
+            "bank_branch": bank_obj.bank_branch,
+            "bank_account_number": bank_obj.bank_account_number,
+            "bank_ifsc_code": bank_obj.bank_ifsc_code,
+            "bank_account_holder": bank_obj.bank_account_holder,
+            "bank_open_closed": bank_obj.bank_open_closed
+        }
+        })
+
 
     if bank_id:
         bank_detail = Bank_Details.objects.get(bank_id=bank_id)

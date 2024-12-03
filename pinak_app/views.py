@@ -207,7 +207,6 @@ def show_company_machines(request):
 
 @api_view(['POST','GET'])
 def insert_update_company_machine(request):
-
     machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
     if request.method == 'POST':
         machine_id = request.data.get('machine_id')
@@ -228,7 +227,7 @@ def insert_update_company_machine(request):
         return Response({
         "status": "success",
         "message": 'Data Fetched Successfully',
-        "data": {
+        "data": { 
             "machine_id": machine_obj.machine_id,
             "machine_owner": machine_obj.machine_owner,
             "machine_buy_date": machine_obj.machine_buy_date,
@@ -342,19 +341,41 @@ def show_working_machines(request):
 
 @api_view(['POST'])
 def insert_update_working_machine(request):
-    working_machine_id = request.data.get('working_machine_id')
-    working_machine_name = request.data.get('working_machine_name')
-    working_machine_owner_name = request.data.get('working_machine_owner_name')
-    working_machine_owner_contact = request.data.get('working_machine_owner_contact')
-    working_machine_plate_number = request.data.get('working_machine_plate_number')
-    working_machine_start_date = request.data.get('working_machine_start_date')
-    working_machine_end_date = request.data.get('working_machine_end_date')
-    working_machine_ownership = request.data.get('working_machine_ownership')
-    working_machine_details = request.data.get('working_machine_details')
-    working_machine_rented_amount = request.data.get('working_machine_rented_amount')
-    machine_type_id = request.data.get('machine_type_id')
+    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
+    if request.method == 'POST':
+        working_machine_id = request.data.get('working_machine_id')
+        working_machine_name = request.data.get('working_machine_name')
+        working_machine_owner_name = request.data.get('working_machine_owner_name')
+        working_machine_owner_contact = request.data.get('working_machine_owner_contact')
+        working_machine_plate_number = request.data.get('working_machine_plate_number')
+        working_machine_start_date = request.data.get('working_machine_start_date')
+        working_machine_end_date = request.data.get('working_machine_end_date')
+        working_machine_ownership = request.data.get('working_machine_ownership')
+        working_machine_details = request.data.get('working_machine_details')
+        working_machine_rented_amount = request.data.get('working_machine_rented_amount')
+        machine_type_id = request.data.get('machine_type_id')
+        machine_type_instance = Machine_Types.objects.get(machine_type_id=machine_type_id)
 
-    machine_type_instance = Machine_Types.objects.get(machine_type_id=machine_type_id)
+    if request.GET.get('getdata_id'):
+        working_machine_obj = Working_Machines.objects.get(working_machine_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            "working_machine_id": working_machine_obj.working_machine_id,
+            "working_machine_name": working_machine_obj.working_machine_name,
+            "working_machine_owner_name": working_machine_obj.working_machine_owner_name,
+            "working_machine_owner_contact": working_machine_obj.working_machine_owner_contact,
+            "working_machine_plate_number": working_machine_obj.working_machine_plate_number,
+            "working_machine_start_date": working_machine_obj.working_machine_start_date,
+            "working_machine_end_date": working_machine_obj.working_machine_end_date,
+            "working_machine_ownership": working_machine_obj.working_machine_ownership,
+            "working_machine_details": working_machine_obj.working_machine_details,
+            "working_machine_rented_amount": working_machine_obj.working_machine_rented_amount,
+            "machine_type_id": working_machine_obj.machine_type_id.machine_type_id,
+        },
+        "machine_types_data": machine_types_data,
+        })
     
     if working_machine_id:
         working_machine = Working_Machines.objects.get(working_machine_id=working_machine_id)
@@ -400,7 +421,8 @@ def insert_update_working_machine(request):
             "working_machine_details": working_machine.working_machine_details,
             "working_machine_rented_amount": working_machine.working_machine_rented_amount,
             "machine_type_id": working_machine.machine_type_id.machine_type_id
-        }
+        },
+        "machine_types_data": machine_types_data,  
     })
 
 @api_view(['DELETE'])
@@ -441,6 +463,28 @@ def show_maintenance_types(request):
 def insert_update_maintenance_type(request):
     maintenance_type_id = request.data.get('maintenance_type_id')
     maintenance_type_name = request.data.get('maintenance_type_name')
+
+    if request.GET.get('getdata_id'):
+        working_machine_obj = Working_Machines.objects.get(working_machine_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            "working_machine_id": working_machine_obj.working_machine_id,
+            "working_machine_name": working_machine_obj.working_machine_name,
+            "working_machine_owner_name": working_machine_obj.working_machine_owner_name,
+            "working_machine_owner_contact": working_machine_obj.working_machine_owner_contact,
+            "working_machine_plate_number": working_machine_obj.working_machine_plate_number,
+            "working_machine_start_date": working_machine_obj.working_machine_start_date,
+            "working_machine_end_date": working_machine_obj.working_machine_end_date,
+            "working_machine_ownership": working_machine_obj.working_machine_ownership,
+            "working_machine_details": working_machine_obj.working_machine_details,
+            "working_machine_rented_amount": working_machine_obj.working_machine_rented_amount,
+            "machine_type_id": working_machine_obj.machine_type_id.machine_type_id,
+        }
+        })
+
+    
 
     if maintenance_type_id:
         maintenance_type = Maintenance_Types.objects.get(maintenance_type_id=maintenance_type_id)

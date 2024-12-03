@@ -326,6 +326,8 @@ def delete_company_machine(request):
     
 @api_view(['GET'])
 def show_working_machines(request):
+    ownership_choices = list(set(choice[0] for choice in Working_Machines.ownership_options.choices))
+
     working_machines = Working_Machines.objects.all().values(
         'working_machine_id',
         'working_machine_name',
@@ -340,13 +342,16 @@ def show_working_machines(request):
         'machine_type_id__machine_type_id',
         'machine_type_id__machine_type_name'
     )
+    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
     return Response({
         "status": "success",
-        "data": working_machines
+        "data": working_machines,
+        "machine_types_data": machine_types_data,
+        'ownership_choices': ownership_choices
     })
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_working_machine(request):
     machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
     if request.method == 'POST':
@@ -361,6 +366,7 @@ def insert_update_working_machine(request):
         working_machine_details = request.data.get('working_machine_details')
         working_machine_rented_amount = request.data.get('working_machine_rented_amount')
         machine_type_id = request.data.get('machine_type_id')
+        print(machine_type_id)
         machine_type_instance = Machine_Types.objects.get(machine_type_id=machine_type_id)
 
     if request.GET.get('getdata_id'):

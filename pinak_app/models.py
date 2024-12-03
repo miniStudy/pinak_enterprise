@@ -330,3 +330,14 @@ class Documents(models.Model):
 
 
 
+
+
+# Notification model
+
+# user_id
+# notification Data 
+# notification title
+# date
+# notification_work completed/pending/inform
+
+

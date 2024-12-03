@@ -169,12 +169,7 @@ def delete_machine_type(request):
 
 @api_view(['GET'])
 def show_company_machines(request):
-    company_machines = Company_Machines.objects.all().values(
-        'machine_id', 'machine_owner', 'machine_buy_date', 'machine_condition', 
-        'machine_number_plate', 'machine_details', 'machine_contact_number',
-        'machine_sold_out_date', 'machine_sold_price', 'machine_working', 
-        'machine_types_id__machine_type_id', 'machine_types_id__machine_type_name'
-    )
+    company_machines = Company_Machines.objects.all().values('machine_id', 'machine_owner', 'machine_buy_date', 'machine_condition', 'machine_number_plate', 'machine_details', 'machine_contact_number','machine_sold_out_date', 'machine_sold_price', 'machine_working', 'machine_types_id__machine_type_id', 'machine_types_id__machine_type_name')
 
     return Response({
         "status": "success",
@@ -386,6 +381,7 @@ def show_maintenance_types(request):
 
     return Response({
         "status": "success",
+        "title": "Maintenance Type",
         "data": maintenance_types
     })
 
@@ -540,6 +536,7 @@ def show_project_types(request):
 
     return Response({
         "status": "success",
+        "title": "Project Types",
         "data": project_types
     })
 
@@ -768,6 +765,7 @@ def show_person_types(request):
     )
     return Response({
         "status": "success",
+        "title": "Person Type",
         "data": person_types
     })
 
@@ -975,6 +973,7 @@ def show_material_types(request):
     )
     return Response({
         "status": "success",
+        "title": "Material Types",
         "data": material_types
     })
 
@@ -1045,6 +1044,7 @@ def show_materials(request):
     )
     return Response({
         "status": "success",
+        "title": "Materials",
         "data": materials
     })
 
@@ -1162,6 +1162,7 @@ def show_person_work_machine(request):
     )
     return Response({
         "status": "success",
+        "title": "Person",
         "data": person_work_machine
     })
 
@@ -1360,6 +1361,7 @@ def show_documents(request):
     )
     return Response({
         "status": "success",
+        "title": "Documents",
         "data": documents
     })
 

@@ -88,7 +88,6 @@ def insert_update_bank_detail(request):
         }
         })
 
-
     if bank_id:
         bank_detail = Bank_Details.objects.get(bank_id=bank_id)
         bank_detail.bank_name = bank_name
@@ -146,10 +145,21 @@ def show_machine_types(request):
     })
 
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def insert_update_machine_type(request):
     machine_type_id = request.data.get('machine_type_id')
     machine_type_name = request.data.get('machine_type_name')
+
+    if request.GET.get('getdata_id'):
+        machine_type_obj = Machine_Types.objects.get(machine_type_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            "machine_type_id": machine_type_obj.machine_type_id,
+            "machine_type_name": machine_type_obj.machine_type_name,  
+        }
+        })
 
     if machine_type_id:
         machine_type = Machine_Types.objects.get(machine_type_id=machine_type_id)
@@ -195,21 +205,44 @@ def show_company_machines(request):
     })
 
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def insert_update_company_machine(request):
-    machine_id = request.data.get('machine_id')
-    machine_owner = request.data.get('machine_owner')
-    machine_buy_date = request.data.get('machine_buy_date')
-    machine_condition = request.data.get('machine_condition')
-    machine_number_plate = request.data.get('machine_number_plate')
-    machine_details = request.data.get('machine_details')
-    machine_contact_number = request.data.get('machine_contact_number')
-    machine_sold_out_date = request.data.get('machine_sold_out_date')
-    machine_sold_price = request.data.get('machine_sold_price')
-    machine_working = request.data.get('machine_working')
-    machine_types_id = request.data.get('machine_types_id')
 
-    machine_types_instance = Machine_Types.objects.get(machine_type_id=machine_types_id)
+    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
+    if request.method == 'POST':
+        machine_id = request.data.get('machine_id')
+        machine_owner = request.data.get('machine_owner')
+        machine_buy_date = request.data.get('machine_buy_date')
+        machine_condition = request.data.get('machine_condition')
+        machine_number_plate = request.data.get('machine_number_plate')
+        machine_details = request.data.get('machine_details')
+        machine_contact_number = request.data.get('machine_contact_number')
+        machine_sold_out_date = request.data.get('machine_sold_out_date')
+        machine_sold_price = request.data.get('machine_sold_price')
+        machine_working = request.data.get('machine_working')
+        machine_types_id = request.data.get('machine_types_id')
+        machine_types_instance = Machine_Types.objects.get(machine_type_id=machine_types_id)
+
+    if request.GET.get('getdata_id'):
+        machine_obj = Company_Machines.objects.get(machine_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            "machine_id": machine_obj.machine_id,
+            "machine_owner": machine_obj.machine_owner,
+            "machine_buy_date": machine_obj.machine_buy_date,
+            "machine_condition": machine_obj.machine_condition,
+            "machine_number_plate": machine_obj.machine_number_plate,
+            "machine_details": machine_obj.machine_details,
+            "machine_contact_number": machine_obj.machine_contact_number,
+            "machine_sold_out_date": machine_obj.machine_sold_out_date,
+            "machine_sold_price": machine_obj.machine_sold_price,
+            "machine_working": machine_obj.machine_working,
+            "machine_types_id": machine_obj.machine_types_id.machine_type_id,
+            "machine_types": machine_types_data,
+        }
+        })
 
     if machine_id:
         machine = Company_Machines.objects.get(machine_id=machine_id)
@@ -237,9 +270,10 @@ def insert_update_company_machine(request):
             machine_sold_out_date=machine_sold_out_date,
             machine_sold_price=machine_sold_price,
             machine_working=machine_working,
-            machine_types_id=machine_types_instance
+            machine_types_id=machine_types_instance,
         )
-        message = "Machine details created successfully."
+        if machine:
+            message = "Machine details created successfully."
 
     return Response({
         "status": "success",
@@ -256,6 +290,7 @@ def insert_update_company_machine(request):
             "machine_sold_price": machine.machine_sold_price,
             "machine_working": machine.machine_working,
             "machine_types_id": machine.machine_types_id.machine_type_id,
+            "machine_types": machine_types_data,
         }
     })
 

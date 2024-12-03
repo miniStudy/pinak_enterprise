@@ -239,59 +239,64 @@ def insert_update_company_machine(request):
             "machine_sold_price": machine_obj.machine_sold_price,
             "machine_working": machine_obj.machine_working,
             "machine_types_id": machine_obj.machine_types_id.machine_type_id,
-            "machine_types": machine_types_data,
-        }
+        },
+        "machine_types": machine_types_data,
         })
+    if request.method == 'POST':
+        if machine_id:
+            machine = Company_Machines.objects.get(machine_id=machine_id)
+            machine.machine_owner = machine_owner
+            machine.machine_buy_date = machine_buy_date
+            machine.machine_condition = machine_condition
+            machine.machine_number_plate = machine_number_plate
+            machine.machine_details = machine_details
+            machine.machine_contact_number = machine_contact_number
+            machine.machine_sold_out_date = machine_sold_out_date
+            machine.machine_sold_price = machine_sold_price
+            machine.machine_working = machine_working
+            machine.machine_types_id = machine_types_instance
+            machine.save()
+            message = "Machine details updated successfully."
+            
+        else:
+            machine = Company_Machines.objects.create(
+                machine_owner=machine_owner,
+                machine_buy_date=machine_buy_date,
+                machine_condition=machine_condition,
+                machine_number_plate=machine_number_plate,
+                machine_details=machine_details,
+                machine_contact_number=machine_contact_number,
+                machine_sold_out_date=machine_sold_out_date,
+                machine_sold_price=machine_sold_price,
+                machine_working=machine_working,
+                machine_types_id=machine_types_instance,
+            )
+            if machine:
+                message = "Machine details created successfully."
 
-    if machine_id:
-        machine = Company_Machines.objects.get(machine_id=machine_id)
-        machine.machine_owner = machine_owner
-        machine.machine_buy_date = machine_buy_date
-        machine.machine_condition = machine_condition
-        machine.machine_number_plate = machine_number_plate
-        machine.machine_details = machine_details
-        machine.machine_contact_number = machine_contact_number
-        machine.machine_sold_out_date = machine_sold_out_date
-        machine.machine_sold_price = machine_sold_price
-        machine.machine_working = machine_working
-        machine.machine_types_id = machine_types_instance
-        machine.save()
-        message = "Machine details updated successfully."
-        
-    else:
-        machine = Company_Machines.objects.create(
-            machine_owner=machine_owner,
-            machine_buy_date=machine_buy_date,
-            machine_condition=machine_condition,
-            machine_number_plate=machine_number_plate,
-            machine_details=machine_details,
-            machine_contact_number=machine_contact_number,
-            machine_sold_out_date=machine_sold_out_date,
-            machine_sold_price=machine_sold_price,
-            machine_working=machine_working,
-            machine_types_id=machine_types_instance,
-        )
-        if machine:
-            message = "Machine details created successfully."
-
-    return Response({
-        "status": "success",
-        "message": message,
-        "data": {
-            "machine_id": machine.machine_id,
-            "machine_owner": machine.machine_owner,
-            "machine_buy_date": machine.machine_buy_date,
-            "machine_condition": machine.machine_condition,
-            "machine_number_plate": machine.machine_number_plate,
-            "machine_details": machine.machine_details,
-            "machine_contact_number": machine.machine_contact_number,
-            "machine_sold_out_date": machine.machine_sold_out_date,
-            "machine_sold_price": machine.machine_sold_price,
-            "machine_working": machine.machine_working,
-            "machine_types_id": machine.machine_types_id.machine_type_id,
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "machine_id": machine.machine_id,
+                "machine_owner": machine.machine_owner,
+                "machine_buy_date": machine.machine_buy_date,
+                "machine_condition": machine.machine_condition,
+                "machine_number_plate": machine.machine_number_plate,
+                "machine_details": machine.machine_details,
+                "machine_contact_number": machine.machine_contact_number,
+                "machine_sold_out_date": machine.machine_sold_out_date,
+                "machine_sold_price": machine.machine_sold_price,
+                "machine_working": machine.machine_working,
+                "machine_types_id": machine.machine_types_id.machine_type_id,
+                
+            },
             "machine_types": machine_types_data,
-        }
-    })
+        })
+    else:
+        return Response({
+            'status':"False"
+        })
 
 
 @api_view(['DELETE'])

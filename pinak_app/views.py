@@ -197,11 +197,12 @@ def delete_machine_type(request):
 @api_view(['GET'])
 def show_company_machines(request):
     company_machines = Company_Machines.objects.all().values('machine_id', 'machine_owner', 'machine_buy_date', 'machine_condition', 'machine_number_plate', 'machine_details', 'machine_contact_number','machine_sold_out_date', 'machine_sold_price', 'machine_working', 'machine_types_id__machine_type_id', 'machine_types_id__machine_type_name')
-
+    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
     return Response({
         "status": "success",
         "title": "Machine",
-        "data": company_machines
+        "data": company_machines,
+        "machine_types": machine_types_data,
     })
 
 

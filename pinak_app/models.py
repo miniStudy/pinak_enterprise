@@ -329,9 +329,6 @@ class Documents(models.Model):
 
 
 
-
-
-
 # Notification model
 
 # user_id

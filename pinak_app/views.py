@@ -126,7 +126,7 @@ def insert_update_bank_detail(request):
 
 @api_view(['DELETE'])
 def delete_bank_detail(request):
-    if request.GET.get('bank_id')
+    if request.GET.get('bank_id'):
         bank_id = request.GET.get('bank_id')
         bank_detail = Bank_Details.objects.get(bank_id=bank_id)     
         bank_detail.delete()

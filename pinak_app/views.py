@@ -478,7 +478,7 @@ def show_maintenance_types(request):
         "data": maintenance_types
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_maintenance_type(request):
     maintenance_type_id = request.data.get('maintenance_type_id')
     maintenance_type_name = request.data.get('maintenance_type_name')
@@ -549,13 +549,15 @@ def show_machine_maintenance(request):
         'machine_maintenance_types_id__maintenance_type_id',
         'machine_maintenance_types_id__maintenance_type_name'
     )
+    maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     return Response({
         "status": "success",
         "title": "Maintenance",
+        "maintenance_types_data": maintenance_types_data,
         "data": machine_maintenance
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_machine_maintenance(request):
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     if request.method == 'POST':
@@ -563,7 +565,9 @@ def insert_update_machine_maintenance(request):
         machine_maintenance_amount = request.data.get('machine_maintenance_amount')
         machine_maintenance_date = request.data.get('machine_maintenance_date')
         machine_maintenance_amount_paid = request.data.get('machine_maintenance_amount_paid')
+        
         machine_maintenance_amount_paid_by = request.data.get('machine_maintenance_amount_paid_by')
+        print("----------------------", machine_maintenance_amount_paid_by)
         machine_maintenance_person = request.data.get('machine_maintenance_person')
         machine_maintenance_contact = request.data.get('machine_maintenance_contact')
         machine_maintenance_driver = request.data.get('machine_maintenance_driver')
@@ -589,7 +593,6 @@ def insert_update_machine_maintenance(request):
             "machine_maintenance_types_id": maintenance_obj.machine_maintenance_types_id.maintenance_type_id,
         },
         'maintenance_types_data': maintenance_types_data
-
         })
 
     if request.method == 'POST':
@@ -622,6 +625,7 @@ def insert_update_machine_maintenance(request):
 
         return Response({
             "status": "success",
+            "title": "Machine Maintenance",
             "message": message,
             "data": {
                 "machine_maintenance_id": machine_maintenance.machine_maintenance_id,
@@ -635,7 +639,7 @@ def insert_update_machine_maintenance(request):
                 "machine_maintenance_details": machine_maintenance.machine_maintenance_details,
                 "machine_maintenance_types_id": machine_maintenance.machine_maintenance_types_id.maintenance_type_id,
             },
-            maintenance_types_data: 'maintenance_types_data'
+            'maintenance_types_data': maintenance_types_data
         })
     else:
         return Response({
@@ -679,32 +683,50 @@ def show_project_types(request):
         "data": project_types
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_project_type(request):
     project_type_id = request.data.get('project_type_id')
     project_type_name = request.data.get('project_type_name')
     project_type_details = request.data.get('project_type_details')
 
-    if project_type_id:
-        project_type = Project_Types.objects.get(project_type_id = project_type_id)
-        project_type.project_type_name = project_type_name
-        project_type.project_type_details = project_type_details
-        project_type.save()
-        message = "Project type updated successfully."
-    
-    else:
-        project_type = Project_Types.objects.create(project_type_id = project_type_id, project_type_name = project_type_name, project_type_details= project_type_details)
-        message = "Project type created successfully."
 
-    return Response({
+    if request.GET.get('getdata_id'):
+        project_type_obj = Project_Types.objects.get(project_type_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "project_type_id": project_type.project_type_id,
-            "project_type_name": project_type.project_type_name,
-            "project_type_details": project_type.project_type_details,
+            'project_type_id': project_type_obj.project_type_id,
+            'project_type_name': project_type_obj.project_type_name,
+            'project_type_details': project_type_obj.project_type_details
         }
-    })
+        })
+
+    if request.method == 'POST':
+        if project_type_id:
+            project_type = Project_Types.objects.get(project_type_id = project_type_id)
+            project_type.project_type_name = project_type_name
+            project_type.project_type_details = project_type_details
+            project_type.save()
+            message = "Project type updated successfully."
+        
+        else:
+            project_type = Project_Types.objects.create(project_type_name = project_type_name, project_type_details= project_type_details)
+            message = "Project type created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "project_type_id": project_type.project_type_id,
+                "project_type_name": project_type.project_type_name,
+                "project_type_details": project_type.project_type_details,
+            }
+        })
+    else:
+        return Response({
+            "status": "False"
+        })
 
 @api_view(['DELETE'])
 def delete_project_type(request):
@@ -743,71 +765,101 @@ def show_projects(request):
         'project_types_id__project_type_id',
         'project_types_id__project_type_name'
     )
+    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name', 'project_type_details')
     return Response({
         "status": "success",
         "title": "Project",
+        "project_types_data": project_types_data,
         "data": projects
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_project(request):
-    project_id = request.data.get('project_id')
-    project_name = request.data.get('project_name')
-    project_start_date = request.data.get('project_start_date')
-    project_end_date = request.data.get('project_end_date')
-    project_amount = request.data.get('project_amount')
-    project_location = request.data.get('project_location')
-    project_company_name = request.data.get('project_company_name')
-    project_person_name = request.data.get('project_person_name')
-    project_status = request.data.get('project_status')
-    project_types_id = request.data.get('project_types_id')
-
-    project_type_instance = Project_Types.objects.get(project_type_id=project_types_id)
-   
-
-    if project_id:
-        project = Project.objects.get(project_id=project_id)
-        project.project_name = project_name
-        project.project_start_date = project_start_date
-        project.project_end_date = project_end_date
-        project.project_amount = project_amount
-        project.project_location = project_location
-        project.project_company_name = project_company_name
-        project.project_person_name = project_person_name
-        project.project_status = project_status
-        project.project_types_id = project_type_instance
-        project.save()
-        message = "Project updated successfully."
-    else:
-        project = Project.objects.create(
-            project_name=project_name,
-            project_start_date=project_start_date,
-            project_end_date=project_end_date,
-            project_amount=project_amount,
-            project_location=project_location,
-            project_company_name=project_company_name,
-            project_person_name=project_person_name,
-            project_status=project_status,
-            project_types_id=project_type_instance
-        )
-        message = "Project created successfully."
-
-    return Response({
+    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name', 'project_type_details')
+    if request.method == 'POST':
+        project_id = request.data.get('project_id')
+        project_name = request.data.get('project_name')
+        project_start_date = request.data.get('project_start_date')
+        project_end_date = request.data.get('project_end_date')
+        project_amount = request.data.get('project_amount')
+        project_location = request.data.get('project_location')
+        project_company_name = request.data.get('project_company_name')
+        project_person_name = request.data.get('project_person_name')
+        project_status = request.data.get('project_status')
+        project_types_id = request.data.get('project_types_id')
+        project_type_instance = Project_Types.objects.get(project_type_id=project_types_id)
+    
+    if request.GET.get('getdata_id'):
+        project_obj = Project.objects.get(project_id = request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "project_id": project.project_id,
-            "project_name": project.project_name,
-            "project_start_date": project.project_start_date,
-            "project_end_date": project.project_end_date,
-            "project_amount": project.project_amount,
-            "project_location": project.project_location,
-            "project_company_name": project.project_company_name,
-            "project_person_name": project.project_person_name,
-            "project_status": project.project_status,
-            "project_types_id": project.project_types_id.project_type_id
-        }
-    })
+            'project_id': project_obj.project_id,
+            'project_name': project_obj.project_name,
+            'project_start_date': project_obj.project_start_date,
+            'project_end_date': project_obj.project_end_date,
+            'project_amount': project_obj.project_amount,
+            'project_location': project_obj.project_location,
+            'project_company_name': project_obj.project_company_name,
+            'project_person_name': project_obj.project_person_name,
+            'project_status': project_obj.project_status,
+            'project_types_id': project_obj.project_types_id.project_type_id,
+        },
+        'project_types_data': project_types_data
+        })
+
+    if request.method == 'POST':
+        if project_id:
+            project = Project.objects.get(project_id=project_id)
+            project.project_name = project_name
+            project.project_start_date = project_start_date
+            project.project_end_date = project_end_date
+            project.project_amount = project_amount
+            project.project_location = project_location
+            project.project_company_name = project_company_name
+            project.project_person_name = project_person_name
+            project.project_status = project_status
+            project.project_types_id = project_type_instance
+            project.save()
+            message = "Project updated successfully."
+        else:
+            project = Project.objects.create(
+                project_name=project_name,
+                project_start_date=project_start_date,
+                project_end_date=project_end_date,
+                project_amount=project_amount,
+                project_location=project_location,
+                project_company_name=project_company_name,
+                project_person_name=project_person_name,
+                project_status=project_status,
+                project_types_id=project_type_instance
+            )
+            message = "Project created successfully."
+
+        return Response({
+            "status": "success",
+            "title": "Projects",
+            "message": message,
+            "data": {
+                "project_id": project.project_id,
+                "project_name": project.project_name,
+                "project_start_date": project.project_start_date,
+                "project_end_date": project.project_end_date,
+                "project_amount": project.project_amount,
+                "project_location": project.project_location,
+                "project_company_name": project.project_company_name,
+                "project_person_name": project.project_person_name,
+                "project_status": project.project_status,
+                "project_types_id": project.project_types_id.project_type_id
+            },
+            'project_types_data': project_types_data
+        })
+    else:
+        return Response({
+            "status": "False"
+        })
+
 
 @api_view(['DELETE'])
 def delete_project(request):
@@ -843,34 +895,52 @@ def show_pay_types(request):
         "data": pay_types
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_pay_type(request):
     pay_type_id = request.data.get('pay_type_id')
     pay_type_name = request.data.get('pay_type_name')
     pay_type_date = request.data.get('pay_type_date')
 
-    if pay_type_id:
-        pay_type = Pay_Types.objects.get(pay_type_id=pay_type_id)
-        pay_type.pay_type_name = pay_type_name
-        pay_type.pay_type_date = pay_type_date
-        pay_type.save()
-        message = "Pay type updated successfully."
-    else:
-        pay_type = Pay_Types.objects.create(
-            pay_type_name=pay_type_name,
-            pay_type_date=pay_type_date
-        )
-        message = "Pay type created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        pay_type_obj = Pay_Types.objects.get(pay_type_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "pay_type_id": pay_type.pay_type_id,
-            "pay_type_name": pay_type.pay_type_name,
-            "pay_type_date": pay_type.pay_type_date
+            'pay_type_id': pay_type_obj.pay_type_id,
+            'pay_type_name': pay_type_obj.pay_type_name,
+            'pay_type_date': pay_type_obj.pay_type_date,
         }
-    })
+        })
+
+    if request.method == 'POST':
+        if pay_type_id:
+            pay_type = Pay_Types.objects.get(pay_type_id=pay_type_id)
+            pay_type.pay_type_name = pay_type_name
+            pay_type.pay_type_date = pay_type_date
+            pay_type.save()
+            message = "Pay type updated successfully."
+        else:
+            pay_type = Pay_Types.objects.create(
+                pay_type_name=pay_type_name,
+                pay_type_date=pay_type_date
+            )
+            message = "Pay type created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "pay_type_id": pay_type.pay_type_id,
+                "pay_type_name": pay_type.pay_type_name,
+                "pay_type_date": pay_type.pay_type_date
+            }
+        })
+    else:
+        return Response({
+            "status": "False"
+        })
+
 
 
 @api_view(['DELETE'])
@@ -909,30 +979,46 @@ def show_person_types(request):
     })
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_person_type(request):
     person_type_id = request.data.get('person_type_id')
     person_type_name = request.data.get('person_type_name')
 
-    if person_type_id:
-        person_type = Person_Type.objects.get(person_type_id=person_type_id)
-        person_type.person_type_name = person_type_name
-        person_type.save()
-        message = "Person type updated successfully."
-    else:
-        person_type = Person_Type.objects.create(
-            person_type_name=person_type_name
-        )
-        message = "Person type created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        person_type_obj = Person_Type.objects.get(person_type_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "person_type_id": person_type.person_type_id,
-            "person_type_name": person_type.person_type_name
+            'person_type_id': person_type_obj.person_type_id,
+            'person_type_name': person_type_obj.person_type_name,
         }
-    })
+        })
+    if request.method == 'POST':
+        if person_type_id:
+            person_type = Person_Type.objects.get(person_type_id=person_type_id)
+            person_type.person_type_name = person_type_name
+            person_type.save()
+            message = "Person type updated successfully."
+        else:
+            person_type = Person_Type.objects.create(
+                person_type_name=person_type_name
+            )
+            message = "Person type created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "person_type_id": person_type.person_type_id,
+                "person_type_name": person_type.person_type_name
+            }
+        })
+    else:
+        return Response({
+            "status": "False"
+        })
+
 
 @api_view(['DELETE'])
 def delete_person_type(request):
@@ -967,52 +1053,80 @@ def show_persons(request):
         'person_type_id__person_type_id',
         'person_type_id__person_type_name'
     )
+    person_types_data = Person_Type.objects.all().values('person_type_id', 'person_type_name')
     return Response({
         "status": "success",
         "title": "Person",
+        "person_types": person_types_data,
         "data": persons
     })
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_person(request):
-    person_id = request.data.get('person_id')
-    person_name = request.data.get('person_name')
-    person_contact_number = request.data.get('person_contact_number')
-    person_work_type = request.data.get('person_work_type')
-    person_type_id = request.data.get('person_type_id')
+    person_types_data = Person_Type.objects.all().values('person_type_id', 'person_type_name')
 
-    person_type_instance = Person_Type.objects.get(person_type_id=person_type_id)
+    if request.method == 'POST':
+        person_id = request.data.get('person_id')
+        person_name = request.data.get('person_name')
+        person_contact_number = request.data.get('person_contact_number')
+        person_work_type = request.data.get('person_work_type')
+        person_type_id = request.data.get('person_type_id')
+        person_type_instance = Person_Type.objects.get(person_type_id=person_type_id)
     
-    if person_id:
-        person = Person.objects.get(person_id=person_id)
-        person.person_name = person_name
-        person.person_contact_number = person_contact_number
-        person.person_work_type = person_work_type
-        person.person_type_id = person_type_instance
-        person.save()
-        message = "Person updated successfully."
-    else:
-        person = Person.objects.create(
-            person_name=person_name,
-            person_contact_number=person_contact_number,
-            person_work_type=person_work_type,
-            person_type_id=person_type_instance
-        )
-        message = "Person created successfully."
 
-    return Response({
+    if request.GET.get('getdata_id'):
+        person_obj = Person.objects.get(person_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "person_id": person.person_id,
-            "person_name": person.person_name,
-            "person_contact_number": person.person_contact_number,
-            "person_work_type": person.person_work_type,
-            "person_type_id": person.person_type_id.person_type_id
-        }
-    })
+            'person_id': person_obj.person_id,
+            'person_name': person_obj.person_name,
+            'person_contact_number': person_obj.person_contact_number,
+            'person_work_type': person_obj.person_work_type,
+            'person_type_id': person_obj.person_type_id.person_type_id,
+        },
+        'person_types': person_types_data
+        })
 
+
+    if request.method == 'POST':
+        if person_id:
+            person = Person.objects.get(person_id=person_id)
+            person.person_name = person_name
+            person.person_contact_number = person_contact_number
+            person.person_work_type = person_work_type
+            person.person_type_id = person_type_instance
+            person.save()
+            message = "Person updated successfully."
+        else:
+            person = Person.objects.create(
+                person_name=person_name,
+                person_contact_number=person_contact_number,
+                person_work_type=person_work_type,
+                person_type_id=person_type_instance
+            )
+            message = "Person created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "person_id": person.person_id,
+                "person_name": person.person_name,
+                "person_contact_number": person.person_contact_number,
+                "person_work_type": person.person_work_type,
+                "person_type_id": person.person_type_id.person_type_id
+            },
+            'person_types': person_types_data
+        })
+
+    else:
+        return Response({
+            "status": "False"
+        })
+        
 
 @api_view(['DELETE'])
 def delete_person(request):
@@ -1050,35 +1164,52 @@ def show_work_types(request):
         "data": work_types
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_work_type(request):
     work_type_id = request.data.get('work_type_id')
     work_type_name = request.data.get('work_type_name')
     work_type_details = request.data.get('work_type_details')
 
-    if work_type_id:
-        work_type = Work_Types.objects.get(work_type_id=work_type_id)
-        work_type.work_type_name = work_type_name
-        work_type.work_type_details = work_type_details
-        work_type.save()
-        message = "Work type updated successfully."
-        
-    else:
-        work_type = Work_Types.objects.create(
-            work_type_name=work_type_name,
-            work_type_details=work_type_details
-        )
-        message = "Work type created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        work_type_obj = Work_Types.objects.get(work_type_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "work_type_id": work_type.work_type_id,
-            "work_type_name": work_type.work_type_name,
-            "work_type_details": work_type.work_type_details
+            'work_type_id': work_type_obj.work_type_id,
+            'work_type_name': work_type_obj.work_type_name,
+            'work_type_details': work_type_obj.work_type_details,    
         }
-    })
+        })
+    
+    if request.method == 'POST':
+        if work_type_id:
+            work_type = Work_Types.objects.get(work_type_id=work_type_id)
+            work_type.work_type_name = work_type_name
+            work_type.work_type_details = work_type_details
+            work_type.save()
+            message = "Work type updated successfully."
+            
+        else:
+            work_type = Work_Types.objects.create(
+                work_type_name=work_type_name,
+                work_type_details=work_type_details
+            )
+            message = "Work type created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "work_type_id": work_type.work_type_id,
+                "work_type_name": work_type.work_type_name,
+                "work_type_details": work_type.work_type_details
+            }
+        })
+    else:
+        return Response({
+            'status': 'False'
+        })
 
 @api_view(['DELETE'])
 def delete_work_type(request):
@@ -1117,31 +1248,48 @@ def show_material_types(request):
     })
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_material_type(request):
     material_type_id = request.data.get('material_type_id')
     material_type_name = request.data.get('material_type_name')
 
-    if material_type_id:
-        material_type = Material_Types.objects.get(material_type_id=material_type_id)
-        material_type.material_type_name = material_type_name
-        material_type.save()
-        message = "Material type updated successfully."
-     
-    else:
-        material_type = Material_Types.objects.create(
-            material_type_name=material_type_name
-        )
-        message = "Material type created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        material_type_obj = Material_Types.objects.get(material_type_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "material_type_id": material_type.material_type_id,
-            "material_type_name": material_type.material_type_name
+            'material_type_id': material_type_obj.material_type_id,
+            'material_type_name': material_type_obj.material_type_name,               
         }
-    })
+        })
+
+    if request.method == 'POST':
+        if material_type_id:
+            material_type = Material_Types.objects.get(material_type_id=material_type_id)
+            material_type.material_type_name = material_type_name
+            material_type.save()
+            message = "Material type updated successfully."
+        
+        else:
+            material_type = Material_Types.objects.create(
+                material_type_name=material_type_name
+            )
+            message = "Material type created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "material_type_id": material_type.material_type_id,
+                "material_type_name": material_type.material_type_name
+            }
+        })
+    else:
+        return Response({
+            'status': 'False'
+        })
+
 
 @api_view(['DELETE'])
 def delete_material_type(request):
@@ -1181,78 +1329,117 @@ def show_materials(request):
         'material_desc',
         'project_id__project_name'
     )
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_types_data = Project.objects.all().values('project_id', 'project_name')
     return Response({
         "status": "success",
         "title": "Materials",
+        'material_types_data': material_types_data,
+        'work_types_data': work_types_data,
+        'project_types_data': project_types_data,
         "data": materials
     })
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_material(request):
-    material_id = request.data.get('material_id')
-    material_owner_name = request.data.get('material_owner_name')
-    material_used_date = request.data.get('material_used_date')
-    material_type_id = request.data.get('material_type_id')
-    work_type_id = request.data.get('work_type_id')
-    material_work_number = request.data.get('material_work_number')
-    material_work_amount = request.data.get('material_work_amount')
-    material_work_total_amount = request.data.get('material_work_total_amount')
-    total_material_amount = request.data.get('total_material_amount')
-    material_desc = request.data.get('material_desc')
-    project_id = request.data.get('project_id')
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_types_data = Project.objects.all().values('project_id', 'project_name')
 
-    material_type_instance = Material_Types.objects.get(material_type_id=material_type_id)
-    work_type_instance = Work_Types.objects.get(work_type_id=work_type_id)
-    project_instance = Project.objects.get(project_id=project_id)
-   
-
-    if material_id:
-        material = Materials.objects.get(material_id=material_id)
-        material.material_owner_name = material_owner_name
-        material.material_used_date = material_used_date
-        material.material_type_id = material_type_instance
-        material.work_type_id = work_type_instance
-        material.material_work_number = material_work_number
-        material.material_work_amount = material_work_amount
-        material.material_work_total_amount = material_work_total_amount
-        material.total_material_amount = total_material_amount
-        material.material_desc = material_desc
-        material.project_id = project_instance
-        material.save()
-        message = "Material updated successfully."
-        
-    else:
-        material = Materials.objects.create(
-            material_owner_name=material_owner_name,
-            material_used_date=material_used_date,
-            material_type_id=material_type_instance,
-            work_type_id=work_type_instance,
-            material_work_number=material_work_number,
-            material_work_amount=material_work_amount,
-            material_work_total_amount=material_work_total_amount,
-            total_material_amount=total_material_amount,
-            material_desc=material_desc,
-            project_id=project_instance
-        )
-        message = "Material created successfully."
-
-    return Response({
+    if request.method == 'POST':
+        material_id = request.data.get('material_id')
+        material_owner_name = request.data.get('material_owner_name')
+        material_used_date = request.data.get('material_used_date')
+        material_type_id = request.data.get('material_type_id')
+        work_type_id = request.data.get('work_type_id')
+        material_work_number = request.data.get('material_work_number')
+        material_work_amount = request.data.get('material_work_amount')
+        material_work_total_amount = request.data.get('material_work_total_amount')
+        total_material_amount = request.data.get('total_material_amount')
+        material_desc = request.data.get('material_desc')
+        project_id = request.data.get('project_id')
+        material_type_instance = Material_Types.objects.get(material_type_id=material_type_id)
+        work_type_instance = Work_Types.objects.get(work_type_id=work_type_id)
+        project_instance = Project.objects.get(project_id=project_id)
+    
+    if request.GET.get('getdata_id'):
+        material_obj = Materials.objects.get(material_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "material_id": material.material_id,
-            "material_owner_name": material.material_owner_name,
-            "material_used_date": material.material_used_date,
-            "material_type_id": material.material_type_id.material_type_id,
-            "work_type_id": material.work_type_id.work_type_id,
-            "material_work_number": material.material_work_number,
-            "material_work_amount": material.material_work_amount,
-            "material_work_total_amount": material.material_work_total_amount,
-            "total_material_amount": material.total_material_amount,
-            "material_desc": material.material_desc,
-            "project_id": material.project_id.project_id
-        }
-    })
+            'material_id': material_obj.material_id,
+            'material_owner_name': material_obj.material_owner_name,               
+            'material_used_date': material_obj.material_used_date,               
+            'material_type_id': material_obj.material_type_id.material_type_id,               
+            'work_type_id': material_obj.work_type_id.work_type_id,               
+            'material_work_number': material_obj.material_work_number,               
+            'material_work_amount': material_obj.material_work_amount,               
+            'material_work_total_amount': material_obj.material_work_total_amount,               
+            'total_material_amount': material_obj.total_material_amount,               
+            'material_desc': material_obj.material_desc,               
+            'project_id': material_obj.project_id.project_id,               
+        },
+        'material_types_data': material_types_data,
+        'work_types_data': work_types_data,
+        'project_types_data': project_types_data
+        })
+
+    if request.method == 'POST':
+        if material_id:
+            material = Materials.objects.get(material_id=material_id)
+            material.material_owner_name = material_owner_name
+            material.material_used_date = material_used_date
+            material.material_type_id = material_type_instance
+            material.work_type_id = work_type_instance
+            material.material_work_number = material_work_number
+            material.material_work_amount = material_work_amount
+            material.material_work_total_amount = material_work_total_amount
+            material.total_material_amount = total_material_amount
+            material.material_desc = material_desc
+            material.project_id = project_instance
+            material.save()
+            message = "Material updated successfully."
+            
+        else:
+            material = Materials.objects.create(
+                material_owner_name=material_owner_name,
+                material_used_date=material_used_date,
+                material_type_id=material_type_instance,
+                work_type_id=work_type_instance,
+                material_work_number=material_work_number,
+                material_work_amount=material_work_amount,
+                material_work_total_amount=material_work_total_amount,
+                total_material_amount=total_material_amount,
+                material_desc=material_desc,
+                project_id=project_instance
+            )
+            message = "Material created successfully."
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "material_id": material.material_id,
+                "material_owner_name": material.material_owner_name,
+                "material_used_date": material.material_used_date,
+                "material_type_id": material.material_type_id.material_type_id,
+                "work_type_id": material.work_type_id.work_type_id,
+                "material_work_number": material.material_work_number,
+                "material_work_amount": material.material_work_amount,
+                "material_work_total_amount": material.material_work_total_amount,
+                "total_material_amount": material.total_material_amount,
+                "material_desc": material.material_desc,
+                "project_id": material.project_id.project_id
+            },
+            'material_types_data': material_types_data,
+            'work_types_data': work_types_data,
+            'project_types_data': project_types_data
+        })
+    else:
+        return Response({
+            'status': 'False'
+        })
 
 @api_view(['DELETE'])
 def delete_material(request):
@@ -1299,109 +1486,174 @@ def show_person_work_machine(request):
         'pwm_total_amount',
         'pwm_work_desc'
     )
+    working_types_data = Working_Machines.objects.all().values('working_machine_id', 'working_machine_name')
+    person_types_data = Person_Type.objects.all().values('person_type_id', 'person_type_name')
+    person_data = Person.objects.all().values('person_id', 'person_name')
+    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_data = Project.objects.all().values('project_id', 'project_name')
     return Response({
         "status": "success",
         "title": "Person",
-        "data": person_work_machine
+        'working_types_data': working_types_data,
+        'person_types_data': person_types_data,
+        'person_data': person_data,
+        'work_types_data': work_types_data,
+        'project_types_data': project_types_data,
+        'project_data': project_data,
+        "data": person_work_machine,
     })
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_person_work_machine(request):
-    pwm_id = request.data.get('pwm_id')
-    pwm_machine_name = request.data.get('pwm_machine_name')
-    pwm_machine_owner_name = request.data.get('pwm_machine_owner_name')
-    pwm_machine_owner_number = request.data.get('pwm_machine_owner_number')
-    working_machine_id = request.data.get('working_machine_id')
-    pwm_person_joining_date = request.data.get('pwm_person_joining_date')
-    pwm_person_contact_number = request.data.get('pwm_person_contact_number')
-    pwm_person_payment_by = request.data.get('pwm_person_payment_by')
-    pwm_person_payment_desc = request.data.get('pwm_person_payment_desc')
-    person_type_id = request.data.get('person_type_id')
-    person_id = request.data.get('person_id')
-    project_type_id = request.data.get('project_type_id')
-    project_id = request.data.get('project_id')
-    work_types_id = request.data.get('work_types_id')
-    pwm_work_number = request.data.get('pwm_work_number')
-    pwm_work_amount = request.data.get('pwm_work_amount')
-    pwm_total_amount = request.data.get('pwm_total_amount')
-    pwm_work_desc = request.data.get('pwm_work_desc')
+    working_types_data = Working_Machines.objects.all().values('working_machine_id', 'working_machine_name')
+    person_types_data = Person_Type.objects.all().values('person_type_id', 'person_type_name')
+    person_data = Person.objects.all().values('person_id', 'person_name')
+    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_data = Project.objects.all().values('project_id', 'project_name')
 
-    working_machine_instance = Working_Machines.objects.get(pk=working_machine_id)
-    person_type_instance = Person_Type.objects.get(pk=person_type_id)
-    person_instance = Person.objects.get(pk=person_id)
-    project_type_instance = Project_Types.objects.get(pk=project_type_id)
-    project_instance = Project.objects.get(pk=project_id)
-    work_type_instance = Work_Types.objects.get(pk=work_types_id)
+    if request.method == 'POST':
+        pwm_id = request.data.get('pwm_id')
+        pwm_machine_name = request.data.get('pwm_machine_name')
+        pwm_machine_owner_name = request.data.get('pwm_machine_owner_name')
+        pwm_machine_owner_number = request.data.get('pwm_machine_owner_number')
+        working_machine_id = request.data.get('working_machine_id')
+        pwm_person_joining_date = request.data.get('pwm_person_joining_date')
+        pwm_person_contact_number = request.data.get('pwm_person_contact_number')
+        pwm_person_payment_by = request.data.get('pwm_person_payment_by')
+        pwm_person_payment_desc = request.data.get('pwm_person_payment_desc')
+        person_type_id = request.data.get('person_type_id')
+        person_id = request.data.get('person_id')
+        project_type_id = request.data.get('project_type_id')
+        project_id = request.data.get('project_id')
+        work_types_id = request.data.get('work_types_id')
+        pwm_work_number = request.data.get('pwm_work_number')
+        pwm_work_amount = request.data.get('pwm_work_amount')
+        pwm_total_amount = request.data.get('pwm_total_amount')
+        pwm_work_desc = request.data.get('pwm_work_desc')
 
-    if pwm_id:
-        pwm = Person_Work_Machine.objects.get(pwm_id=pwm_id)
-        pwm.pwm_machine_name = pwm_machine_name
-        pwm.pwm_machine_owner_name = pwm_machine_owner_name
-        pwm.pwm_machine_owner_number = pwm_machine_owner_number
-        pwm.working_machine_id = working_machine_instance
-        pwm.pwm_person_joining_date = pwm_person_joining_date
-        pwm.pwm_person_contact_number = pwm_person_contact_number
-        pwm.pwm_person_payment_by = pwm_person_payment_by
-        pwm.pwm_person_payment_desc = pwm_person_payment_desc
-        pwm.person_type_id = person_type_instance
-        pwm.person_id = person_instance
-        pwm.project_type_id = project_type_instance
-        pwm.project_id = project_instance
-        pwm.work_types_id = work_type_instance
-        pwm.pwm_work_number = pwm_work_number
-        pwm.pwm_work_amount = pwm_work_amount
-        pwm.pwm_total_amount = pwm_total_amount
-        pwm.pwm_work_desc = pwm_work_desc
-        pwm.save()
-        message = "Person Work Machine updated successfully."
+        working_machine_instance = Working_Machines.objects.get(pk=working_machine_id)
+        person_type_instance = Person_Type.objects.get(pk=person_type_id)
+        person_instance = Person.objects.get(pk=person_id)
+        project_type_instance = Project_Types.objects.get(pk=project_type_id)
+        project_instance = Project.objects.get(pk=project_id)
+        work_type_instance = Work_Types.objects.get(pk=work_types_id)
 
-    else:
-        pwm = Person_Work_Machine.objects.create(
-            pwm_machine_name=pwm_machine_name,
-            pwm_machine_owner_name=pwm_machine_owner_name,
-            pwm_machine_owner_number=pwm_machine_owner_number,
-            working_machine_id=working_machine_instance,
-            pwm_person_joining_date=pwm_person_joining_date,
-            pwm_person_contact_number=pwm_person_contact_number,
-            pwm_person_payment_by=pwm_person_payment_by,
-            pwm_person_payment_desc=pwm_person_payment_desc,
-            person_type_id=person_type_instance,
-            person_id=person_instance,
-            project_type_id=project_type_instance,
-            project_id=project_instance,
-            work_types_id=work_type_instance,
-            pwm_work_number=pwm_work_number,
-            pwm_work_amount=pwm_work_amount,
-            pwm_total_amount=pwm_total_amount,
-            pwm_work_desc=pwm_work_desc
-        )
-        message = "Person Work Machine created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        person_work_machine_obj = Person_Work_Machine.objects.get(pwm_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "pwm_id": pwm.pwm_id,
-            "pwm_machine_name": pwm.pwm_machine_name,
-            "pwm_machine_owner_name": pwm.pwm_machine_owner_name,
-            "pwm_machine_owner_number": pwm.pwm_machine_owner_number,
-            "working_machine_id": pwm.working_machine_id.working_machine_id,
-            "pwm_person_joining_date": pwm.pwm_person_joining_date,
-            "pwm_person_contact_number": pwm.pwm_person_contact_number,
-            "pwm_person_payment_by": pwm.pwm_person_payment_by,
-            "pwm_person_payment_desc": pwm.pwm_person_payment_desc,
-            "person_type_id": pwm.person_type_id.person_type_id,
-            "person_id": pwm.person_id.person_id,
-            "project_type_id": pwm.project_type_id.project_type_id,
-            "project_id": pwm.project_id.project_id,
-            "work_types_id": pwm.work_types_id.work_type_id,
-            "pwm_work_number": pwm.pwm_work_number,
-            "pwm_work_amount": pwm.pwm_work_amount,
-            "pwm_total_amount": pwm.pwm_total_amount,
-            "pwm_work_desc": pwm.pwm_work_desc
-        }
-    })
+            'pwm_id': person_work_machine_obj.pwm_id,
+            'pwm_machine_name': person_work_machine_obj.pwm_machine_name,
+            'pwm_machine_owner_name': person_work_machine_obj.pwm_machine_owner_name,
+            'pwm_machine_owner_number': person_work_machine_obj.pwm_machine_owner_number,
+            'working_machine_id': person_work_machine_obj.working_machine_id.working_machine_id,
+            'pwm_person_joining_date': person_work_machine_obj.pwm_person_joining_date,
+            'pwm_person_contact_number': person_work_machine_obj.pwm_person_contact_number,
+            'pwm_person_payment_by': person_work_machine_obj.pwm_person_payment_by,
+            'pwm_person_payment_desc': person_work_machine_obj.pwm_person_payment_desc,
+            'person_type_id': person_work_machine_obj.person_type_id.person_type_id,
+            'person_id': person_work_machine_obj.person_id.person_id,
+            'project_type_id': person_work_machine_obj.project_type_id.project_type_id,
+            'project_id': person_work_machine_obj.project_id.project_id,
+            'work_types_id': person_work_machine_obj.work_types_id.work_type_id,
+            'pwm_work_number': person_work_machine_obj.pwm_work_number,
+            'pwm_work_amount': person_work_machine_obj.pwm_work_amount,
+            'pwm_total_amount': person_work_machine_obj.pwm_total_amount,
+            'pwm_work_desc': person_work_machine_obj.pwm_work_desc,  
+        },
+        'working_types_data': working_types_data,
+        'person_types_data': person_types_data,
+        'person_data': person_data,
+        'work_types_data': work_types_data,
+        'project_types_data': project_types_data,
+        'project_data': project_data,
+        })
+
+
+    if request.method == 'POST':
+        if pwm_id:
+            pwm = Person_Work_Machine.objects.get(pwm_id=pwm_id)
+            pwm.pwm_machine_name = pwm_machine_name
+            pwm.pwm_machine_owner_name = pwm_machine_owner_name
+            pwm.pwm_machine_owner_number = pwm_machine_owner_number
+            pwm.working_machine_id = working_machine_instance
+            pwm.pwm_person_joining_date = pwm_person_joining_date
+            pwm.pwm_person_contact_number = pwm_person_contact_number
+            pwm.pwm_person_payment_by = pwm_person_payment_by
+            pwm.pwm_person_payment_desc = pwm_person_payment_desc
+            pwm.person_type_id = person_type_instance
+            pwm.person_id = person_instance
+            pwm.project_type_id = project_type_instance
+            pwm.project_id = project_instance
+            pwm.work_types_id = work_type_instance
+            pwm.pwm_work_number = pwm_work_number
+            pwm.pwm_work_amount = pwm_work_amount
+            pwm.pwm_total_amount = pwm_total_amount
+            pwm.pwm_work_desc = pwm_work_desc
+            pwm.save()
+            message = "Person Work Machine updated successfully."
+
+        else:
+            pwm = Person_Work_Machine.objects.create(
+                pwm_machine_name=pwm_machine_name,
+                pwm_machine_owner_name=pwm_machine_owner_name,
+                pwm_machine_owner_number=pwm_machine_owner_number,
+                working_machine_id=working_machine_instance,
+                pwm_person_joining_date=pwm_person_joining_date,
+                pwm_person_contact_number=pwm_person_contact_number,
+                pwm_person_payment_by=pwm_person_payment_by,
+                pwm_person_payment_desc=pwm_person_payment_desc,
+                person_type_id=person_type_instance,
+                person_id=person_instance,
+                project_type_id=project_type_instance,
+                project_id=project_instance,
+                work_types_id=work_type_instance,
+                pwm_work_number=pwm_work_number,
+                pwm_work_amount=pwm_work_amount,
+                pwm_total_amount=pwm_total_amount,
+                pwm_work_desc=pwm_work_desc
+            )
+            message = "Person Work Machine created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "pwm_id": pwm.pwm_id,
+                "pwm_machine_name": pwm.pwm_machine_name,
+                "pwm_machine_owner_name": pwm.pwm_machine_owner_name,
+                "pwm_machine_owner_number": pwm.pwm_machine_owner_number,
+                "working_machine_id": pwm.working_machine_id.working_machine_id,
+                "pwm_person_joining_date": pwm.pwm_person_joining_date,
+                "pwm_person_contact_number": pwm.pwm_person_contact_number,
+                "pwm_person_payment_by": pwm.pwm_person_payment_by,
+                "pwm_person_payment_desc": pwm.pwm_person_payment_desc,
+                "person_type_id": pwm.person_type_id.person_type_id,
+                "person_id": pwm.person_id.person_id,
+                "project_type_id": pwm.project_type_id.project_type_id,
+                "project_id": pwm.project_id.project_id,
+                "work_types_id": pwm.work_types_id.work_type_id,
+                "pwm_work_number": pwm.pwm_work_number,
+                "pwm_work_amount": pwm.pwm_work_amount,
+                "pwm_total_amount": pwm.pwm_total_amount,
+                "pwm_work_desc": pwm.pwm_work_desc
+            },
+            'working_types_data': working_types_data,
+            'person_types_data': person_types_data,
+            'person_data': person_data,
+            'work_types_data': work_types_data,
+            'project_types_data': project_types_data,
+            'project_data': project_data,
+        })
+    else:
+        return Response({
+            'status': 'False'
+        })
 
 @api_view(['DELETE'])
 def delete_person_work_machine(request):
@@ -1439,30 +1691,46 @@ def show_document_types(request):
     })
 
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def insert_update_document_type(request):
     document_type_id = request.data.get('document_type_id')
     document_type_name = request.data.get('document_type_name')
 
-    if document_type_id:
-            document_type = Document_Types.objects.get(document_type_id=document_type_id)
-            document_type.document_type_name = document_type_name
-            document_type.save()
-            message = "Document type updated successfully."
-    else:
-        document_type = Document_Types.objects.create(
-            document_type_name=document_type_name
-        )
-        message = "Document type created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        document_type_obj = Document_Types.objects.get(document_type_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "document_type_id": document_type.document_type_id,
-            "document_type_name": document_type.document_type_name
+            'document_type_id': document_type_obj.document_type_id,
+            'document_type_name': document_type_obj.document_type_name,               
         }
-    })
+        })
+
+    if request.method == 'POST':
+        if document_type_id:
+                document_type = Document_Types.objects.get(document_type_id=document_type_id)
+                document_type.document_type_name = document_type_name
+                document_type.save()
+                message = "Document type updated successfully."
+        else:
+            document_type = Document_Types.objects.create(
+                document_type_name=document_type_name
+            )
+            message = "Document type created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "document_type_id": document_type.document_type_id,
+                "document_type_name": document_type.document_type_name
+            }
+        })
+    else:
+        return Response({
+            'status': 'False'
+        })
 
 @api_view(['DELETE'])
 def delete_document_type(request):
@@ -1507,46 +1775,68 @@ def show_documents(request):
 
 @api_view(['POST'])
 def insert_update_document(request):
-    document_id = request.data.get('document_id')
-    document_name = request.data.get('document_name')
-    document_unique_code = request.data.get('document_unique_code')
-    document_type_id = request.data.get('document_type_id')
-    document_file = request.FILES.get('document_file')
-
-    document_type = Document_Types.objects.get(document_type_id=document_type_id)
+    document_types_data = Document_Types.objects.all().values('document_type_id', 'document_type_name')
+    if request.method == 'POST':
+        document_id = request.data.get('document_id')
+        document_name = request.data.get('document_name')
+        document_unique_code = request.data.get('document_unique_code')
+        document_type_id = request.data.get('document_type_id')
+        document_file = request.FILES.get('document_file')
+        document_type = Document_Types.objects.get(document_type_id=document_type_id)
    
-
-    if document_id:
-            document = Documents.objects.get(document_id=document_id)
-            document.document_name = document_name
-            document.document_unique_code = document_unique_code
-            document.document_type_id = document_type
-            if document_file:
-                document.document_file = document_file
-            document.save()
-            message = "Document updated successfully."
-    else:
-        document = Documents.objects.create(
-            document_name=document_name,
-            document_unique_code=document_unique_code,
-            document_type_id=document_type,
-            document_file=document_file
-        )
-        message = "Document created successfully."
-
-    return Response({
+    if request.GET.get('getdata_id'):
+        document_obj = Documents.objects.get(document_id=request.GET.get('getdata_id'))
+        return Response({
         "status": "success",
-        "message": message,
+        "message": 'Data Fetched Successfully',
         "data": {
-            "document_id": document.document_id,
-            "document_name": document.document_name,
-            "document_date": document.document_date,
-            "document_unique_code": document.document_unique_code,
-            "document_file": document.document_file.url if document.document_file else None,
-            "document_type_id": document.document_type_id.document_type_id,
-            "document_type_name": document.document_type_id.document_type_name
-        }
-    })
+            'document_id': document_obj.document_id,
+            'document_name': document_obj.document_name,               
+            'document_date': document_obj.document_date,               
+            'document_unique_code': document_obj.document_unique_code,              
+            'document_file': document_obj.document_file,              
+            'document_type_id': document_obj.document_type_id,              
+        },
+        'document_types_data': document_types_data
+        })
+    
+    if request.method == 'POST':
+        if document_id:
+                document = Documents.objects.get(document_id=document_id)
+                document.document_name = document_name
+                document.document_unique_code = document_unique_code
+                document.document_type_id = document_type
+                if document_file:
+                    document.document_file = document_file
+                document.save()
+                message = "Document updated successfully."
+        else:
+            document = Documents.objects.create(
+                document_name=document_name,
+                document_unique_code=document_unique_code,
+                document_type_id=document_type,
+                document_file=document_file
+            )
+            message = "Document created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "document_id": document.document_id,
+                "document_name": document.document_name,
+                "document_date": document.document_date,
+                "document_unique_code": document.document_unique_code,
+                "document_file": document.document_file.url if document.document_file else None,
+                "document_type_id": document.document_type_id.document_type_id,
+                "document_type_name": document.document_type_id.document_type_name
+            },
+            'document_types_data': document_types_data
+        })
+    else:
+        return Response({
+            'status': 'False'
+        })
 
 
 @api_view(['DELETE'])

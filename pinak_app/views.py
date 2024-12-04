@@ -126,14 +126,21 @@ def insert_update_bank_detail(request):
 
 @api_view(['DELETE'])
 def delete_bank_detail(request):
-    bank_id = request.data.get('bank_id')
-    bank_detail = Bank_Details.objects.get(bank_id=bank_id)     
-    bank_detail.delete()
-        
-    return Response({
-        "status": "success",
-        "message": "Bank details deleted successfully."
-    })
+    if request.GET.get('bank_id')
+        bank_id = request.GET.get('bank_id')
+        bank_detail = Bank_Details.objects.get(bank_id=bank_id)     
+        bank_detail.delete()
+            
+        return Response({
+            "status": "success",
+            "message": "Bank details deleted successfully."
+        })
+    else:
+        return Response({
+            "status": "Error",
+            "message": "Something went wrong",
+        })
+
 
 
 @api_view(['GET'])
@@ -185,14 +192,20 @@ def insert_update_machine_type(request):
 
 @api_view(['DELETE'])
 def delete_machine_type(request):
-    machine_type_id = request.data.get('machine_type_id')
-    machine_type = Machine_Types.objects.get(machine_type_id=machine_type_id)
-    machine_type.delete()
+    if request.GET.get('machine_type_id'):
+        machine_type_id = request.GET.get('machine_type_id')
+        machine_type = Machine_Types.objects.get(machine_type_id=machine_type_id)
+        machine_type.delete()
 
-    return Response({
-        "status": "success",
-         "message": "Machine type deleted successfully."
-    })
+        return Response({
+            "status": "success",
+            "message": "Machine type deleted successfully."
+        })
+    else:
+        return Response({
+            "status": "Error",
+            "message": "Something went wrong",
+        })
 
 @api_view(['GET'])
 def show_company_machines(request):
@@ -303,26 +316,33 @@ def insert_update_company_machine(request):
 
 @api_view(['DELETE'])
 def delete_company_machine(request):
-    machine_id = request.data.get('machine_id')
-    if not machine_id:
-        return Response({
-            "status": "error",
-            "message": "No machine ID provided"
-        }, status=400)
-    try:
-        machine = Company_Machines.objects.get(machine_id=machine_id)
-        machine.delete()
+    if request.data.get('machine_type_id'):
+        machine_id = request.GET.get('machine_id')
+        if not machine_id:
+            return Response({
+                "status": "error",
+                "message": "No machine ID provided"
+            }, status=400)
+        try:
+            machine = Company_Machines.objects.get(machine_id=machine_id)
+            machine.delete()
 
+            return Response({
+                "status": "success",
+                "message": "Machine deleted successfully."
+            })
+
+        except Company_Machines.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Machine with the provided ID not found."
+            }, status=404)
+    else:
         return Response({
-            "status": "success",
-            "message": "Machine deleted successfully."
+            "status": "Error",
+            "message": "Something went wrong",
         })
 
-    except Company_Machines.DoesNotExist:
-        return Response({
-            "status": "error",
-            "message": "Machine with the provided ID not found."
-        }, status=404)
     
 @api_view(['GET'])
 def show_working_machines(request):
@@ -446,8 +466,7 @@ def insert_update_working_machine(request):
 
 @api_view(['DELETE'])
 def delete_working_machine(request):
-    working_machine_id = request.data.get('working_machine_id')
-
+    working_machine_id = request.GET.get('working_machine_id')
     if not working_machine_id:
         return Response({
             "status": "error",
@@ -522,7 +541,7 @@ def insert_update_maintenance_type(request):
 
 @api_view(['DELETE'])
 def delete_maintenance_type(request):
-    maintenance_type_id = request.data.get('maintenance_type_id')
+    maintenance_type_id = request.GET.get('maintenance_type_id')
     if maintenance_type_id:
         try:
             maintenance_type = Maintenance_Types.objects.get(maintenance_type_id=maintenance_type_id)
@@ -648,7 +667,7 @@ def insert_update_machine_maintenance(request):
 
 @api_view(['DELETE'])
 def delete_machine_maintenance(request):
-    machine_maintenance_id = request.data.get('machine_maintenance_id')
+    machine_maintenance_id = request.GET.get('machine_maintenance_id')
 
     if not machine_maintenance_id:
         return Response({
@@ -730,7 +749,7 @@ def insert_update_project_type(request):
 
 @api_view(['DELETE'])
 def delete_project_type(request):
-    project_type_id = request.data.get('project_type_id')
+    project_type_id = request.GET.get('project_type_id')
     if not project_type_id:
         return Response({
             "status": "error",
@@ -863,7 +882,7 @@ def insert_update_project(request):
 
 @api_view(['DELETE'])
 def delete_project(request):
-    project_id = request.data.get('project_id')
+    project_id = request.GET.get('project_id')
     if not project_id:
         return Response({
             "status": "error",
@@ -945,7 +964,7 @@ def insert_update_pay_type(request):
 
 @api_view(['DELETE'])
 def delete_pay_type(request):
-    pay_type_id = request.data.get('pay_type_id')
+    pay_type_id = request.GET.get('pay_type_id')
 
     if not pay_type_id:
         return Response({
@@ -1022,7 +1041,7 @@ def insert_update_person_type(request):
 
 @api_view(['DELETE'])
 def delete_person_type(request):
-    person_type_id = request.data.get('person_type_id')
+    person_type_id = request.GET.get('person_type_id')
 
     if not person_type_id:
         return Response({
@@ -1130,7 +1149,7 @@ def insert_update_person(request):
 
 @api_view(['DELETE'])
 def delete_person(request):
-    person_id = request.data.get('person_id')
+    person_id = request.GET.get('person_id')
 
     if not person_id:
         return Response({
@@ -1213,7 +1232,7 @@ def insert_update_work_type(request):
 
 @api_view(['DELETE'])
 def delete_work_type(request):
-    work_type_id = request.data.get('work_type_id')
+    work_type_id = request.GET.get('work_type_id')
 
     if not work_type_id:
         return Response({
@@ -1293,7 +1312,7 @@ def insert_update_material_type(request):
 
 @api_view(['DELETE'])
 def delete_material_type(request):
-    material_type_id = request.data.get('material_type_id')
+    material_type_id = request.GET.get('material_type_id')
 
     if not material_type_id:
         return Response({
@@ -1443,7 +1462,7 @@ def insert_update_material(request):
 
 @api_view(['DELETE'])
 def delete_material(request):
-    material_id = request.data.get('material_id')
+    material_id = request.GET.get('material_id')
 
     if not material_id:
         return Response({
@@ -1657,7 +1676,7 @@ def insert_update_person_work_machine(request):
 
 @api_view(['DELETE'])
 def delete_person_work_machine(request):
-    pwm_id = request.data.get('pwm_id')
+    pwm_id = request.GET.get('pwm_id')
 
     if not pwm_id:
         return Response({
@@ -1734,7 +1753,7 @@ def insert_update_document_type(request):
 
 @api_view(['DELETE'])
 def delete_document_type(request):
-    document_type_id = request.data.get('document_type_id')
+    document_type_id = request.GET.get('document_type_id')
 
     if not document_type_id:
         return Response({
@@ -1841,7 +1860,7 @@ def insert_update_document(request):
 
 @api_view(['DELETE'])
 def delete_document(request):
-    document_id = request.data.get('document_id')
+    document_id = request.GET.get('document_id')
 
     if not document_id:
         return Response({

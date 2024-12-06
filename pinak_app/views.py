@@ -762,79 +762,122 @@ def show_bank_details(request):
         'bank_account_holder',
         'bank_initial_amount',
         'bank_open_closed',
-        'person_id',
         'person_id__person_name',
         'person_id__person_contact_number',
-        'person_id__person_types_for_project',
-        'person_id__person_type_id__person_type_name'
+    )
+
+    persons = Person.objects.all().values(
+        'person_id',
+        'person_name'
     )
 
     return Response({
         "status": "success",
         "title": "Bank",
+        "persons": persons,
         "data": bank_details_data
     })
 
-@api_view(['POST','GET'])
+@api_view(['POST', 'GET'])
 def insert_update_bank_detail(request):
-    bank_id = request.data.get('bank_id')
-    bank_name = request.data.get('bank_name')
-    bank_branch = request.data.get('bank_branch')
-    bank_account_number = request.data.get('bank_account_number')
-    bank_ifsc_code = request.data.get('bank_ifsc_code')
-    bank_account_holder = request.data.get('bank_account_holder')
-    bank_open_closed = request.data.get('bank_open_closed')
-
-    if request.GET.get('getdata_id'):
-        bank_obj = Bank_Details.objects.get(bank_id=request.GET.get('getdata_id'))
+    persons = Person.objects.all().values(
+        'person_id',
+        'person_name'
+    )
+    if request.method == 'GET':
+        getdata_id = request.GET.get('getdata_id')
+        if getdata_id:
+            bank_obj = Bank_Details.objects.select_related('person_id').get(bank_id=getdata_id)
+            return Response({
+                "status": "success",
+                "message": "Data Fetched Successfully",
+                "data": {
+                    "bank_id": bank_obj.bank_id,
+                    "bank_name": bank_obj.bank_name,
+                    "bank_branch": bank_obj.bank_branch,
+                    "bank_account_number": bank_obj.bank_account_number,
+                    "bank_ifsc_code": bank_obj.bank_ifsc_code,
+                    "bank_account_holder": bank_obj.bank_account_holder,
+                    "bank_initial_amount": bank_obj.bank_initial_amount,
+                    "bank_open_closed": bank_obj.bank_open_closed,
+                    "person_id": bank_obj.person_id.person_id,
+                },
+                'persons': persons
+            })
         return Response({
-        "status": "success",
-        "message": 'Data Fetched Successfully',
-        "data": {
-            "bank_id": bank_obj.bank_id,
-            "bank_name": bank_obj.bank_name,
-            "bank_branch": bank_obj.bank_branch,
-            "bank_account_number": bank_obj.bank_account_number,
-            "bank_ifsc_code": bank_obj.bank_ifsc_code,
-            "bank_account_holder": bank_obj.bank_account_holder,
-            "bank_open_closed": bank_obj.bank_open_closed
-        }
+            "status": "failed",
+            "message": "No ID provided for fetching data."
         })
 
-    if bank_id:
-        bank_detail = Bank_Details.objects.get(bank_id=bank_id)
-        bank_detail.bank_name = bank_name
-        bank_detail.bank_branch = bank_branch
-        bank_detail.bank_account_number = bank_account_number
-        bank_detail.bank_ifsc_code = bank_ifsc_code
-        bank_detail.bank_account_holder = bank_account_holder
-        bank_detail.bank_open_closed = bank_open_closed
-        bank_detail.save()
-        message = "Bank details updated successfully."
-    else:
-        bank_detail = Bank_Details.objects.create(
-            bank_name=bank_name,
-            bank_branch=bank_branch,
-            bank_account_number=bank_account_number,
-            bank_ifsc_code=bank_ifsc_code,
-            bank_account_holder=bank_account_holder,
-            bank_open_closed=bank_open_closed
-        )
-        message = "Bank details created successfully."
-        
-    return Response({
-        "status": "success",
-        "message": message,
-        "data": {
-            "bank_id": bank_detail.bank_id,
-            "bank_name": bank_detail.bank_name,
-            "bank_branch": bank_detail.bank_branch,
-            "bank_account_number": bank_detail.bank_account_number,
-            "bank_ifsc_code": bank_detail.bank_ifsc_code,
-            "bank_account_holder": bank_detail.bank_account_holder,
-            "bank_open_closed": bank_detail.bank_open_closed
-        }
+    elif request.method == 'POST':
+        bank_id = request.data.get('bank_id')
+        bank_name = request.data.get('bank_name')
+        bank_branch = request.data.get('bank_branch')
+        bank_account_number = request.data.get('bank_account_number')
+        bank_ifsc_code = request.data.get('bank_ifsc_code')
+        bank_account_holder = request.data.get('bank_account_holder')
+        bank_initial_amount = request.data.get('bank_initial_amount')
+        bank_open_closed = request.data.get('bank_open_closed')
+        person_id = request.data.get('person_id')
+
+        if not all([bank_name, bank_branch, bank_account_number, bank_ifsc_code, person_id]):
+            return Response({
+                "status": "failed",
+                "message": "All required fields must be provided."
+            })
+
+        person_instance = get_object_or_404(Person, person_id=person_id)
+
+        if bank_id:
+            bank_detail = get_object_or_404(Bank_Details, bank_id=bank_id)
+            bank_detail.bank_name = bank_name
+            bank_detail.bank_branch = bank_branch
+            bank_detail.bank_account_number = bank_account_number
+            bank_detail.bank_ifsc_code = bank_ifsc_code
+            bank_detail.bank_account_holder = bank_account_holder
+            bank_detail.bank_initial_amount = bank_initial_amount
+            bank_detail.bank_open_closed = bank_open_closed
+            bank_detail.person_id = person_instance
+            bank_detail.save()
+            message = "Bank details updated successfully."
+        else:
+            bank_detail = Bank_Details.objects.create(
+                bank_name=bank_name,
+                bank_branch=bank_branch,
+                bank_account_number=bank_account_number,
+                bank_ifsc_code=bank_ifsc_code,
+                bank_account_holder=bank_account_holder,
+                bank_initial_amount=bank_initial_amount,
+                bank_open_closed=bank_open_closed,
+                person_id=person_instance
+            )
+            message = "Bank details created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "bank_id": bank_detail.bank_id,
+                "bank_name": bank_detail.bank_name,
+                "bank_branch": bank_detail.bank_branch,
+                "bank_account_number": bank_detail.bank_account_number,
+                "bank_ifsc_code": bank_detail.bank_ifsc_code,
+                "bank_account_holder": bank_detail.bank_account_holder,
+                "bank_initial_amount": bank_detail.bank_initial_amount,
+                "bank_open_closed": bank_detail.bank_open_closed,
+                "person_id": bank_detail.person_id.person_id,
+                "person_name": bank_detail.person_id.person_name,
+                "person_contact_number": bank_detail.person_id.person_contact_number,
+                "person_types_for_project": bank_detail.person_id.person_types_for_project,
+                "person_type_name": bank_detail.person_id.person_type_id.person_type_name
+            },
+            'persons': persons
         })
+
+    return Response({
+        "status": "failed",
+        "message": "Invalid request method."
+    })
 
 
 @api_view(['DELETE'])
@@ -857,11 +900,31 @@ def delete_bank_detail(request):
 
 
 
-
 @api_view(['GET'])
-def show_company_machines(request):
-    company_machines = Machines.objects.all().values('machine_id', 'machine_owner', 'machine_buy_date', 'machine_condition', 'machine_number_plate', 'machine_details', 'machine_contact_number','machine_sold_out_date', 'machine_sold_price', 'machine_working', 'machine_types_id__machine_type_id', 'machine_types_id__machine_type_name')
-    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
+def show_machines(request):
+    company_machines = Machines.objects.all().values(
+        'machine_id', 
+        'machine_name', 
+        'machine_number_plate', 
+        'machine_register_date', 
+        'machine_own', 
+        'machine_condition', 
+        'machine_working', 
+        'machine_types_id__machine_type_name', 
+        'machine_details', 
+        'machine_owner_name', 
+        'machine_owner_contact', 
+        'machine_buy_price', 
+        'machine_buy_date', 
+        'machine_sold_price', 
+        'machine_sold_out_date', 
+        'machine_other_details'
+    )
+    machine_types_data = Machine_Types.objects.all().values(
+        'machine_type_id', 
+        'machine_type_name'
+    )
+    
     return Response({
         "status": "success",
         "title": "Machine",
@@ -870,103 +933,129 @@ def show_company_machines(request):
     })
 
 
-@api_view(['POST','GET'])
-def insert_update_company_machine(request):
+@api_view(['POST', 'GET'])
+def insert_update_machine(request):
     machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
+
     if request.method == 'POST':
         machine_id = request.data.get('machine_id')
-        machine_owner = request.data.get('machine_owner')
-        machine_buy_date = request.data.get('machine_buy_date')
-        machine_condition = request.data.get('machine_condition')
+        machine_name = request.data.get('machine_name')
         machine_number_plate = request.data.get('machine_number_plate')
-        machine_details = request.data.get('machine_details')
-        machine_contact_number = request.data.get('machine_contact_number')
-        machine_sold_out_date = request.data.get('machine_sold_out_date')
-        machine_sold_price = request.data.get('machine_sold_price')
+        machine_register_date = request.data.get('machine_register_date')
+        machine_own = request.data.get('machine_own')
+        machine_condition = request.data.get('machine_condition')
         machine_working = request.data.get('machine_working')
         machine_types_id = request.data.get('machine_types_id')
+        machine_details = request.data.get('machine_details')
+        machine_owner_name = request.data.get('machine_owner_name')
+        machine_owner_contact = request.data.get('machine_owner_contact')
+        machine_buy_price = request.data.get('machine_buy_price')
+        machine_buy_date = request.data.get('machine_buy_date')
+        machine_sold_price = request.data.get('machine_sold_price')
+        machine_sold_out_date = request.data.get('machine_sold_out_date')
+        machine_other_details = request.data.get('machine_other_details')
+
         machine_types_instance = Machine_Types.objects.get(machine_type_id=machine_types_id)
 
     if request.GET.get('getdata_id'):
         machine_obj = Machines.objects.get(machine_id=request.GET.get('getdata_id'))
         return Response({
-        "status": "success",
-        "message": 'Data Fetched Successfully',
-        "data": { 
-            "machine_id": machine_obj.machine_id,
-            "machine_owner": machine_obj.machine_owner,
-            "machine_buy_date": machine_obj.machine_buy_date,
-            "machine_condition": machine_obj.machine_condition,
-            "machine_number_plate": machine_obj.machine_number_plate,
-            "machine_details": machine_obj.machine_details,
-            "machine_contact_number": machine_obj.machine_contact_number,
-            "machine_sold_out_date": machine_obj.machine_sold_out_date,
-            "machine_sold_price": machine_obj.machine_sold_price,
-            "machine_working": machine_obj.machine_working,
-            "machine_types_id": machine_obj.machine_types_id.machine_type_id,
-        },
-        "machine_types": machine_types_data,
+            "status": "success",
+            "message": 'Data Fetched Successfully',
+            "data": { 
+                "machine_id": machine_obj.machine_id,
+                "machine_name": machine_obj.machine_name,
+                "machine_number_plate": machine_obj.machine_number_plate,
+                "machine_register_date": machine_obj.machine_register_date,
+                "machine_own": machine_obj.machine_own,
+                "machine_condition": machine_obj.machine_condition,
+                "machine_working": machine_obj.machine_working,
+                "machine_types_id": machine_obj.machine_types_id.machine_type_id,
+                "machine_types_name": machine_obj.machine_types_id.machine_type_name,
+                "machine_details": machine_obj.machine_details,
+                "machine_owner_name": machine_obj.machine_owner_name,
+                "machine_owner_contact": machine_obj.machine_owner_contact,
+                "machine_buy_price": machine_obj.machine_buy_price,
+                "machine_buy_date": machine_obj.machine_buy_date,
+                "machine_sold_price": machine_obj.machine_sold_price,
+                "machine_sold_out_date": machine_obj.machine_sold_out_date,
+                "machine_other_details": machine_obj.machine_other_details,
+            },
+            "machine_types": machine_types_data,
         })
-    
+
     if request.method == 'POST':
         if machine_id:
             machine = Machines.objects.get(machine_id=machine_id)
-            machine.machine_owner = machine_owner
-            machine.machine_buy_date = machine_buy_date
-            machine.machine_condition = machine_condition
+            machine.machine_name = machine_name
             machine.machine_number_plate = machine_number_plate
-            machine.machine_details = machine_details
-            machine.machine_contact_number = machine_contact_number
-            machine.machine_sold_out_date = machine_sold_out_date
-            machine.machine_sold_price = machine_sold_price
+            machine.machine_register_date = machine_register_date
+            machine.machine_own = machine_own
+            machine.machine_condition = machine_condition
             machine.machine_working = machine_working
             machine.machine_types_id = machine_types_instance
+            machine.machine_details = machine_details
+            machine.machine_owner_name = machine_owner_name
+            machine.machine_owner_contact = machine_owner_contact
+            machine.machine_buy_price = machine_buy_price
+            machine.machine_buy_date = machine_buy_date
+            machine.machine_sold_price = machine_sold_price
+            machine.machine_sold_out_date = machine_sold_out_date
+            machine.machine_other_details = machine_other_details
             machine.save()
             message = "Machine details updated successfully."
-            
         else:
             machine = Machines.objects.create(
-                machine_owner=machine_owner,
-                machine_buy_date=machine_buy_date,
-                machine_condition=machine_condition,
+                machine_name=machine_name,
                 machine_number_plate=machine_number_plate,
-                machine_details=machine_details,
-                machine_contact_number=machine_contact_number,
-                machine_sold_out_date=machine_sold_out_date,
-                machine_sold_price=machine_sold_price,
+                machine_register_date=machine_register_date,
+                machine_own=machine_own,
+                machine_condition=machine_condition,
                 machine_working=machine_working,
                 machine_types_id=machine_types_instance,
+                machine_details=machine_details,
+                machine_owner_name=machine_owner_name,
+                machine_owner_contact=machine_owner_contact,
+                machine_buy_price=machine_buy_price,
+                machine_buy_date=machine_buy_date,
+                machine_sold_price=machine_sold_price,
+                machine_sold_out_date=machine_sold_out_date,
+                machine_other_details=machine_other_details,
             )
-            if machine:
-                message = "Machine details created successfully."
+            message = "Machine details created successfully."
 
         return Response({
             "status": "success",
             "message": message,
             "data": {
                 "machine_id": machine.machine_id,
-                "machine_owner": machine.machine_owner,
-                "machine_buy_date": machine.machine_buy_date,
-                "machine_condition": machine.machine_condition,
+                "machine_name": machine.machine_name,
                 "machine_number_plate": machine.machine_number_plate,
-                "machine_details": machine.machine_details,
-                "machine_contact_number": machine.machine_contact_number,
-                "machine_sold_out_date": machine.machine_sold_out_date,
-                "machine_sold_price": machine.machine_sold_price,
+                "machine_register_date": machine.machine_register_date,
+                "machine_own": machine.machine_own,
+                "machine_condition": machine.machine_condition,
                 "machine_working": machine.machine_working,
                 "machine_types_id": machine.machine_types_id.machine_type_id,
-                
+                "machine_types_name": machine.machine_types_id.machine_type_name,
+                "machine_details": machine.machine_details,
+                "machine_owner_name": machine.machine_owner_name,
+                "machine_owner_contact": machine.machine_owner_contact,
+                "machine_buy_price": machine.machine_buy_price,
+                "machine_buy_date": machine.machine_buy_date,
+                "machine_sold_price": machine.machine_sold_price,
+                "machine_sold_out_date": machine.machine_sold_out_date,
+                "machine_other_details": machine.machine_other_details,
             },
             "machine_types": machine_types_data,
         })
     else:
         return Response({
-            'status':"False"
+            'status': "False"
         })
 
 
 @api_view(['DELETE'])
-def delete_company_machine(request):
+def delete_machine(request):
     if request.GET.get('machine_id'):
         machine_id = request.GET.get('machine_id')
         if not machine_id:
@@ -994,7 +1083,34 @@ def delete_company_machine(request):
             "message": "Something went wrong",
         })
 
+
+@api_view(['GET'])
+def show_machines(request):
+    # Fetching all data from the Money_Debit_Credit model
+    company_machines = Money_Debit_Credit.objects.all().values(
+        'money_id',
+        'money_credit_debit',
+        'person_id__person_name',
+        'pay_type_id__pay_type_name',
+        'money_payment_mode',
+        'money_amount',
+        'money_date',
+        'money_sender_bank_name',
+        'money_sender_bank_account_no',
+        'money_sender_ifsc_code',
+        'money_sender_cheque_no',
+        'money_receiver_bank_name',
+        'money_receiver_bank_account_no',
+        'money_receiver_ifsc_code',
+        'money_payment_details',
+        'machine_id__machine_name',
+    )
     
+    return Response({
+        "status": "success",
+        "title": "Money Transactions",
+        "data": company_machines
+    })  
 
     
 

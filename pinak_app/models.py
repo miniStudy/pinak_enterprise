@@ -335,26 +335,19 @@ class Machine_Maintenance(models.Model):
 
 
 class Money_Debit_Credit(models.Model):
-    class credit_debit_options(models.TextChoices):
-        CREDIT = 'CREDIT', 'CREDIT'
-        DEBIT = 'DEBIT', 'DEBIT'
     class payment_options(models.TextChoices):
         CASH = 'CASH', 'CASH'
         BANK = 'BANK', 'BANK'
     money_id = models.BigAutoField(primary_key=True)
-    money_credit_debit = models.CharField(choices=credit_debit_options, max_length=155)
-    person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    sender_person_id = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='sender_person_id')
+    receiver_person_id = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='receiver_person_id')
     pay_type_id = models.ForeignKey(Pay_Types, on_delete=models.CASCADE)
     money_payment_mode = models.CharField(choices=payment_options, max_length=155)
     money_amount = models.CharField(max_length=155)
     money_date = models.DateField()
-    money_sender_bank_name = models.CharField(max_length=155, null=True, blank=True)
-    money_sender_bank_account_no = models.CharField(max_length=155, null=True, blank=True)
-    money_sender_ifsc_code = models.CharField(max_length=155, null=True, blank=True)
+    sender_bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE, related_name='sender_bank_id')
     money_sender_cheque_no = models.CharField(max_length=155, null=True, blank=True)
-    money_receiver_bank_name = models.CharField(max_length=155, null=True, blank=True)
-    money_receiver_bank_account_no = models.CharField(max_length=155, null=True, blank=True)
-    money_receiver_ifsc_code = models.CharField(max_length=155, null=True, blank=True)
+    receiver_bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE, related_name='receiver_bank_id')
     money_payment_details = models.TextField(null=True, blank=True)
     machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
 

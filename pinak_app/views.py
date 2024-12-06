@@ -1088,29 +1088,27 @@ def delete_machine(request):
 def show_money_debit_credit(request):
     money_debit_credit_data = Money_Debit_Credit.objects.all().values(
         'money_id',
-        'money_credit_debit',
-        'person_id__person_name',
+        'sender_person_id__person_name',
+        'receiver_person_id__person_name',
         'pay_type_id__pay_type_name',
         'money_payment_mode',
         'money_amount',
         'money_date',
-        'money_sender_bank_name',
-        'money_sender_bank_account_no',
-        'money_sender_ifsc_code',
+        'sender_bank_id__bank_name',
         'money_sender_cheque_no',
-        'money_receiver_bank_name',
-        'money_receiver_bank_account_no',
-        'money_receiver_ifsc_code',
+        'receiver_bank_id__bank_name',
         'money_payment_details',
         'machine_id__machine_name',
     )
 
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+    banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')  
     return Response({
         "status": "success",
         "title": "Money Transactions",
+        "banks_data": banks_data,
         "persons_data": persons_data,
         "pay_types_data": pay_types_data,
         "machines_data": machines_data,
@@ -1123,69 +1121,68 @@ def insert_update_money_debit_credit(request):
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name') 
+    bank_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number')
 
     if request.method == 'POST':
         money_id = request.data.get('money_id')
-        money_credit_debit = request.data.get('money_credit_debit')
-        person_id = request.data.get('person_id')
+        sender_person_id = request.data.get('sender_person_id')
+        receiver_person_id = request.data.get('receiver_person_id')
         pay_type_id = request.data.get('pay_type_id')
         money_payment_mode = request.data.get('money_payment_mode')
         money_amount = request.data.get('money_amount')
         money_date = request.data.get('money_date')
-        money_sender_bank_name = request.data.get('money_sender_bank_name')
-        money_sender_bank_account_no = request.data.get('money_sender_bank_account_no')
-        money_sender_ifsc_code = request.data.get('money_sender_ifsc_code')
+        sender_bank_id = request.data.get('sender_bank_id')
         money_sender_cheque_no = request.data.get('money_sender_cheque_no')
-        money_receiver_bank_name = request.data.get('money_receiver_bank_name')
-        money_receiver_bank_account_no = request.data.get('money_receiver_bank_account_no')
-        money_receiver_ifsc_code = request.data.get('money_receiver_ifsc_code')
+        receiver_bank_id = request.data.get('receiver_bank_id')
         money_payment_details = request.data.get('money_payment_details')
         machine_id = request.data.get('machine_id')
 
         if machine_id:
             machine_instance = Machines.objects.get(machine_id=machine_id)
-        person_instance = Person.objects.get(person_id=person_id)
+        else:
+            machine_instance = None
+        sender_person_instance = Person.objects.get(person_id=sender_person_id)
+        receiver_person_instance = Person.objects.get(person_id=receiver_person_id)
         pay_type_instance = Pay_Types.objects.get(pay_type_id=pay_type_id)
+        sender_bank_instance = Bank_Details.objects.get(bank_id=sender_bank_id)
+        receiver_bank_instance = Bank_Details.objects.get(bank_id=receiver_bank_id)
         
         
         if money_id:
             money_debit_credit = Money_Debit_Credit.objects.get(money_id=money_id)
-            money_debit_credit.money_credit_debit = money_credit_debit
-            money_debit_credit.person_id = person_instance
+            money_debit_credit.sender_person_id = sender_person_instance
+            money_debit_credit.receiver_person_id = receiver_person_instance
             money_debit_credit.pay_type_id = pay_type_instance
             money_debit_credit.money_payment_mode = money_payment_mode
             money_debit_credit.money_amount = money_amount
             money_debit_credit.money_date = money_date
-            money_debit_credit.money_sender_bank_name = money_sender_bank_name
-            money_debit_credit.money_sender_bank_account_no = money_sender_bank_account_no
-            money_debit_credit.money_sender_ifsc_code = money_sender_ifsc_code
+            money_debit_credit.sender_bank_id = sender_bank_instance
             money_debit_credit.money_sender_cheque_no = money_sender_cheque_no
-            money_debit_credit.money_receiver_bank_name = money_receiver_bank_name
-            money_debit_credit.money_receiver_bank_account_no = money_receiver_bank_account_no
-            money_debit_credit.money_receiver_ifsc_code = money_receiver_ifsc_code
+            money_debit_credit.receiver_bank_id = receiver_bank_instance
             money_debit_credit.money_payment_details = money_payment_details
             money_debit_credit.machine_id = machine_instance
             money_debit_credit.save()
             message = "Money Debit/Credit record updated successfully."
         else:
             money_debit_credit = Money_Debit_Credit.objects.create(
-                money_credit_debit=money_credit_debit,
-                person_id=person_instance,
+                sender_person_id = sender_person_instance,
+                receiver_person_id = receiver_person_instance,
                 pay_type_id=pay_type_instance,
                 money_payment_mode=money_payment_mode,
                 money_amount=money_amount,
                 money_date=money_date,
-                money_sender_bank_name=money_sender_bank_name,
-                money_sender_bank_account_no=money_sender_bank_account_no,
-                money_sender_ifsc_code=money_sender_ifsc_code,
+                sender_bank_id = sender_bank_instance,
                 money_sender_cheque_no=money_sender_cheque_no,
-                money_receiver_bank_name=money_receiver_bank_name,
-                money_receiver_bank_account_no=money_receiver_bank_account_no,
-                money_receiver_ifsc_code=money_receiver_ifsc_code,
+                receiver_bank_id = receiver_bank_instance,
                 money_payment_details=money_payment_details,
                 machine_id=machine_instance
-            )
+            )   
             message = "Money Debit/Credit record created successfully."
+
+        if not money_debit_credit.machine_id:
+            machine_id = None
+        else:
+            machine_id = money_debit_credit.machine_id.machine_id
 
         return Response({
             "status": "success",
@@ -1193,53 +1190,51 @@ def insert_update_money_debit_credit(request):
             "message": message,
             "data": {
                 "money_id": money_debit_credit.money_id,
-                "money_credit_debit": money_debit_credit.money_credit_debit,
-                "person_id": money_debit_credit.person_id.person_name,
-                "pay_type_id": money_debit_credit.pay_type_id.pay_type_name,
+                "sender_person_id": money_debit_credit.sender_person_id.person_id,
+                "receiver_person_id": money_debit_credit.receiver_person_id.person_id,
+                "pay_type_id": money_debit_credit.pay_type_id.pay_type_id,
                 "money_payment_mode": money_debit_credit.money_payment_mode,
                 "money_amount": money_debit_credit.money_amount,
                 "money_date": money_debit_credit.money_date,
-                "money_sender_bank_name": money_debit_credit.money_sender_bank_name,
-                "money_sender_bank_account_no": money_debit_credit.money_sender_bank_account_no,
-                "money_sender_ifsc_code": money_debit_credit.money_sender_ifsc_code,
+                "sender_bank_id": money_debit_credit.sender_bank_id.bank_id,
                 "money_sender_cheque_no": money_debit_credit.money_sender_cheque_no,
-                "money_receiver_bank_name": money_debit_credit.money_receiver_bank_name,
-                "money_receiver_bank_account_no": money_debit_credit.money_receiver_bank_account_no,
-                "money_receiver_ifsc_code": money_debit_credit.money_receiver_ifsc_code,
+                "receiver_bank_id": money_debit_credit.receiver_bank_id.bank_id,
                 "money_payment_details": money_debit_credit.money_payment_details,
-                "machine_id": money_debit_credit.machine_id.machine_name
+                "machine_id": machine_id
             },
             "persons_data": persons_data,
             "pay_types_data": pay_types_data,
             "machines_data": machines_data,
+            "banks_data": bank_data,
         })
 
     elif request.GET.get('getdata_id'):
         money_debit_credit_obj = Money_Debit_Credit.objects.get(money_id=request.GET.get('getdata_id'))
+        if not money_debit_credit_obj.machine_id:
+            machine_id = None
+        else:
+            machine_id = money_debit_credit_obj.machine_id.machine_id
         return Response({
             "status": "success",
             "message": 'Data Fetched Successfully',
             "data": {
                 "money_id": money_debit_credit_obj.money_id,
-                "money_credit_debit": money_debit_credit_obj.money_credit_debit,
-                "person_id": money_debit_credit_obj.person_id.person_id,
+                "sender_person_id": money_debit_credit_obj.sender_person_id.person_id,
+                "receiver_person_id": money_debit_credit_obj.receiver_person_id.person_id,
                 "pay_type_id": money_debit_credit_obj.pay_type_id.pay_type_id,
                 "money_payment_mode": money_debit_credit_obj.money_payment_mode,
                 "money_amount": money_debit_credit_obj.money_amount,
                 "money_date": money_debit_credit_obj.money_date,
-                "money_sender_bank_name": money_debit_credit_obj.money_sender_bank_name,
-                "money_sender_bank_account_no": money_debit_credit_obj.money_sender_bank_account_no,
-                "money_sender_ifsc_code": money_debit_credit_obj.money_sender_ifsc_code,
+                "sender_bank_id": money_debit_credit_obj.sender_bank_id.bank_id,
                 "money_sender_cheque_no": money_debit_credit_obj.money_sender_cheque_no,
-                "money_receiver_bank_name": money_debit_credit_obj.money_receiver_bank_name,
-                "money_receiver_bank_account_no": money_debit_credit_obj.money_receiver_bank_account_no,
-                "money_receiver_ifsc_code": money_debit_credit_obj.money_receiver_ifsc_code,
+                "receiver_bank_id": money_debit_credit_obj.receiver_bank_id.bank_id,
                 "money_payment_details": money_debit_credit_obj.money_payment_details,
-                "machine_id": money_debit_credit_obj.machine_id.machine_id
+                "machine_id": machine_id
             },
             "persons_data": persons_data,
             "pay_types_data": pay_types_data,
             "machines_data": machines_data,
+            "bank_data": bank_data,
         })
 
     else:

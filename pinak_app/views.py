@@ -1272,6 +1272,121 @@ def delete_money_debit_credit(request):
 
 
 @api_view(['GET'])
+def show_salary(request):
+    salary_details = Salary.objects.all().values(
+        'salary_date', 
+        'salary_amount', 
+        'salary_working_days', 
+        'salary_details', 
+        'person_id__person_name',
+        'person_id__person_contact_number'
+    )
+
+    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+
+    return Response({
+        "status": "success",
+        "title": "Salary Details",
+        "persons_data": persons_data,
+        "data": salary_details
+    })
+
+
+@api_view(['POST', 'GET'])
+def insert_update_salary(request):
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+
+    if request.method == 'POST':
+        salary_id = request.data.get('salary_id')
+        salary_date = request.data.get('salary_date')
+        salary_amount = request.data.get('salary_amount')
+        salary_working_days = request.data.get('salary_working_days')
+        salary_details = request.data.get('salary_details')
+        person_id = request.data.get('person_id')
+
+        person_instance = Person.objects.get(person_id=person_id)
+
+        if salary_id:
+            salary = Salary.objects.get(salary_id=salary_id)
+            salary.salary_date = salary_date
+            salary.salary_amount = salary_amount
+            salary.salary_working_days = salary_working_days
+            salary.salary_details = salary_details
+            salary.person_id = person_instance
+            salary.save()
+            message = "Salary record updated successfully."
+            
+        else:
+            salary = Salary.objects.create(
+                salary_date=salary_date,
+                salary_amount=salary_amount,
+                salary_working_days=salary_working_days,
+                salary_details=salary_details,
+                person_id=person_instance
+            )
+            message = "Salary record created successfully."
+
+        return Response({
+            "status": "success",
+            "title": "Salary Transaction",
+            "message": message,
+            "data": {
+                "salary_id": salary.salary_id,
+                "salary_date": salary.salary_date,
+                "salary_amount": salary.salary_amount,
+                "salary_working_days": salary.salary_working_days,
+                "salary_details": salary.salary_details,
+                "person_id": salary.person_id.person_name,
+            },
+            "persons_data": persons_data
+        })
+
+    elif request.GET.get('getdata_id'):
+            salary = Salary.objects.get(salary_id=request.GET.get('getdata_id'))
+            return Response({
+                "status": "success",
+                "message": 'Data fetched successfully',
+                "data": {
+                    "salary_id": salary.salary_id,
+                    "salary_date": salary.salary_date,
+                    "salary_amount": salary.salary_amount,
+                    "salary_working_days": salary.salary_working_days,
+                    "salary_details": salary.salary_details,
+                    "person_id": salary.person_id.person_id,
+                },
+                "persons_data": persons_data
+            })
+    else:
+        return Response({
+            "status": "False",
+            "message": "Invalid request method."
+        })
+
+@api_view(['DELETE'])
+def delete_salary(request):
+    salary_id = request.GET.get('salary_id')
+
+    if not salary_id:
+        return Response({
+            "status": "error",
+            "message": "Salary ID is required."
+        }, status=400)
+
+    try:
+        salary_data = Salary.objects.get(salary_id=salary_id)
+        salary_data.delete()
+        return Response({
+            "status": "success",
+            "message": "Salary record deleted successfully."
+        })
+    except Salary.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "Salary record not found."
+        }, status=404)
+
+
+@api_view(['GET'])
 def show_machine_maintenance(request):
     machine_maintenance = Machine_Maintenance.objects.all().values(
         'machine_maintenance_id',

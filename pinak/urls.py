@@ -72,6 +72,10 @@ urlpatterns = [
     path('insert_update_machine/', views.insert_update_machine, name='insert_update_machine'),
     path('delete_machine/', views.delete_machine, name='delete_machine'),
 
+    path('show_money_debit_credit/', views.show_money_debit_credit, name='show_money_debit_credit'),
+    path('insert_update_money_debit_credit/', views.insert_update_money_debit_credit, name='insert_update_money_debit_credit'),
+    path('delete_money_debit_credit/', views.delete_money_debit_credit, name='delete_money_debit_credit'),
+
 
     path('show_machine_maintenance/', views.show_machine_maintenance, name='show_machine_maintenance'),
     path('insert_update_machine_maintenance/', views.insert_update_machine_maintenance, name='insert_update_machine_maintenance'),

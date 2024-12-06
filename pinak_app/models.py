@@ -172,6 +172,7 @@ class Bank_Details(models.Model):
 
 class Salary(models.Model):
     salary_id = models.BigAutoField(primary_key=True)
+    salary_date = models.DateField()
     salary_amount = models.CharField(max_length=155)
     salary_working_days = models.CharField(max_length=155)
     salary_details = models.TextField(null=True, blank=True)

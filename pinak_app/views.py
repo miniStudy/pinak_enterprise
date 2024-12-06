@@ -1142,9 +1142,11 @@ def insert_update_money_debit_credit(request):
         money_payment_details = request.data.get('money_payment_details')
         machine_id = request.data.get('machine_id')
 
+        if machine_id:
+            machine_instance = Machines.objects.get(machine_id=machine_id)
         person_instance = Person.objects.get(person_id=person_id)
         pay_type_instance = Pay_Types.objects.get(pay_type_id=pay_type_id)
-        machine_instance = Machines.objects.get(machine_id=machine_id)
+        
         
         if money_id:
             money_debit_credit = Money_Debit_Credit.objects.get(money_id=money_id)
@@ -1274,8 +1276,9 @@ def delete_money_debit_credit(request):
 @api_view(['GET'])
 def show_salary(request):
     salary_details = Salary.objects.all().values(
+        'salary_id',
         'salary_date', 
-        'salary_amount', 
+        'salary_amount',
         'salary_working_days', 
         'salary_details', 
         'person_id__person_name',

@@ -5,5 +5,4 @@ from pinak_app.models import *
 admin.site.register(Company_Details)
 admin.site.register(Bank_Details)
 admin.site.register(Machine_Types)
-admin.site.register(Company_Machines)
-admin.site.register(Working_Machines)
+admin.site.register(Machines)

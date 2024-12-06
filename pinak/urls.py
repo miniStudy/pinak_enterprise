@@ -68,9 +68,9 @@ urlpatterns = [
     path('delete_bank_detail/', views.delete_bank_detail, name='delete_bank_detail'),
 
 
-    path('show_company_machines/', views.show_company_machines, name='show_company_machines'),
-    path('insert_update_company_machine/', views.insert_update_company_machine, name='insert_update_company_machine'),
-    path('delete_company_machine/', views.delete_company_machine, name='delete_company_machine'),
+    path('show_machines/', views.show_machines, name='show_machines'),
+    path('insert_update_machine/', views.insert_update_machine, name='insert_update_machine'),
+    path('delete_machine/', views.delete_machine, name='delete_machine'),
 
 
     path('show_machine_maintenance/', views.show_machine_maintenance, name='show_machine_maintenance'),

@@ -942,6 +942,7 @@ def insert_update_machine(request):
         machine_name = request.data.get('machine_name')
         machine_number_plate = request.data.get('machine_number_plate')
         machine_register_date = request.data.get('machine_register_date')
+        print(machine_register_date)
         machine_own = request.data.get('machine_own')
         machine_condition = request.data.get('machine_condition')
         machine_working = request.data.get('machine_working')
@@ -956,6 +957,14 @@ def insert_update_machine(request):
         machine_other_details = request.data.get('machine_other_details')
 
         machine_types_instance = Machine_Types.objects.get(machine_type_id=machine_types_id)
+        if machine_buy_date:
+            pass
+        else:
+            machine_buy_date = None
+        if machine_sold_out_date:
+            pass
+        else:
+            machine_sold_out_date = None
 
     if request.GET.get('getdata_id'):
         machine_obj = Machines.objects.get(machine_id=request.GET.get('getdata_id'))

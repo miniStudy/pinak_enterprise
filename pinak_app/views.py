@@ -1541,13 +1541,17 @@ def show_projects(request):
         'project_end_date',
         'project_amount',
         'project_location',
-        'project_company_name',
-        'project_person_name',
+        'project_customer_name',
+        'project_customer_contact',
         'project_status',
+        'project_cgst',
+        'project_sgst',
+        'project_tax',
+        'project_discount',
         'project_types_id__project_type_id',
         'project_types_id__project_type_name'
     )
-    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name', 'project_type_details')
+    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
     return Response({
         "status": "success",
         "title": "Project",
@@ -1557,7 +1561,7 @@ def show_projects(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_project(request):
-    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name', 'project_type_details')
+    project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
     if request.method == 'POST':
         project_id = request.data.get('project_id')
         project_name = request.data.get('project_name')
@@ -1565,9 +1569,13 @@ def insert_update_project(request):
         project_end_date = request.data.get('project_end_date')
         project_amount = request.data.get('project_amount')
         project_location = request.data.get('project_location')
-        project_company_name = request.data.get('project_company_name')
-        project_person_name = request.data.get('project_person_name')
+        project_customer_name = request.data.get('project_customer_name')
+        project_customer_contact = request.data.get('project_customer_contact')
         project_status = request.data.get('project_status')
+        project_cgst = request.data.get('project_cgst')
+        project_sgst = request.data.get('project_sgst')
+        project_tax = request.data.get('project_tax')
+        project_discount = request.data.get('project_discount')
         project_types_id = request.data.get('project_types_id')
         project_type_instance = Project_Types.objects.get(project_type_id=project_types_id)
     
@@ -1583,9 +1591,13 @@ def insert_update_project(request):
             'project_end_date': project_obj.project_end_date,
             'project_amount': project_obj.project_amount,
             'project_location': project_obj.project_location,
-            'project_company_name': project_obj.project_company_name,
-            'project_person_name': project_obj.project_person_name,
+            'project_customer_name': project_obj.project_customer_name,
+            'project_customer_contact': project_obj.project_customer_contact,
             'project_status': project_obj.project_status,
+            'project_cgst': project_obj.project_cgst,
+            'project_sgst': project_obj.project_sgst,
+            'project_tax': project_obj.project_tax,
+            'project_discount': project_obj.project_discount,
             'project_types_id': project_obj.project_types_id.project_type_id,
         },
         'project_types_data': project_types_data
@@ -1599,9 +1611,13 @@ def insert_update_project(request):
             project.project_end_date = project_end_date
             project.project_amount = project_amount
             project.project_location = project_location
-            project.project_company_name = project_company_name
-            project.project_person_name = project_person_name
+            project.project_customer_name = project_customer_name
+            project.project_customer_contact = project_customer_contact
             project.project_status = project_status
+            project.project_cgst = project_cgst
+            project.project_tax = project_tax
+            project.project_sgst = project_sgst
+            project.project_discount = project_discount
             project.project_types_id = project_type_instance
             project.save()
             message = "Project updated successfully."
@@ -1612,9 +1628,13 @@ def insert_update_project(request):
                 project_end_date=project_end_date,
                 project_amount=project_amount,
                 project_location=project_location,
-                project_company_name=project_company_name,
-                project_person_name=project_person_name,
+                project_customer_name=project_customer_name,
+                project_customer_contact=project_customer_contact,
                 project_status=project_status,
+                project_cgst=project_cgst,
+                project_sgst=project_sgst,
+                project_tax=project_tax,
+                project_discount=project_discount,
                 project_types_id=project_type_instance
             )
             message = "Project created successfully."
@@ -1630,9 +1650,13 @@ def insert_update_project(request):
                 "project_end_date": project.project_end_date,
                 "project_amount": project.project_amount,
                 "project_location": project.project_location,
-                "project_company_name": project.project_company_name,
-                "project_person_name": project.project_person_name,
+                "project_customer_name": project.project_customer_name,
+                "project_customer_contact": project.project_customer_contact,
                 "project_status": project.project_status,
+                "project_cgst": project.project_cgst,
+                "project_sgst": project.project_sgst,
+                "project_tax": project.project_tax,
+                "project_discount": project.project_discount,
                 "project_types_id": project.project_types_id.project_type_id
             },
             'project_types_data': project_types_data

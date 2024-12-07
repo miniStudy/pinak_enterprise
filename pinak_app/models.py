@@ -142,8 +142,8 @@ class Person(models.Model):
     person_business_job_company_num = models.CharField(max_length=15, null=True, blank=True)
     person_business_job_address = models.TextField(null=True, blank=True)
     person_gst = models.CharField(max_length=155, null=True, blank=True)
-    person_type_id = models.ForeignKey(Person_Type, on_delete=models.CASCADE)
-    person_types_for_project = models.CharField(choices=project_person_options, max_length=155)
+    person_type_id = models.ForeignKey(Person_Type, on_delete=models.CASCADE, null=True, blank=True)
+    person_types_for_project = models.CharField(choices=project_person_options, max_length=155, null=True, blank=True)
 
     def __str__(self):
         return f'{self.person_type_id.person_type_name} {self.person_name}'
@@ -172,7 +172,7 @@ class Bank_Details(models.Model):
 
 class Salary(models.Model):
     salary_id = models.BigAutoField(primary_key=True)
-    salary_date = models.DateField(null=True, blank=True)
+    salary_date = models.DateField(null=True, blank=True) # null and blank should be removed
     salary_amount = models.CharField(max_length=155)
     salary_working_days = models.CharField(max_length=155)
     salary_details = models.TextField(null=True, blank=True)

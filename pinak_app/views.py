@@ -1153,8 +1153,15 @@ def insert_update_money_debit_credit(request):
         sender_person_instance = Person.objects.get(person_id=sender_person_id)
         receiver_person_instance = Person.objects.get(person_id=receiver_person_id)
         pay_type_instance = Pay_Types.objects.get(pay_type_id=pay_type_id)
-        sender_bank_instance = Bank_Details.objects.get(bank_id=sender_bank_id)
-        receiver_bank_instance = Bank_Details.objects.get(bank_id=receiver_bank_id)
+
+        if sender_bank_id:
+            sender_bank_instance = Bank_Details.objects.get(bank_id=sender_bank_id)
+        else :
+            sender_bank_instance = None
+        if receiver_bank_id:
+            receiver_bank_instance = Bank_Details.objects.get(bank_id=receiver_bank_id)
+        else:
+            receiver_bank_instance = None
         
         
         if money_id:
@@ -1205,9 +1212,9 @@ def insert_update_money_debit_credit(request):
                 "money_payment_mode": money_debit_credit.money_payment_mode,
                 "money_amount": money_debit_credit.money_amount,
                 "money_date": money_debit_credit.money_date,
-                "sender_bank_id": money_debit_credit.sender_bank_id.bank_id,
+                "sender_bank_id": None if money_debit_credit.sender_bank_id is None else money_debit_credit.sender_bank_id.bank_id,
                 "money_sender_cheque_no": money_debit_credit.money_sender_cheque_no,
-                "receiver_bank_id": money_debit_credit.receiver_bank_id.bank_id,
+                "receiver_bank_id": None if money_debit_credit.receiver_bank_id is None else money_debit_credit.receiver_bank_id.bank_id,
                 "money_payment_details": money_debit_credit.money_payment_details,
                 "machine_id": machine_id
             },
@@ -1234,9 +1241,9 @@ def insert_update_money_debit_credit(request):
                 "money_payment_mode": money_debit_credit_obj.money_payment_mode,
                 "money_amount": money_debit_credit_obj.money_amount,
                 "money_date": money_debit_credit_obj.money_date,
-                "sender_bank_id": money_debit_credit_obj.sender_bank_id.bank_id,
+                "sender_bank_id": None if money_debit_credit_obj.sender_bank_id is None else money_debit_credit_obj.sender_bank_id.bank_id,
                 "money_sender_cheque_no": money_debit_credit_obj.money_sender_cheque_no,
-                "receiver_bank_id": money_debit_credit_obj.receiver_bank_id.bank_id,
+                "receiver_bank_id": None if money_debit_credit_obj.receiver_bank_id is None else money_debit_credit_obj.receiver_bank_id.bank_id,
                 "money_payment_details": money_debit_credit_obj.money_payment_details,
                 "machine_id": machine_id
             },

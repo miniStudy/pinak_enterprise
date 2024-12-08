@@ -1814,12 +1814,325 @@ def delete_material(request):
         }, status=500)
 
 
+@api_view(['GET'])
+def show_project_day_details(request):
+    project_day_details_data = Project_Day_Details.objects.all().values(
+        'project_day_detail_id',
+        'proejct_day_detail_date',
+        'project_day_detail_machine_id__machine_name',
+        'project_day_detail_work_type__work_type_name',
+        'project_day_detail_work_no',
+        'project_day_detail_price',
+        'project_day_detail_total_price',
+        'project_day_detail_details'
+    )
+
+    machine_data = Machines.objects.all().values('machine_id', 'machine_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+
+    return Response({
+        'status': 'success',
+        'title': 'Project Day Details',
+        'machines_data': machine_data,
+        'work_types_data': work_types_data,
+        'data': project_day_details_data
+    })
 
 
+@api_view(['POST', 'GET'])
+def insert_update_project_day_detail(request):
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+
+    if request.method == 'GET':
+        project_day_detail_id = request.GET.get('getdata_id')
+        if project_day_detail_id:
+            project_day_detail = get_object_or_404(Project_Day_Details, project_day_detail_id=project_day_detail_id)
+            return Response({
+                "status": "success",
+                "message": "Project day detail fetched successfully",
+                "data": {
+                    "project_day_detail_id": project_day_detail.project_day_detail_id,
+                    "proejct_day_detail_date": project_day_detail.proejct_day_detail_date,
+                    "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id,
+                    "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
+                    "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
+                    "project_day_detail_price": project_day_detail.project_day_detail_price,
+                    "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
+                    "project_day_detail_details": project_day_detail.project_day_detail_details,
+                },
+                'machines_data': machines_data,
+                'work_types_data': work_types_data,
+            })
+        return Response({
+            "status": "error",
+            "message": "Project day detail ID not provided"
+        }, status=400)
+
+    if request.method == 'POST':
+        project_day_detail_id = request.data.get('project_day_detail_id')
+        proejct_day_detail_date = request.data.get('proejct_day_detail_date')
+        project_day_detail_machine_id = request.data.get('project_day_detail_machine_id')
+        project_day_detail_work_type = request.data.get('project_day_detail_work_type')
+        project_day_detail_work_no = request.data.get('project_day_detail_work_no')
+        project_day_detail_price = request.data.get('project_day_detail_price')
+        project_day_detail_total_price = request.data.get('project_day_detail_total_price')
+        project_day_detail_details = request.data.get('project_day_detail_details', '')
+
+        machine_instance = get_object_or_404(Machines, pk=project_day_detail_machine_id)
+        work_type_instance = get_object_or_404(Work_Types, pk=project_day_detail_work_type)
+
+        if project_day_detail_id:
+            project_day_detail = get_object_or_404(Project_Day_Details, project_day_detail_id=project_day_detail_id)
+            project_day_detail.proejct_day_detail_date = proejct_day_detail_date
+            project_day_detail.project_day_detail_machine_id = machine_instance
+            project_day_detail.project_day_detail_work_type = work_type_instance
+            project_day_detail.project_day_detail_work_no = project_day_detail_work_no
+            project_day_detail.project_day_detail_price = project_day_detail_price
+            project_day_detail.project_day_detail_total_price = project_day_detail_total_price
+            project_day_detail.project_day_detail_details = project_day_detail_details
+            project_day_detail.save()
+            message = "Project day detail updated successfully"
+        else:
+            project_day_detail = Project_Day_Details.objects.create(
+                proejct_day_detail_date=proejct_day_detail_date,
+                project_day_detail_machine_id=machine_instance,
+                project_day_detail_work_type=work_type_instance,
+                project_day_detail_work_no=project_day_detail_work_no,
+                project_day_detail_price=project_day_detail_price,
+                project_day_detail_total_price=project_day_detail_total_price,
+                project_day_detail_details=project_day_detail_details
+            )
+            message = "Project day detail created successfully"
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "project_day_detail_id": project_day_detail.project_day_detail_id,
+                "proejct_day_detail_date": project_day_detail.proejct_day_detail_date,
+                "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id,
+                "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
+                "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
+                "project_day_detail_price": project_day_detail.project_day_detail_price,
+                "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
+                "project_day_detail_details": project_day_detail.project_day_detail_details,
+            },
+            'machines_data': machines_data,
+            'work_types_data': work_types_data,
+        })
+
+    return Response({
+        "status": "error",
+        "message": "Invalid request method"
+    }, status=405)
 
 
+@api_view(['DELETE'])
+def delete_project_day_detail(request):
+    project_day_detail_id = request.GET.get('project_day_detail_id')
+
+    if not project_day_detail_id:
+        return Response({
+            "status": "error",
+            "message": "Project day detail ID is required."
+        }, status=400)
+
+    try:
+        project_day_detail = get_object_or_404(Project_Day_Details, project_day_detail_id=project_day_detail_id)
+        project_day_detail.delete()
+
+        return Response({
+            "status": "success",
+            "message": f"Project day detail with ID {project_day_detail_id} deleted successfully."
+        })
+
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }, status=500)
 
 
+@api_view(['GET'])
+def show_project_material(request):
+    project_material_data = Project_Material_Data.objects.all().values(
+        'project_material_id',
+        'project_material_date',
+        'project_material_material_id__material_person_id__person_name',
+        'project_material_material_type_id__material_type_name',
+        'project_material_work_type_id__work_type_name',
+        'project_material_work_no',
+        'project_material_price',
+        'project_material_total_amount',
+        'project_material_agent',
+        'project_material_agent_id__person_name',
+        'person_material_agent_amount',
+        'person_material_information'
+    )
+
+    materials_data = Material.objects.all().values('material_id', 'material_person_id__person_name')
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+
+    return Response({
+        'status': 'success',
+        'title': 'Project Material Details',
+        'materials_data': materials_data,
+        'material_types_data': material_types_data,
+        'work_types_data': work_types_data,
+        'persons_data': persons_data,
+        'data': project_material_data
+    })
+
+
+@api_view(['POST', 'GET'])
+def insert_update_project_material(request):
+    materials_data = Material.objects.all().values('material_id', 'material_person_id__person_name')
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+
+
+    if request.method == 'GET':
+        project_material_id = request.GET.get('getdata_id')
+        if project_material_id:
+            project_material = get_object_or_404(Project_Material_Data, project_material_id=project_material_id)
+            return Response({
+                "status": "success",
+                "message": "Project material data fetched successfully",
+                "data": {
+                    "project_material_id": project_material.project_material_id,
+                    "project_material_date": project_material.project_material_date,
+                    "project_material_material_id": project_material.project_material_material_id.material_id,
+                    "project_material_material_type_id": project_material.project_material_material_type_id.material_type_id,
+                    "project_material_work_type_id": project_material.project_material_work_type_id.work_type_id,
+                    "project_material_work_no": project_material.project_material_work_no,
+                    "project_material_price": project_material.project_material_price,
+                    "project_material_total_amount": project_material.project_material_total_amount,
+                    "project_material_agent": project_material.project_material_agent,
+                    "project_material_agent_id": project_material.project_material_agent_id.person_id,
+                    "person_material_agent_amount": project_material.person_material_agent_amount,
+                    "person_material_information": project_material.person_material_information,
+                },
+                'materials_data': materials_data,
+                'material_types_data': material_types_data,
+                'work_types_data': work_types_data,
+                'persons_data': persons_data,
+            })
+        return Response({
+            "status": "error",
+            "message": "Project material ID not provided"
+        }, status=400)
+
+    if request.method == 'POST':
+        project_material_id = request.data.get('project_material_id')
+        project_material_date = request.data.get('project_material_date')
+        project_material_material_id = request.data.get('project_material_material_id')
+        project_material_material_type_id = request.data.get('project_material_material_type_id')
+        project_material_work_type_id = request.data.get('project_material_work_type_id')
+        project_material_work_no = request.data.get('project_material_work_no')
+        project_material_price = request.data.get('project_material_price')
+        project_material_total_amount = request.data.get('project_material_total_amount')
+        project_material_agent = request.data.get('project_material_agent')
+        project_material_agent_id = request.data.get('project_material_agent_id')
+        person_material_agent_amount = request.data.get('person_material_agent_amount')
+        person_material_information = request.data.get('person_material_information')
+
+        material_instance = get_object_or_404(Material, pk=project_material_material_id)
+        material_type_instance = get_object_or_404(Material_Types, pk=project_material_material_type_id)
+        work_type_instance = get_object_or_404(Work_Types, pk=project_material_work_type_id)
+        project_instance = get_object_or_404(Person, pk=project_material_agent_id)
+
+        if project_material_id:
+            project_material = get_object_or_404(Project_Material_Data, project_material_id=project_material_id)
+            project_material.project_material_date = project_material_date
+            project_material.project_material_material_id = material_instance
+            project_material.project_material_material_type_id = material_type_instance
+            project_material.project_material_work_type_id = work_type_instance
+            project_material.project_material_work_no = project_material_work_no
+            project_material.project_material_price = project_material_price
+            project_material.project_material_total_amount = project_material_total_amount
+            project_material.project_material_agent = project_material_agent
+            project_material.project_material_agent_id = project_instance
+            project_material.person_material_agent_amount = person_material_agent_amount
+            project_material.person_material_information = person_material_information
+            project_material.save()
+            message = "Project material data updated successfully"
+        else:
+            project_material = Project_Material_Data.objects.create(
+                project_material_date=project_material_date,
+                project_material_material_id=material_instance,
+                project_material_material_type_id=material_type_instance,
+                project_material_work_type_id=work_type_instance,
+                project_material_work_no=project_material_work_no,
+                project_material_price=project_material_price,
+                project_material_total_amount=project_material_total_amount,
+                project_material_agent=project_material_agent,
+                project_material_agent_id=project_instance,
+                person_material_agent_amount=person_material_agent_amount,
+                person_material_information=person_material_information
+            )
+            message = "Project material data created successfully"
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "project_material_id": project_material.project_material_id,
+                "project_material_date": project_material.project_material_date,
+                "project_material_material_id": project_material.project_material_material_id.material_id,
+                "project_material_material_type_id": project_material.project_material_material_type_id.material_type_id,
+                "project_material_work_type_id": project_material.project_material_work_type_id.work_type_id,
+                "project_material_work_no": project_material.project_material_work_no,
+                "project_material_price": project_material.project_material_price,
+                "project_material_total_amount": project_material.project_material_total_amount,
+                "project_material_agent": project_material.project_material_agent,
+                "project_material_agent_id": project_material.project_material_agent_id.person_id,
+                "person_material_agent_amount": project_material.person_material_agent_amount,
+                "person_material_information": project_material.person_material_information,
+            },
+            'materials_data': materials_data,
+            'material_types_data': material_types_data,
+            'work_types_data': work_types_data,
+            'persons_data': persons_data,
+        })
+
+    return Response({
+        "status": "error",
+        "message": "Invalid request method"
+    }, status=405)
+
+
+def delete_project_material(request):
+    pass
+
+
+@api_view(['DELETE'])
+def delete_project_day_detail(request):
+    project_material_id = request.GET.get('project_material_id')
+
+    if not project_material_id:
+        return Response({
+            "status": "error",
+            "message": "Project Material ID is required."
+        }, status=400)
+
+    try:
+        project_material_data = get_object_or_404(Project_Material_Data, project_material_id=project_material_id)
+        project_material_data.delete()
+
+        return Response({
+            "status": "success",
+            "message": f"Project Material deleted successfully."
+        })
+
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }, status=500)
 
 
 

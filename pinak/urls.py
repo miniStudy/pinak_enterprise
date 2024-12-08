@@ -96,6 +96,14 @@ urlpatterns = [
     path('insert_update_material/', views.insert_update_material, name='insert_update_material'),
     path('delete_material/', views.delete_material, name='delete_material'),
 
+
+    path('show_project_day_details/', views.show_project_day_details, name='show_project_day_details'),
+    path('insert_update_project_day_detail/', views.insert_update_project_day_detail, name='insert_update_project_day_detail'),
+    path('delete_project_day_detail/', views.delete_project_day_detail, name='delete_project_day_detail'),
+
+    path('show_project_material/', views.show_project_material, name='show_project_material'),
+    path('insert_update_project_material/', views.insert_update_project_material, name='insert_update_project_material'),
+    path('delete_project_material/', views.delete_project_material, name='delete_project_material'),
     
 
     

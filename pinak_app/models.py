@@ -352,13 +352,63 @@ class Money_Debit_Credit(models.Model):
     machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.money_credit_debit} {self.person_id.person_name} {self.pay_type_id.pay_type_name}'
+        return f'{self.money_id}'
 
     class Meta:
         db_table = 'Money_Debit_Credit'
 
 
+class Material(models.Model):
+    material_id = models.BigAutoField(primary_key=True)
+    material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
+    material_person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    material_status = models.BooleanField(default=1)
+    material_details = models.TextField(null=True, blank=True)
 
+    def __str__(self):
+        return f'{self.material_type_id.material_type_name} {self.material_person_id.person_name}'
+
+    class Meta:
+        db_table = 'Material'
+
+
+class Project_Day_Details(models.Model):
+    project_day_detail_id = models.BigAutoField(primary_key=True)
+    proejct_day_detail_date = models.DateField()
+    project_day_detail_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
+    project_day_detail_work_type = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
+    project_day_detail_work_no = models.CharField(max_length=155)
+    project_day_detail_price = models.CharField(max_length=155)
+    project_day_detail_total_price = models.CharField(max_length=155)
+    project_day_detail_details = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.project_day_detail_machine_id.machine_name} {self.project_day_detail_work_type.work_type_name}'
+
+    class Meta:
+        db_table = 'Project_Day_Details'
+
+
+class Project_Material_Data(models.Model):
+    project_material_id = models.BigAutoField(primary_key=True)
+    project_material_date = models.DateField()
+    project_material_material_id = models.ForeignKey(Material, on_delete=models.CASCADE)
+    project_material_material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
+    project_material_work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
+    project_material_work_no = models.CharField(max_length=155)
+    project_material_price = models.CharField(max_length=155)
+    project_material_total_amount = models.CharField(max_length=155)
+    project_material_agent = models.BooleanField(default=0)
+    project_material_agent_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person_material_agent_amount = models.CharField(max_length=155, null=True, blank=True)
+    person_material_information = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.project_material_id}'
+
+    class Meta:
+        db_table = 'Project_Material_Data'
+        
 #-----------------------------------Under Construction-----------------------------------------------------------------------------
 
 

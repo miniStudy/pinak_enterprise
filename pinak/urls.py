@@ -86,11 +86,15 @@ urlpatterns = [
     path('insert_update_machine_maintenance/', views.insert_update_machine_maintenance, name='insert_update_machine_maintenance'),
     path('delete_machine_maintenance/', views.delete_machine_maintenance, name='delete_machine_maintenance'),
 
-    
 
     path('show_projects/', views.show_projects, name='show_projects'),
     path('insert_update_project/', views.insert_update_project, name='insert_update_project'),
     path('delete_project/', views.delete_project, name='delete_project'),
+
+
+    path('show_materials/', views.show_materials, name='show_materials'),
+    path('insert_update_material/', views.insert_update_material, name='insert_update_material'),
+    path('delete_material/', views.delete_material, name='delete_material'),
 
     
 

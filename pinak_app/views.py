@@ -942,7 +942,6 @@ def insert_update_machine(request):
         machine_name = request.data.get('machine_name')
         machine_number_plate = request.data.get('machine_number_plate')
         machine_register_date = request.data.get('machine_register_date')
-        print(machine_register_date)
         machine_own = request.data.get('machine_own')
         machine_condition = request.data.get('machine_condition')
         machine_working = request.data.get('machine_working')
@@ -1537,8 +1536,6 @@ def delete_machine_maintenance(request):
 
 
 
-
-
 @api_view(['GET'])
 def show_projects(request):
     projects = Project.objects.all().values(
@@ -1696,6 +1693,125 @@ def delete_project(request):
         }, status=404)
 
 
+@api_view(['GET'])
+
+def show_materials(request):
+    materials_data = Material.objects.all().values(
+        'material_id',
+        'material_type_id__material_type_name',
+        'material_person_id__person_name',
+        'material_status',
+        'material_details'
+    )
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+
+    return Response({
+        'status': 'success',
+        'title': 'Materials',
+        'material_types_data': material_types_data,
+        'persons_data': persons_data,
+        'data': materials_data
+    })
+
+
+@api_view(['POST', 'GET'])
+def insert_update_material(request):
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+
+    if request.method == 'GET':
+        material_id = request.GET.get('getdata_id')
+        if material_id:
+            material = get_object_or_404(Material, material_id=material_id)
+            return Response({
+                "status": "success",
+                "message": "Material data fetched successfully",
+                "data": {
+                    "material_id": material.material_id,
+                    "material_type_id": material.material_type_id.material_type_id,
+                    "material_person_id": material.material_person_id.person_id,
+                    "material_status": material.material_status,
+                    "material_details": material.material_details,
+                },
+                'material_types_data': material_types_data,
+                'persons_data': persons_data,
+            })
+        return Response({
+            "status": "error",
+            "message": "Material ID not provided"
+        }, status=400)
+
+    if request.method == 'POST':
+        material_id = request.data.get('material_id')
+        material_type_id = request.data.get('material_type_id')
+        material_person_id = request.data.get('material_person_id')
+        material_status = request.data.get('material_status')
+        material_details = request.data.get('material_details', '')
+
+        material_type_instance = get_object_or_404(Material_Types, pk=material_type_id)
+        person_instance = get_object_or_404(Person, pk=material_person_id)
+
+        if material_id:
+            material = get_object_or_404(Material, material_id=material_id)
+            material.material_type_id = material_type_instance
+            material.material_person_id = person_instance
+            material.material_status = material_status
+            material.material_details = material_details
+            material.save()
+            message = "Material updated successfully"
+        else:
+            material = Material.objects.create(
+                material_type_id=material_type_instance,
+                material_person_id=person_instance,
+                material_status=material_status,
+                material_details=material_details
+            )
+            message = "Material created successfully"
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "material_id": material.material_id,
+                "material_type_id": material.material_type_id.material_type_id,
+                "material_person_id": material.material_person_id.person_id,
+                "material_status": material.material_status,
+                "material_details": material.material_details,
+            },
+            'material_types_data': material_types_data,
+            'persons_data': persons_data,
+        })
+    return Response({
+        "status": "error",
+        "message": "Invalid request method"
+    }, status=405)
+
+
+@api_view(['DELETE'])
+def delete_material(request):
+    material_id = request.GET.get('material_id')
+
+    if not material_id:
+        return Response({
+            "status": "error",
+            "message": "Material ID is required."
+        }, status=400)
+
+    try:
+        material = get_object_or_404(Material, material_id=material_id)
+        material.delete()
+
+        return Response({
+            "status": "success",
+            "message": f"Material with ID {material_id} deleted successfully."
+        })
+
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }, status=500)
 
 
 

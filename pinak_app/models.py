@@ -324,8 +324,7 @@ class Machine_Maintenance(models.Model):
     machine_maintenance_driver_contact = models.CharField(max_length=15, null=True, blank=True)
     machine_maintenance_repair_person = models.CharField(max_length=155, null=True, blank=True)
     machine_maintenance_repair_person_contact = models.CharField(max_length=15, null=True, blank=True)
-    machine_maintenance_other_details = models.TextField(null=True, blank=True)
-    project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):
         return f'{self.machine_maintenance_types_id.maintenance_type_name} {self.machine_maintenance_amount}'

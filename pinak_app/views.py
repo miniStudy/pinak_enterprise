@@ -1407,12 +1407,15 @@ def show_machine_maintenance(request):
         'machine_maintenance_date',
         'machine_maintenance_amount_paid',
         'machine_maintenance_amount_paid_by',
-        'machine_maintenance_person',
-        'machine_maintenance_contact',
-        'machine_maintenance_driver',
+        'machine_maintenance_driver_name',
+        'machine_maintenance_driver_contact',
+        'machine_maintenance_repair_person',
+        'machine_maintenance_repair_person_contact',
         'machine_maintenance_details',
         'machine_maintenance_types_id__maintenance_type_id',
-        'machine_maintenance_types_id__maintenance_type_name'
+        'machine_maintenance_types_id__maintenance_type_name',
+        'project_id__project_id',
+        'project_id__project_name',
     )
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     return Response({
@@ -1422,6 +1425,8 @@ def show_machine_maintenance(request):
         "data": machine_maintenance
     })
 
+
+
 @api_view(['POST', 'GET'])
 def insert_update_machine_maintenance(request):
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
@@ -1430,34 +1435,40 @@ def insert_update_machine_maintenance(request):
         machine_maintenance_amount = request.data.get('machine_maintenance_amount')
         machine_maintenance_date = request.data.get('machine_maintenance_date')
         machine_maintenance_amount_paid = request.data.get('machine_maintenance_amount_paid')
-        
         machine_maintenance_amount_paid_by = request.data.get('machine_maintenance_amount_paid_by')
-        print("----------------------", machine_maintenance_amount_paid_by)
-        machine_maintenance_person = request.data.get('machine_maintenance_person')
-        machine_maintenance_contact = request.data.get('machine_maintenance_contact')
-        machine_maintenance_driver = request.data.get('machine_maintenance_driver')
+        machine_maintenance_driver_name = request.data.get('machine_maintenance_driver_name')
+        machine_maintenance_driver_contact = request.data.get('machine_maintenance_driver_contact')
+        machine_maintenance_repair_person = request.data.get('machine_maintenance_repair_person')
+        machine_maintenance_repair_person_contact = request.data.get('machine_maintenance_repair_person_contact')
         machine_maintenance_details = request.data.get('machine_maintenance_details')
         machine_maintenance_types_id = request.data.get('machine_maintenance_types_id')
+        project_id = request.data.get('project_id')
+
         maintenance_type_instance = Maintenance_Types.objects.get(maintenance_type_id=machine_maintenance_types_id)
-    
+        project_instance = None
+        if project_id:
+            project_instance = Project.objects.get(id=project_id)
+
     if request.GET.get('getdata_id'):
         maintenance_obj = Machine_Maintenance.objects.get(machine_maintenance_id=request.GET.get('getdata_id'))
         return Response({
-        "status": "success",
-        "message": 'Data Fetched Successfully',
-        "data": {
-            "machine_maintenance_id": maintenance_obj.machine_maintenance_id,
-            "machine_maintenance_amount": maintenance_obj.machine_maintenance_amount,
-            "machine_maintenance_date": maintenance_obj.machine_maintenance_date,
-            "machine_maintenance_amount_paid": maintenance_obj.machine_maintenance_amount_paid,
-            "machine_maintenance_amount_paid_by": maintenance_obj.machine_maintenance_amount_paid_by,
-            "machine_maintenance_person": maintenance_obj.machine_maintenance_person,
-            "machine_maintenance_contact": maintenance_obj.machine_maintenance_contact,
-            "machine_maintenance_driver": maintenance_obj.machine_maintenance_driver,
-            "machine_maintenance_details": maintenance_obj.machine_maintenance_details,
-            "machine_maintenance_types_id": maintenance_obj.machine_maintenance_types_id.maintenance_type_id,
-        },
-        'maintenance_types_data': maintenance_types_data
+            "status": "success",
+            "message": 'Data Fetched Successfully',
+            "data": {
+                "machine_maintenance_id": maintenance_obj.machine_maintenance_id,
+                "machine_maintenance_amount": maintenance_obj.machine_maintenance_amount,
+                "machine_maintenance_date": maintenance_obj.machine_maintenance_date,
+                "machine_maintenance_amount_paid": maintenance_obj.machine_maintenance_amount_paid,
+                "machine_maintenance_amount_paid_by": maintenance_obj.machine_maintenance_amount_paid_by,
+                "machine_maintenance_driver_name": maintenance_obj.machine_maintenance_driver_name,
+                "machine_maintenance_driver_contact": maintenance_obj.machine_maintenance_driver_contact,
+                "machine_maintenance_repair_person": maintenance_obj.machine_maintenance_repair_person,
+                "machine_maintenance_repair_person_contact": maintenance_obj.machine_maintenance_repair_person_contact,
+                "machine_maintenance_details": maintenance_obj.machine_maintenance_details,
+                "machine_maintenance_types_id": maintenance_obj.machine_maintenance_types_id.maintenance_type_id,
+                "project_id": maintenance_obj.project_id.project_id if maintenance_obj.project_id else None,
+            },
+            'maintenance_types_data': maintenance_types_data
         })
 
     if request.method == 'POST':
@@ -1467,11 +1478,13 @@ def insert_update_machine_maintenance(request):
             machine_maintenance.machine_maintenance_date = machine_maintenance_date
             machine_maintenance.machine_maintenance_amount_paid = machine_maintenance_amount_paid
             machine_maintenance.machine_maintenance_amount_paid_by = machine_maintenance_amount_paid_by
-            machine_maintenance.machine_maintenance_person = machine_maintenance_person
-            machine_maintenance.machine_maintenance_contact = machine_maintenance_contact
-            machine_maintenance.machine_maintenance_driver = machine_maintenance_driver
+            machine_maintenance.machine_maintenance_driver_name = machine_maintenance_driver_name
+            machine_maintenance.machine_maintenance_driver_contact = machine_maintenance_driver_contact
+            machine_maintenance.machine_maintenance_repair_person = machine_maintenance_repair_person
+            machine_maintenance.machine_maintenance_repair_person_contact = machine_maintenance_repair_person_contact
             machine_maintenance.machine_maintenance_details = machine_maintenance_details
             machine_maintenance.machine_maintenance_types_id = maintenance_type_instance
+            machine_maintenance.project_id = project_instance
             machine_maintenance.save()
             message = "Machine maintenance record updated successfully."
         else:
@@ -1480,11 +1493,13 @@ def insert_update_machine_maintenance(request):
                 machine_maintenance_date=machine_maintenance_date,
                 machine_maintenance_amount_paid=machine_maintenance_amount_paid,
                 machine_maintenance_amount_paid_by=machine_maintenance_amount_paid_by,
-                machine_maintenance_person=machine_maintenance_person,
-                machine_maintenance_contact=machine_maintenance_contact,
-                machine_maintenance_driver=machine_maintenance_driver,
+                machine_maintenance_driver_name=machine_maintenance_driver_name,
+                machine_maintenance_driver_contact=machine_maintenance_driver_contact,
+                machine_maintenance_repair_person=machine_maintenance_repair_person,
+                machine_maintenance_repair_person_contact=machine_maintenance_repair_person_contact,
                 machine_maintenance_details=machine_maintenance_details,
-                machine_maintenance_types_id=maintenance_type_instance
+                machine_maintenance_types_id=maintenance_type_instance,
+                project_id=project_instance
             )
             message = "Machine maintenance record created successfully."
 
@@ -1498,11 +1513,13 @@ def insert_update_machine_maintenance(request):
                 "machine_maintenance_date": machine_maintenance.machine_maintenance_date,
                 "machine_maintenance_amount_paid": machine_maintenance.machine_maintenance_amount_paid,
                 "machine_maintenance_amount_paid_by": machine_maintenance.machine_maintenance_amount_paid_by,
-                "machine_maintenance_person": machine_maintenance.machine_maintenance_person,
-                "machine_maintenance_contact": machine_maintenance.machine_maintenance_contact,
-                "machine_maintenance_driver": machine_maintenance.machine_maintenance_driver,
+                "machine_maintenance_driver_name": machine_maintenance.machine_maintenance_driver_name,
+                "machine_maintenance_driver_contact": machine_maintenance.machine_maintenance_driver_contact,
+                "machine_maintenance_repair_person": machine_maintenance.machine_maintenance_repair_person,
+                "machine_maintenance_repair_person_contact": machine_maintenance.machine_maintenance_repair_person_contact,
                 "machine_maintenance_details": machine_maintenance.machine_maintenance_details,
                 "machine_maintenance_types_id": machine_maintenance.machine_maintenance_types_id.maintenance_type_id,
+                "project_id": machine_maintenance.project_id.project_id if machine_maintenance.project_id else None,
             },
             'maintenance_types_data': maintenance_types_data
         })
@@ -1510,6 +1527,7 @@ def insert_update_machine_maintenance(request):
         return Response({
             "status": "False"
         })
+
 
 @api_view(['DELETE'])
 def delete_machine_maintenance(request):

@@ -1627,11 +1627,7 @@ def insert_update_project(request):
             'project_end_date': project_obj.project_end_date,
             'project_amount': project_obj.project_amount,
             'project_location': project_obj.project_location,
-
-            'project_owner_id': project_obj.project_owner_name.person_id,
-            'project_owner_name': project_obj.project_owner_name.person_name,
-            'project_owner_contact': project_obj.project_owner_name.person_contact_number,
-
+            'project_owner_name': project_obj.project_owner_name.person_id,
             'project_status': project_obj.project_status,
             'project_cgst': project_obj.project_cgst,
             'project_sgst': project_obj.project_sgst,

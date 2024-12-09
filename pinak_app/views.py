@@ -1563,8 +1563,8 @@ def show_projects(request):
         'project_end_date',
         'project_amount',
         'project_location',
-        'project_customer_name',
-        'project_customer_contact',
+        'project_owner_name__person_name',
+        'project_owner_name__person_contact_number',
         'project_status',
         'project_cgst',
         'project_sgst',
@@ -1574,11 +1574,13 @@ def show_projects(request):
         'project_types_id__project_type_name'
     )
     project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
+    persons_data = Person.objects.all().values('person_name','person_contact_number','person_id')
     return Response({
         "status": "success",
         "title": "Project",
         "project_types_data": project_types_data,
-        "data": projects
+        "data": projects,
+        "persons_data":persons_data,
     })
 
 @api_view(['POST', 'GET'])
@@ -1588,17 +1590,29 @@ def insert_update_project(request):
         project_id = request.data.get('project_id')
         project_name = request.data.get('project_name')
         project_start_date = request.data.get('project_start_date')
+        if project_start_date:
+            pass
+        else:
+            project_start_date = None
+
+
         project_end_date = request.data.get('project_end_date')
+        if project_end_date:
+            pass
+        else:
+           project_end_date = None
+
         project_amount = request.data.get('project_amount')
         project_location = request.data.get('project_location')
-        project_customer_name = request.data.get('project_customer_name')
-        project_customer_contact = request.data.get('project_customer_contact')
+        project_owner = request.data.get('project_owner_name')
+        print(project_owner)
+        project_owner_instance = Person.objects.get(person_id = project_owner)
         project_status = request.data.get('project_status')
         project_cgst = request.data.get('project_cgst')
         project_sgst = request.data.get('project_sgst')
         project_tax = request.data.get('project_tax')
         project_discount = request.data.get('project_discount')
-        project_types_id = request.data.get('project_types_id')
+        project_types_id = int(request.data.get('project_types_id'))
         project_type_instance = Project_Types.objects.get(project_type_id=project_types_id)
     
     if request.GET.get('getdata_id'):
@@ -1613,8 +1627,11 @@ def insert_update_project(request):
             'project_end_date': project_obj.project_end_date,
             'project_amount': project_obj.project_amount,
             'project_location': project_obj.project_location,
-            'project_customer_name': project_obj.project_customer_name,
-            'project_customer_contact': project_obj.project_customer_contact,
+
+            'project_owner_id': project_obj.project_owner_name.person_id,
+            'project_owner_name': project_obj.project_owner_name.person_name,
+            'project_owner_contact': project_obj.project_owner_name.person_contact_number,
+
             'project_status': project_obj.project_status,
             'project_cgst': project_obj.project_cgst,
             'project_sgst': project_obj.project_sgst,
@@ -1633,8 +1650,7 @@ def insert_update_project(request):
             project.project_end_date = project_end_date
             project.project_amount = project_amount
             project.project_location = project_location
-            project.project_customer_name = project_customer_name
-            project.project_customer_contact = project_customer_contact
+            project.project_owner_name = project_owner_instance
             project.project_status = project_status
             project.project_cgst = project_cgst
             project.project_tax = project_tax
@@ -1650,8 +1666,7 @@ def insert_update_project(request):
                 project_end_date=project_end_date,
                 project_amount=project_amount,
                 project_location=project_location,
-                project_customer_name=project_customer_name,
-                project_customer_contact=project_customer_contact,
+                project_owner_name = project_owner_instance,
                 project_status=project_status,
                 project_cgst=project_cgst,
                 project_sgst=project_sgst,
@@ -1672,8 +1687,9 @@ def insert_update_project(request):
                 "project_end_date": project.project_end_date,
                 "project_amount": project.project_amount,
                 "project_location": project.project_location,
-                "project_customer_name": project.project_customer_name,
-                "project_customer_contact": project.project_customer_contact,
+                'project_owner_id': project.project_owner_name.person_id,
+                'project_owner_name': project.project_owner_name.person_name,
+                'project_owner_contact': project.project_owner_name.person_contact_number,
                 "project_status": project.project_status,
                 "project_cgst": project.project_cgst,
                 "project_sgst": project.project_sgst,

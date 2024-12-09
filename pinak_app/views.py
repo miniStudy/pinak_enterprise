@@ -1094,7 +1094,14 @@ def delete_machine(request):
 
 @api_view(['GET'])
 def show_money_debit_credit(request):
-    money_debit_credit_data = Money_Debit_Credit.objects.all().values(
+    money_debit_credit_data = Money_Debit_Credit.objects.all()
+
+    if request.GET.get('sender_id'):
+        sender_id = request.GET.get('sender_id')
+        if sender_id:
+            money_debit_credit_data = money_debit_credit_data.filter(sender_person_id__person_id = sender_id)
+
+    money_debit_credit_data = money_debit_credit_data.values(
         'money_id',
         'sender_person_id__person_name',
         'receiver_person_id__person_name',

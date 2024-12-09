@@ -1101,6 +1101,12 @@ def show_money_debit_credit(request):
         if sender_id:
             money_debit_credit_data = money_debit_credit_data.filter(sender_person_id__person_id = sender_id)
 
+    if request.GET.get('receiver_id'):
+        receiver_id = request.GET.get('receiver_id')
+        if receiver_id:
+            money_debit_credit_data = money_debit_credit_data.filter(receiver_person_id__person_id = sender_id)
+
+
     money_debit_credit_data = money_debit_credit_data.values(
         'money_id',
         'sender_person_id__person_name',

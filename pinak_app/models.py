@@ -250,25 +250,13 @@ class Project(models.Model):
         db_table = 'Project'
 
 
-class Project_With_Person_N_Machine(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    date = models.DateField()
-    machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
-    project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
-    person_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return f'{self.machine_id.machine_name} {self.project_id.project_name}'
-
-    class Meta:
-        db_table = 'Project_With_Person_N_Machine'
 
 
 
 class Project_Machine_Data(models.Model):
     project_machine_data_id = models.BigAutoField(primary_key=True)
     project_machine_date = models.DateField()
-    machine_project_id = models.ForeignKey(Project_With_Person_N_Machine, on_delete=models.CASCADE)
+    machine_project_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_machine_data_work_number = models.CharField(max_length=155)
     project_machine_data_work_price = models.CharField(max_length=155)
@@ -289,7 +277,7 @@ class Project_Person_Data(models.Model):
         Pinak = 'Pinak', 'Pinak'
         Office = 'Office', 'Office'
     project_person_id = models.BigAutoField(primary_key=True)
-    person_id = models.ForeignKey(Project_With_Person_N_Machine, on_delete=models.CASCADE)
+    person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
     project_person_date = models.DateField()
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_machine_data_id = models.ForeignKey(Project_Machine_Data, on_delete=models.CASCADE)

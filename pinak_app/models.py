@@ -249,10 +249,6 @@ class Project(models.Model):
     class Meta:
         db_table = 'Project'
 
-
-
-
-
 class Project_Machine_Data(models.Model):
     project_machine_data_id = models.BigAutoField(primary_key=True)
     project_machine_date = models.DateField()

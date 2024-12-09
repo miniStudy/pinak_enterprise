@@ -2123,12 +2123,8 @@ def insert_update_project_material(request):
     }, status=405)
 
 
-def delete_project_material(request):
-    pass
-
-
 @api_view(['DELETE'])
-def delete_project_day_detail(request):
+def delete_project_material(request):
     project_material_id = request.GET.get('project_material_id')
 
     if not project_material_id:
@@ -2153,10 +2149,315 @@ def delete_project_day_detail(request):
         }, status=500)
 
 
+@api_view(['GET'])
+def show_project_machine(request):
+    project_machines_data = Project_Machine_Data.objects.all().values(
+        'project_machine_data_id',
+        'project_machine_date',
+        'machine_project_id__machine_name',
+        'work_type_id__work_type_name',
+        'project_machine_data_work_number',
+        'project_machine_data_work_price',
+        'project_machine_data_total_amount',
+        'project_machine_data_work_details',
+        'project_machine_data_more_details'
+    )
+
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+
+    return Response({
+        'status': 'success',
+        'title': 'Project Machine',
+        'machines_data': machines_data,
+        'work_types_data': work_types_data,
+        'data': project_machines_data
+
+    })
+
+
+@api_view(['POST', 'GET'])
+def insert_update_project_machine(request):
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+
+    if request.method == 'GET':
+        project_machine_id = request.GET.get('getdata_id')
+        if project_machine_id:
+            project_machine = get_object_or_404(Project_Machine_Data, project_machine_data_id=project_machine_id)
+            return Response({
+                "status": "success",
+                "message": "Project machine data fetched successfully",
+                "data": {
+                    "project_machine_data_id": project_machine.project_machine_data_id,
+                    "project_machine_date": project_machine.project_machine_date,
+                    "machine_project_id": project_machine.machine_project_id.machine_id,
+                    "work_type_id": project_machine.work_type_id.work_type_id,
+                    "project_machine_data_work_number": project_machine.project_machine_data_work_number,
+                    "project_machine_data_work_price": project_machine.project_machine_data_work_price,
+                    "project_machine_data_total_amount": project_machine.project_machine_data_total_amount,
+                    "project_machine_data_work_details": project_machine.project_machine_data_work_details,
+                    "project_machine_data_more_details": project_machine.project_machine_data_more_details,
+                },
+                'machines_data': machines_data,
+                'work_types_data': work_types_data,
+            })
+        return Response({
+            "status": "error",
+            "message": "Project machine ID not provided"
+        }, status=400)
+
+    if request.method == 'POST':
+        project_machine_id = request.data.get('project_machine_data_id')
+        project_machine_date = request.data.get('project_machine_date')
+        machine_project_id = request.data.get('machine_project_id')
+        work_type_id = request.data.get('work_type_id')
+        project_machine_data_work_number = request.data.get('project_machine_data_work_number')
+        project_machine_data_work_price = request.data.get('project_machine_data_work_price')
+        project_machine_data_total_amount = request.data.get('project_machine_data_total_amount')
+        project_machine_data_work_details = request.data.get('project_machine_data_work_details')
+        project_machine_data_more_details = request.data.get('project_machine_data_more_details')
+
+        machine_instance = get_object_or_404(Machines, pk=machine_project_id)
+        work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
+
+        if project_machine_id:
+            project_machine = get_object_or_404(Project_Machine_Data, pk=project_machine_id)
+            project_machine.project_machine_date = project_machine_date
+            project_machine.machine_project_id = machine_instance
+            project_machine.work_type_id = work_type_instance
+            project_machine.project_machine_data_work_number = project_machine_data_work_number
+            project_machine.project_machine_data_work_price = project_machine_data_work_price
+            project_machine.project_machine_data_total_amount = project_machine_data_total_amount
+            project_machine.project_machine_data_work_details = project_machine_data_work_details
+            project_machine.project_machine_data_more_details = project_machine_data_more_details
+            project_machine.save()
+            message = "Project machine data updated successfully"
+        else:
+            project_machine = Project_Machine_Data.objects.create(
+                project_machine_date=project_machine_date,
+                machine_project_id=machine_instance,
+                work_type_id=work_type_instance,
+                project_machine_data_work_number=project_machine_data_work_number,
+                project_machine_data_work_price=project_machine_data_work_price,
+                project_machine_data_total_amount=project_machine_data_total_amount,
+                project_machine_data_work_details=project_machine_data_work_details,
+                project_machine_data_more_details=project_machine_data_more_details,
+            )
+            message = "Project machine data created successfully"
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "project_machine_data_id": project_machine.project_machine_data_id,
+                "project_machine_date": project_machine.project_machine_date,
+                "machine_project_id": project_machine.machine_project_id.machine_id,
+                "work_type_id": project_machine.work_type_id.work_type_id,
+                "project_machine_data_work_number": project_machine.project_machine_data_work_number,
+                "project_machine_data_work_price": project_machine.project_machine_data_work_price,
+                "project_machine_data_total_amount": project_machine.project_machine_data_total_amount,
+                "project_machine_data_work_details": project_machine.project_machine_data_work_details,
+                "project_machine_data_more_details": project_machine.project_machine_data_more_details,
+            },
+            'machines_data': machines_data,
+            'work_types_data': work_types_data,
+        })
+
+    return Response({
+        "status": "error",
+        "message": "Invalid request method"
+    }, status=405)
+
+
+@api_view(['DELETE'])
+def delete_project_machine(request):
+    project_machine_data_id = request.GET.get('project_machine_data_id')
+
+    if not project_machine_data_id:
+        return Response({
+            "status": "error",
+            "message": "Project Machine ID is required."
+        }, status=400)
+
+    try:
+        project_machine_data = get_object_or_404(Project_Machine_Data, project_machine_data_id=project_machine_data_id)
+        project_machine_data.delete()
+
+        return Response({
+            "status": "success",
+            "message": f"Project Machine deleted successfully."
+        })
+
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }, status=500)
+
+
+@api_view(['GET'])
+def show_project_person(request):
+    project_person_data = Project_Person_Data.objects.all().values(
+        'project_person_id',
+        'person_id__person_name',
+        'project_person_date',
+        'work_type_id__work_type_name',
+        'project_machine_data_id__machine_project_id__machine_name',
+        'project_person_work_num',
+        'project_person_price',
+        'project_person_total_price',
+        'project_person_paid_by',
+        'project_person_payment_details',
+        'project_person_more_details'
+    )
+
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_machine_data = Project_Machine_Data.objects.all().values('project_machine_data_id', 'machine_project_id__machine_name')
+
+    return Response({
+        'status': 'success',
+        'title': 'Project Person',
+        'persons_data': persons_data,
+        'work_types_data': work_types_data,
+        'project_machine_data': project_machine_data,
+        'data': project_person_data
+    })
 
 
 
+@api_view(['POST', 'GET'])
+def insert_update_project_person(request):
+    persons_data = Person.objects.all().values('person_id', 'person_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_machine_data = Project_Machine_Data.objects.all().values('project_machine_data_id', 'machine_project_id__machine_name')
 
+    if request.method == 'GET':
+        project_person_id = request.GET.get('getdata_id')
+        if project_person_id:
+            project_person = get_object_or_404(Project_Person_Data, pk=project_person_id)
+            return Response({
+                "status": "success",
+                "message": "Project person data fetched successfully",
+                "data": {
+                    "project_person_id": project_person.project_person_id,
+                    "person_id": project_person.person_id.person_id,
+                    "project_person_date": project_person.project_person_date,
+                    "work_type_id": project_person.work_type_id.work_type_id,
+                    "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id,
+                    "project_person_work_num": project_person.project_person_work_num,
+                    "project_person_price": project_person.project_person_price,
+                    "project_person_total_price": project_person.project_person_total_price,
+                    "project_person_paid_by": project_person.project_person_paid_by,
+                    "project_person_payment_details": project_person.project_person_payment_details,
+                    "project_person_more_details": project_person.project_person_more_details,
+                },
+                'persons_data': persons_data,
+                'work_types_data': work_types_data,
+                'project_machine_data': project_machine_data,
+            })
+        return Response({
+            "status": "error",
+            "message": "Project person ID not provided"
+        }, status=400)
+
+    if request.method == 'POST':
+        project_person_id = request.data.get('project_person_id')
+        person_id = request.data.get('person_id')
+        project_person_date = request.data.get('project_person_date')
+        work_type_id = request.data.get('work_type_id')
+        project_machine_data_id = request.data.get('project_machine_data_id')
+        project_person_work_num = request.data.get('project_person_work_num')
+        project_person_price = request.data.get('project_person_price')
+        project_person_total_price = request.data.get('project_person_total_price')
+        project_person_paid_by = request.data.get('project_person_paid_by')
+        project_person_payment_details = request.data.get('project_person_payment_details')
+        project_person_more_details = request.data.get('project_person_more_details')
+
+        person_instance = get_object_or_404(Person, pk=person_id)
+        work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
+        machine_instance = get_object_or_404(Project_Machine_Data, pk=project_machine_data_id)
+
+        if project_person_id:
+            project_person = get_object_or_404(Project_Person_Data, pk=project_person_id)
+            project_person.person_id = person_instance
+            project_person.project_person_date = project_person_date
+            project_person.work_type_id = work_type_instance
+            project_person.project_machine_data_id = machine_instance
+            project_person.project_person_work_num = project_person_work_num
+            project_person.project_person_price = project_person_price
+            project_person.project_person_total_price = project_person_total_price
+            project_person.project_person_paid_by = project_person_paid_by
+            project_person.project_person_payment_details = project_person_payment_details
+            project_person.project_person_more_details = project_person_more_details
+            project_person.save()
+            message = "Project person data updated successfully"
+        else:
+            project_person = Project_Person_Data.objects.create(
+                person_id=person_instance,
+                project_person_date=project_person_date,
+                work_type_id=work_type_instance,
+                project_machine_data_id=machine_instance,
+                project_person_work_num=project_person_work_num,
+                project_person_price=project_person_price,
+                project_person_total_price=project_person_total_price,
+                project_person_paid_by=project_person_paid_by,
+                project_person_payment_details=project_person_payment_details,
+                project_person_more_details=project_person_more_details,
+            )
+            message = "Project person data created successfully"
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "project_person_id": project_person.project_person_id,
+                "person_id": project_person.person_id.person_id,
+                "project_person_date": project_person.project_person_date,
+                "work_type_id": project_person.work_type_id.work_type_id,
+                "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id,
+                "project_person_work_num": project_person.project_person_work_num,
+                "project_person_price": project_person.project_person_price,
+                "project_person_total_price": project_person.project_person_total_price,
+                "project_person_paid_by": project_person.project_person_paid_by,
+                "project_person_payment_details": project_person.project_person_payment_details,
+                "project_person_more_details": project_person.project_person_more_details,
+            },
+            'persons_data': persons_data,
+            'work_types_data': work_types_data,
+            'project_machine_data': project_machine_data,
+        })
+
+    return Response({
+        "status": "error",
+        "message": "Invalid request method"
+    }, status=405)
+
+
+
+@api_view(['DELETE'])
+def delete_project_person(request):
+    project_person_id = request.GET.get('project_person_id')
+    
+    if not project_person_id:
+        return Response({
+            "status": "error",
+            "message": "Project person ID is required"
+        }, status=400)
+
+    try:
+        project_person = get_object_or_404(Project_Person_Data, project_person_id=project_person_id)
+        project_person.delete()
+        return Response({
+            "status": "success",
+            "message": "Project person deleted successfully"
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"Failed to delete project person: {str(e)}"
+        }, status=500)
 
 
 

@@ -104,6 +104,16 @@ urlpatterns = [
     path('show_project_material/', views.show_project_material, name='show_project_material'),
     path('insert_update_project_material/', views.insert_update_project_material, name='insert_update_project_material'),
     path('delete_project_material/', views.delete_project_material, name='delete_project_material'),
+
+
+    path('show_project_machine/', views.show_project_machine, name='show_project_machine'),
+    path('insert_update_project_machine/', views.insert_update_project_machine, name='insert_update_project_machine'),
+    path('delete_project_machine/', views.delete_project_machine, name='delete_project_machine'),
+
+
+    path('show_project_person/', views.show_project_person, name='show_project_person'),
+    path('insert_update_project_person/', views.insert_update_project_person, name='insert_update_project_person'),
+    path('delete_project_person/', views.delete_project_person, name='delete_project_person'),
     
 
     

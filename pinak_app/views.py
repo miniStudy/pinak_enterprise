@@ -1851,6 +1851,49 @@ def delete_material(request):
         }, status=500)
 
 
+
+
+
+@api_view(['GET'])
+def single_project_data(request):
+    try:
+        # Fetch the project object
+        project = Project.objects.get(project_id=request.GET.get('project_id'))
+        
+        # Construct a dictionary with all data, including related fields
+        project_data = {
+            "project_id": project.project_id,
+            "project_name": project.project_name,
+            "project_amount": project.project_amount,
+            "project_location": project.project_location,
+            "project_types_id": project.project_types_id_id,
+            "project_type_name": project.project_types_id.project_type_name,
+            "project_status": project.project_status,
+            "project_start_date": project.project_start_date,
+            "project_end_date": project.project_end_date,
+            "project_owner_name_id": project.project_owner_name_id,
+            "project_owner_name": project.project_owner_name.person_name if project.project_owner_name else None,
+            "project_owner_contact_number": project.project_owner_name.person_contact_number if project.project_owner_name else None,
+            "project_cgst": project.project_cgst,
+            "project_sgst": project.project_sgst,
+            "project_tax": project.project_tax,
+            "project_discount": project.project_discount,
+        }
+
+        return Response({"status": "success", "data": project_data,"title":project.project_name})
+    except Project.DoesNotExist:
+        return Response({"status": "error", "message": "Project not found."}, status=404)
+
+
+
+
+
+
+
+
+
+
+
 @api_view(['GET'])
 def show_project_day_details(request):
     project_day_details_data = Project_Day_Details.objects.all().values(

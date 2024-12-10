@@ -3,6 +3,9 @@ from pinak_app.models import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
+from django.db.models import Sum, FloatField
+from django.db.models.functions import Cast
 
 # Create your views here.
 
@@ -1106,6 +1109,11 @@ def show_money_debit_credit(request):
         if receiver_id:
             money_debit_credit_data = money_debit_credit_data.filter(receiver_person_id__person_id = receiver_id)
 
+    if request.GET.get('pay_type_id'):
+        pay_type_id = request.GET.get('pay_type_id')
+        if pay_type_id:
+            money_debit_credit_data = money_debit_credit_data.filter(pay_type_id__pay_type_id = pay_type_id)
+
 
     money_debit_credit_data = money_debit_credit_data.values(
         'money_id',
@@ -1308,12 +1316,28 @@ def show_salary(request):
         'person_id__person_contact_number'
     )
 
+    money_transaction_data = Money_Debit_Credit.objects.filter(pay_type_id__pay_type_name = 'salary').values(
+        'money_id',
+        'receiver_person_id__person_name',
+        'money_date',
+        'money_amount',
+        'money_payment_mode',
+        'money_payment_details',
+    ).annotate(total_money_amount_personwise=Sum('money_amount'))
+
+    # total_money_amount = Money_Debit_Credit.objects.filter(pay_type_id__pay_type_name = 'salary').annotate(
+    # money_amount_numeric=Cast('money_amount', FloatField())
+    # ).aggregate(total_amount=Sum('money_amount_numeric'))['total_amount']
+
+
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
 
     return Response({
         "status": "success",
         "title": "Salary Details",
         "persons_data": persons_data,
+        'money_data': money_transaction_data,
+        # "total_money_amount": total_money_amount,
         "data": salary_details
     })
 

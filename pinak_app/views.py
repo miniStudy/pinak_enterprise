@@ -586,10 +586,19 @@ def delete_pay_type(request):
 
 @api_view(['GET'])
 def show_persons(request):
-    persons = Person.objects.select_related('person_type_id').values(
+    persons = Person.objects.all()
+    if request.GET.get('person_id'):
+        person_id = request.GET.get('person_id')
+        print("------------", person_id)
+        if person_id:
+            persons = persons.filter(person_id = person_id)
+
+
+    persons = persons.values(
         'person_id',
         'person_name',
         'person_contact_number',
+        'person_salary',
         'person_register_date',
         'person_status',
         'person_address',
@@ -602,6 +611,7 @@ def show_persons(request):
         'person_type_id__person_type_name',
         'person_types_for_project'
     )
+
     
     person_types = Person_Type.objects.all().values(
         'person_type_id', 
@@ -1315,6 +1325,7 @@ def show_salary(request):
         'salary_id',
         'salary_date', 
         'salary_amount',
+        'person_id__person_salary',
         'salary_working_days', 
         'salary_details', 
         'person_id__person_name',

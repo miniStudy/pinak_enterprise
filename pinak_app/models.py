@@ -144,7 +144,8 @@ class Person(models.Model):
     person_gst = models.CharField(max_length=155, null=True, blank=True)
     person_type_id = models.ForeignKey(Person_Type, on_delete=models.CASCADE, null=True, blank=True)
     person_types_for_project = models.CharField(choices=project_person_options, max_length=155, null=True, blank=True)
-
+    person_salary = models.CharField(max_length=150, null=True, blank=True)
+    
     def __str__(self):
         return f'{self.person_type_id.person_type_name} {self.person_name}'
 

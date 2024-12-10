@@ -631,6 +631,7 @@ def insert_update_person(request):
                     "person_register_date": person_obj.person_register_date,
                     "person_status": person_obj.person_status,
                     "person_address": person_obj.person_address,
+                    "person_salary":person_obj.person_salary,
                     "person_other_details": person_obj.person_other_details,
                     "person_business_job_name": person_obj.person_business_job_name,
                     "person_business_job_company_num": person_obj.person_business_job_company_num,
@@ -653,6 +654,7 @@ def insert_update_person(request):
         person_contact_number = request.data.get('person_contact_number')
         person_status = request.data.get('person_status', True)
         person_address = request.data.get('person_address')
+        person_salary = request.data.get('person_salary')
         person_other_details = request.data.get('person_other_details')
         person_business_job_name = request.data.get('person_business_job_name')
         person_business_job_company_num = request.data.get('person_business_job_company_num')
@@ -661,7 +663,7 @@ def insert_update_person(request):
         person_types_for_project = request.data.get('person_types_for_project')
         person_type_id = request.data.get('person_type_id')
 
-        if not all([person_name, person_contact_number, person_types_for_project, person_type_id]):
+        if not all([person_name, person_contact_number, person_type_id]):
             return Response({
                 "status": "failed",
                 "message": "All required fields must be provided."
@@ -675,6 +677,7 @@ def insert_update_person(request):
             person.person_contact_number = person_contact_number
             person.person_status = person_status
             person.person_address = person_address
+            person.person_salary = person_salary
             person.person_other_details = person_other_details
             person.person_business_job_name = person_business_job_name
             person.person_business_job_company_num = person_business_job_company_num
@@ -694,6 +697,7 @@ def insert_update_person(request):
                 person_business_job_name=person_business_job_name,
                 person_business_job_company_num=person_business_job_company_num,
                 person_business_job_address=person_business_job_address,
+                person_salary = person_salary,
                 person_gst=person_gst,
                 person_types_for_project=person_types_for_project,
                 person_type_id=person_type_instance
@@ -715,6 +719,7 @@ def insert_update_person(request):
                 "person_business_job_company_num": person.person_business_job_company_num,
                 "person_business_job_address": person.person_business_job_address,
                 "person_gst": person.person_gst,
+                "person_salary":person.person_salary,
                 "person_types_for_project": person.person_types_for_project,
                 "person_type_id": person.person_type_id.person_type_id
             },

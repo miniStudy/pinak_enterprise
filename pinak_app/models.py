@@ -332,7 +332,7 @@ class Money_Debit_Credit(models.Model):
     receiver_bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE, related_name='receiver_bank_id',null=True, blank=True)
     money_payment_details = models.TextField(null=True, blank=True)
     machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
-
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE, null=True,blank=True)
     def __str__(self):
         return f'{self.money_id}'
 

@@ -1485,8 +1485,15 @@ def delete_salary(request):
 
 @api_view(['GET'])
 def show_machine_maintenance(request):
-    machine_maintenance = Machine_Maintenance.objects.all().values(
+    machine_maintenance = Machine_Maintenance.objects.all()
+    if request.GET.get('machine_id'):
+        machine_maintenance = machine_maintenance.filter(machine_machine_id__machine_id = request.GET.get('machine_id'))
+
+    machine_maintenance = machine_maintenance.values(
         'machine_maintenance_id',
+        'machine_machine_id__machine_name',
+        'machine_machine_id__machine_number_plate',
+        'machine_machine_id__machine_types_id__machine_type_name',
         'machine_maintenance_amount',
         'machine_maintenance_date',
         'machine_maintenance_amount_paid',
@@ -1502,11 +1509,13 @@ def show_machine_maintenance(request):
         'project_id__project_name',
     )
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
     return Response({
         "status": "success",
         "title": "Maintenance",
         "maintenance_types_data": maintenance_types_data,
+        "machines_data": machines_data,
         "persons_data": persons_data,
         "data": machine_maintenance
     })
@@ -1516,9 +1525,11 @@ def show_machine_maintenance(request):
 @api_view(['POST', 'GET'])
 def insert_update_machine_maintenance(request):
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
     if request.method == 'POST':
         machine_maintenance_id = request.data.get('machine_maintenance_id')
+        machine_machine_id = request.data.get('machine_machine_id')
         machine_maintenance_amount = request.data.get('machine_maintenance_amount')
         machine_maintenance_date = request.data.get('machine_maintenance_date')
         machine_maintenance_amount_paid = request.data.get('machine_maintenance_amount_paid')
@@ -1531,6 +1542,7 @@ def insert_update_machine_maintenance(request):
         project_id = request.data.get('project_id')
 
         maintenance_type_instance = Maintenance_Types.objects.get(maintenance_type_id=machine_maintenance_types_id)
+        machine_instance = Machines.objects.get(machine_id = machine_machine_id)
         person_instance = Person.objects.get(person_id = machine_maintenance_person_id)
         project_instance = None
         if project_id:
@@ -1543,6 +1555,7 @@ def insert_update_machine_maintenance(request):
             "message": 'Data Fetched Successfully',
             "data": {
                 "machine_maintenance_id": maintenance_obj.machine_maintenance_id,
+                "machine_machine_id": maintenance_obj.machine_machine_id.machine_id,
                 "machine_maintenance_amount": maintenance_obj.machine_maintenance_amount,
                 "machine_maintenance_date": maintenance_obj.machine_maintenance_date,
                 "machine_maintenance_amount_paid": maintenance_obj.machine_maintenance_amount_paid,
@@ -1555,12 +1568,14 @@ def insert_update_machine_maintenance(request):
                 "project_id": maintenance_obj.project_id.project_id if maintenance_obj.project_id else None,
             },
             'maintenance_types_data': maintenance_types_data,
+            "machines_data": machines_data,
             "persons_data": persons_data,
         })
 
     if request.method == 'POST':
         if machine_maintenance_id:
             machine_maintenance = Machine_Maintenance.objects.get(machine_maintenance_id=machine_maintenance_id)
+            machine_maintenance.machine_machine_id = machine_instance
             machine_maintenance.machine_maintenance_amount = machine_maintenance_amount
             machine_maintenance.machine_maintenance_date = machine_maintenance_date
             machine_maintenance.machine_maintenance_amount_paid = machine_maintenance_amount_paid
@@ -1575,6 +1590,7 @@ def insert_update_machine_maintenance(request):
             message = "Machine maintenance record updated successfully."
         else:
             machine_maintenance = Machine_Maintenance.objects.create(
+                machine_machine_id=machine_instance,
                 machine_maintenance_amount=machine_maintenance_amount,
                 machine_maintenance_date=machine_maintenance_date,
                 machine_maintenance_amount_paid=machine_maintenance_amount_paid,
@@ -1594,6 +1610,7 @@ def insert_update_machine_maintenance(request):
             "message": message,
             "data": {
                 "machine_maintenance_id": machine_maintenance.machine_maintenance_id,
+                "machine_machine_id": machine_maintenance.machine_machine_id.machine_id,
                 "machine_maintenance_amount": machine_maintenance.machine_maintenance_amount,
                 "machine_maintenance_date": machine_maintenance.machine_maintenance_date,
                 "machine_maintenance_amount_paid": machine_maintenance.machine_maintenance_amount_paid,
@@ -1606,6 +1623,7 @@ def insert_update_machine_maintenance(request):
                 "project_id": machine_maintenance.project_id.project_id if machine_maintenance.project_id else None,
             },
             'maintenance_types_data': maintenance_types_data,
+            "machines_data": machines_data,
             "persons_data": persons_data,
         })
     else:
@@ -2291,7 +2309,12 @@ def delete_project_material(request):
 
 @api_view(['GET'])
 def show_project_machine(request):
-    project_machines_data = Project_Machine_Data.objects.all().values(
+    project_machines_data = Project_Machine_Data.objects.all()
+    if request.GET.get('machine_id'):
+        print("---------------------", request.GET.get('machine_id'))
+        project_machines_data = project_machines_data.filter(machine_project_id__machine_id = request.GET.get('machine_id'))
+
+    project_machines_data = project_machines_data.values(
         'project_machine_data_id',
         'project_machine_date',
         'machine_project_id__machine_name',

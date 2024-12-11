@@ -616,7 +616,12 @@ def show_persons(request):
     person_types = Person_Type.objects.all().values(
         'person_type_id', 
         'person_type_name'
-    )
+    )     
+
+
+
+
+
     
     return Response({
         "status": "success",
@@ -1145,8 +1150,34 @@ def show_money_debit_credit(request):
         'machine_id__machine_name',
     )
 
+    money_credit_data = money_debit_credit_data.filter(sender_person_id__person_name = 'pinak enterprise').values(
+        'money_id',
+        'sender_person_id__person_name',
+        'receiver_person_id__person_name',
+        'pay_type_id__pay_type_name',
+        'money_amount',
+        'money_payment_mode',
+        'money_date',
+        'sender_bank_id__bank_name',
+        'receiver_bank_id__bank_name',
+        'machine_id__machine_name'
+    )
+
+    money_debit_data =  money_debit_credit_data.filter(receiver_person_id__person_name = 'pinak enterprise').values(
+        'money_id',
+        'sender_person_id__person_name',
+        'receiver_person_id__person_name',
+        'pay_type_id__pay_type_name',
+        'money_amount',
+        'money_payment_mode',
+        'money_date',
+        'sender_bank_id__bank_name',
+        'receiver_bank_id__bank_name',
+        'machine_id__machine_name'
+    )
+
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
-    banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number')
+    banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')  
     return Response({
@@ -1156,7 +1187,9 @@ def show_money_debit_credit(request):
         "persons_data": persons_data,
         "pay_types_data": pay_types_data,
         "machines_data": machines_data,
-        "data": money_debit_credit_data
+        "data": money_debit_credit_data,
+        "money_credit_data": money_credit_data,
+        "money_debit_data": money_debit_data,
     })  
 
 
@@ -1165,7 +1198,7 @@ def insert_update_money_debit_credit(request):
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name') 
-    bank_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number')
+    bank_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
 
     if request.method == 'POST':
         money_id = request.data.get('money_id')

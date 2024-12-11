@@ -298,6 +298,7 @@ class Machine_Maintenance(models.Model):
         Pinak = 'Pinak', 'Pinak'
 
     machine_maintenance_id = models.BigAutoField(primary_key=True)
+    machine_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
     machine_maintenance_amount = models.CharField(max_length=155)
     machine_maintenance_date = models.DateField()
     machine_maintenance_amount_paid_by = models.CharField(choices=paid_options, max_length=55)

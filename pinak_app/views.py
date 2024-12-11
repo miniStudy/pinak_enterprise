@@ -589,9 +589,7 @@ def show_persons(request):
     persons = Person.objects.all()
     if request.GET.get('person_id'):
         person_id = request.GET.get('person_id')
-        print("------------", person_id)
-        if person_id:
-            persons = persons.filter(person_id = person_id)
+        persons = persons.filter(person_id = person_id)
 
 
     persons = persons.values(

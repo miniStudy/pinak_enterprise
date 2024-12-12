@@ -2311,7 +2311,6 @@ def delete_project_material(request):
 def show_project_machine(request):
     project_machines_data = Project_Machine_Data.objects.all()
     if request.GET.get('machine_id'):
-        print("---------------------", request.GET.get('machine_id'))
         project_machines_data = project_machines_data.filter(machine_project_id__machine_id = request.GET.get('machine_id'))
 
     project_machines_data = project_machines_data.values(
@@ -2343,7 +2342,6 @@ def show_project_machine(request):
 def insert_update_project_machine(request):
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-
     if request.method == 'GET':
         project_machine_id = request.GET.get('getdata_id')
         if project_machine_id:
@@ -2461,7 +2459,10 @@ def delete_project_machine(request):
 
 @api_view(['GET'])
 def show_project_person(request):
-    project_person_data = Project_Person_Data.objects.all().values(
+    project_person_data = Project_Person_Data.objects.all()
+    if request.GET.get('person_id'):
+        project_person_data = project_person_data.filter(person_id__person_id = request.GET.get('person_id'))
+    project_person_data = project_person_data.values(
         'project_person_id',
         'person_id__person_name',
         'project_person_date',

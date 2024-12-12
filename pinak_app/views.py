@@ -2050,9 +2050,8 @@ def insert_update_project_day_detail(request):
         proejct_day_detail_date = request.data.get('proejct_day_detail_date')
         project_day_detail_machine_id = request.data.get('project_day_detail_machine_id')
         project_day_detail_work_type = request.data.get('project_day_detail_work_type')
-        project_day_detail_work_no = request.data.get('project_day_detail_work_no')
-        project_day_detail_price = request.data.get('project_day_detail_price')
-        project_day_detail_total_price = request.data.get('project_day_detail_total_price')
+        project_day_detail_work_no = int(request.data.get('project_day_detail_work_no'))
+        project_day_detail_price = int(request.data.get('project_day_detail_price'))
         project_day_detail_details = request.data.get('project_day_detail_details', '')
 
         machine_instance = get_object_or_404(Machines, pk=project_day_detail_machine_id)
@@ -2065,7 +2064,7 @@ def insert_update_project_day_detail(request):
             project_day_detail.project_day_detail_work_type = work_type_instance
             project_day_detail.project_day_detail_work_no = project_day_detail_work_no
             project_day_detail.project_day_detail_price = project_day_detail_price
-            project_day_detail.project_day_detail_total_price = project_day_detail_total_price
+            project_day_detail.project_day_detail_total_price = project_day_detail_work_no * project_day_detail_price
             project_day_detail.project_day_detail_details = project_day_detail_details
             project_day_detail.save()
             message = "Project day detail updated successfully"
@@ -2076,7 +2075,7 @@ def insert_update_project_day_detail(request):
                 project_day_detail_work_type=work_type_instance,
                 project_day_detail_work_no=project_day_detail_work_no,
                 project_day_detail_price=project_day_detail_price,
-                project_day_detail_total_price=project_day_detail_total_price,
+                project_day_detail_total_price=project_day_detail_work_no * project_day_detail_price,
                 project_day_detail_details=project_day_detail_details
             )
             message = "Project day detail created successfully"
@@ -2208,9 +2207,9 @@ def insert_update_project_material(request):
         project_material_material_id = request.data.get('project_material_material_id')
         project_material_material_type_id = request.data.get('project_material_material_type_id')
         project_material_work_type_id = request.data.get('project_material_work_type_id')
-        project_material_work_no = request.data.get('project_material_work_no')
-        project_material_price = request.data.get('project_material_price')
-        project_material_total_amount = request.data.get('project_material_total_amount')
+        project_material_work_no = int(request.data.get('project_material_work_no'))
+        project_material_price = int(request.data.get('project_material_price'))
+        project_material_total_amount = project_material_work_no*project_material_price
         project_material_agent = request.data.get('project_material_agent')
         project_material_agent_id = request.data.get('project_material_agent_id')
         person_material_agent_amount = request.data.get('person_material_agent_amount')
@@ -2373,9 +2372,9 @@ def insert_update_project_machine(request):
         project_machine_date = request.data.get('project_machine_date')
         machine_project_id = request.data.get('machine_project_id')
         work_type_id = request.data.get('work_type_id')
-        project_machine_data_work_number = request.data.get('project_machine_data_work_number')
-        project_machine_data_work_price = request.data.get('project_machine_data_work_price')
-        project_machine_data_total_amount = request.data.get('project_machine_data_total_amount')
+        project_machine_data_work_number = int(request.data.get('project_machine_data_work_number'))
+        project_machine_data_work_price = int(request.data.get('project_machine_data_work_price'))
+        project_machine_data_total_amount = project_machine_data_work_price * project_machine_data_work_number
         project_machine_data_work_details = request.data.get('project_machine_data_work_details')
         project_machine_data_more_details = request.data.get('project_machine_data_more_details')
 
@@ -2532,9 +2531,9 @@ def insert_update_project_person(request):
         project_person_date = request.data.get('project_person_date')
         work_type_id = request.data.get('work_type_id')
         project_machine_data_id = request.data.get('project_machine_data_id')
-        project_person_work_num = request.data.get('project_person_work_num')
-        project_person_price = request.data.get('project_person_price')
-        project_person_total_price = request.data.get('project_person_total_price')
+        project_person_work_num = int(request.data.get('project_person_work_num'))
+        project_person_price = int(request.data.get('project_person_price'))
+        project_person_total_price = project_person_work_num * project_person_price
         project_person_paid_by = request.data.get('project_person_paid_by')
         project_person_payment_details = request.data.get('project_person_payment_details')
         project_person_more_details = request.data.get('project_person_more_details')

@@ -259,6 +259,7 @@ class Project_Machine_Data(models.Model):
     project_machine_data_total_amount = models.CharField(max_length=155)
     project_machine_data_work_details = models.TextField(null=True, blank=True)
     project_machine_data_more_details = models.TextField(null=True, blank=True)
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):
         return f'{self.project_machine_data_id}'
@@ -283,6 +284,7 @@ class Project_Person_Data(models.Model):
     project_person_paid_by = models.CharField(choices=paid_by_options, max_length=155)
     project_person_payment_details = models.TextField(null=True, blank=True)
     project_person_more_details = models.TextField(null=True, blank=True)
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):
         return f'{self.project_person_id}'
@@ -364,7 +366,7 @@ class Project_Day_Details(models.Model):
     project_day_detail_price = models.CharField(max_length=155)
     project_day_detail_total_price = models.CharField(max_length=155)
     project_day_detail_details = models.TextField(null=True, blank=True)
-
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
     def __str__(self):
         return f'{self.project_day_detail_machine_id.machine_name} {self.project_day_detail_work_type.work_type_name}'
 
@@ -385,6 +387,7 @@ class Project_Material_Data(models.Model):
     project_material_agent_id = models.ForeignKey(Person, on_delete=models.CASCADE)
     person_material_agent_amount = models.CharField(max_length=155, null=True, blank=True)
     person_material_information = models.TextField(null=True, blank=True)
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):
         return f'{self.project_material_id}'

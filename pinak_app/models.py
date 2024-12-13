@@ -346,12 +346,24 @@ class Money_Debit_Credit(models.Model):
 class Material(models.Model):
     material_id = models.BigAutoField(primary_key=True)
     material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
-    material_person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    material_owner = models.ForeignKey(Person, on_delete=models.CASCADE)
     material_status = models.BooleanField(default=1)
+    material_buy_date = models.DateField(null=True,blank=True)
+    material_work_type = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
+    material_work_no = models.CharField(max_length=100)
+    material_price = models.CharField(max_length=250)
+    material_total_price = models.CharField(max_length=250)
+    material_is_agent = models.BooleanField(default=0)
+    material_agent_name = models.CharField(max_length=100)
+    material_agent_contact = models.CharField(max_length=100)
+    material_agent_price_choice = models.CharField(max_length=50)
+    material_agent_percentage = models.CharField(max_length=10)
+    material_agent_amount = models.CharField(max_length=200)
+    material_final_amount = models.CharField(max_length=200)
     material_details = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f'{self.material_type_id.material_type_name} {self.material_person_id.person_name}'
+        return f'{self.material_type_id.material_type_name}'
 
     class Meta:
         db_table = 'Material'
@@ -383,9 +395,6 @@ class Project_Material_Data(models.Model):
     project_material_work_no = models.CharField(max_length=155)
     project_material_price = models.CharField(max_length=155)
     project_material_total_amount = models.CharField(max_length=155)
-    project_material_agent = models.BooleanField(default=0)
-    project_material_agent_id = models.ForeignKey(Person, on_delete=models.CASCADE)
-    person_material_agent_amount = models.CharField(max_length=155, null=True, blank=True)
     person_material_information = models.TextField(null=True, blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 

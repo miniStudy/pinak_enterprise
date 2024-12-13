@@ -115,7 +115,11 @@ urlpatterns = [
     path('insert_update_project_person/', views.insert_update_project_person, name='insert_update_project_person'),
     path('delete_project_person/', views.delete_project_person, name='delete_project_person'),
     
+
     path('single_project_data/',views.single_project_data, name='single_project_data'),
+
+
+    path('show_reports/', views.show_reports, name='show_reports'),
     
 
     

@@ -2672,6 +2672,19 @@ def delete_project_person(request):
 
 
 
+@api_view(['GET'])
+def show_reports(request):
+    project_data = Project.objects.all().values(
+        'project_id',
+        'project_name'
+    )
+
+    return Response({
+        'status': 'success',
+        'title': 'Reports',
+        'data': project_data
+    })
+
 
 
 

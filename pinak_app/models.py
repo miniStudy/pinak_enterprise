@@ -394,23 +394,27 @@ class Project_Material_Data(models.Model):
 
     class Meta:
         db_table = 'Project_Material_Data'
+
+
+
+class Documents(models.Model):
+    document_id = models.BigAutoField(primary_key=True)
+    document_name = models.CharField(max_length=155)
+    document_date = models.DateField(auto_now_add=True)
+    document_unique_code = models.CharField(max_length=155, unique=True)
+    document_file = models.FileField(upload_to='uploads/')
+    document_type_id = models.ForeignKey(Document_Types, on_delete=models.CASCADE)
+    person_id = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True)
+
+    def __str__(self):
+        return f'{self.document_type_id.document_type_name} {self.document_name}'
+
+    class Meta:
+        db_table = 'Documents'
         
 #-----------------------------------Under Construction-----------------------------------------------------------------------------
 
 
-# class Documents(models.Model):
-#     document_id = models.BigAutoField(primary_key=True)
-#     document_name = models.CharField(max_length=155)
-#     document_date = models.DateField(auto_now_add=True)
-#     document_unique_code = models.CharField(max_length=155, unique=True)
-#     document_file = models.FileField(upload_to='uploads/')
-#     document_type_id = models.ForeignKey(Document_Types, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f'{self.document_type_id.document_type_name} {self.document_name}'
-
-#     class Meta:
-#         db_table = 'Documents'
 
 
 

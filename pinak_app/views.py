@@ -1826,26 +1826,6 @@ def delete_project(request):
         }, status=404)
 
 
-@api_view(['GET'])
-
-def show_materials(request):
-    materials_data = Material.objects.all().values(
-        'material_id',
-        'material_type_id__material_type_name',
-        'material_person_id__person_name',
-        'material_status',
-        'material_details'
-    )
-    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
-    persons_data = Person.objects.all().values('person_id', 'person_name')
-
-    return Response({
-        'status': 'success',
-        'title': 'Materials',
-        'material_types_data': material_types_data,
-        'persons_data': persons_data,
-        'data': materials_data
-    })
 
 
 @api_view(['POST', 'GET'])
@@ -2780,156 +2760,200 @@ def show_reports(request):
 
 
 
+@api_view(['GET'])
+def show_materials(request):
+    materials = Material.objects.all().values(
+        'material_id',
+        'material_type_id__material_type_id',
+        'material_type_id__material_type_name',
+        'material_owner__person_id',
+        'material_owner__person_name',
+        'material_status',
+        'material_buy_date',
+        'material_work_type__work_type_id',
+        'material_work_type__work_type_name',
+        'material_work_no',
+        'material_price',
+        'material_total_price',
+        'material_is_agent',
+        'material_agent_name',
+        'material_agent_contact',
+        'material_agent_price_choice',
+        'material_agent_percentage',
+        'material_agent_amount',
+        'material_final_amount',
+        'material_details'
+    )
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_types_data = Project.objects.all().values('project_id', 'project_name')
+    perons = Person.objects.all().values('person_id','person_name','person_contact_number')
+    return Response({
+        "status": "success",
+        "title": "Materials",
+        'material_types_data': material_types_data,
+        'work_types_data': work_types_data,
+        'project_types_data': project_types_data,
+        'perons':perons,
+        "data": materials
+    })
 
+@api_view(['POST', 'GET'])
+def insert_update_material(request):
+    material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
+    work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+    project_types_data = Project.objects.all().values('project_id', 'project_name')
 
-# @api_view(['GET'])
-# def show_materials(request):
-#     materials = Materials.objects.all().values(
-#         'material_id',
-#         'material_owner_name',
-#         'material_used_date',
-#         'material_type_id__material_type_name',
-#         'work_type_id__work_type_name',
-#         'material_work_number',
-#         'material_work_amount',
-#         'material_work_total_amount',
-#         'total_material_amount',
-#         'material_desc',
-#         'project_id__project_name'
-#     )
-#     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
-#     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-#     project_types_data = Project.objects.all().values('project_id', 'project_name')
-#     return Response({
-#         "status": "success",
-#         "title": "Materials",
-#         'material_types_data': material_types_data,
-#         'work_types_data': work_types_data,
-#         'project_types_data': project_types_data,
-#         "data": materials
-#     })
+    if request.method == 'GET' and request.GET.get('getdata_id'):
+        material_obj = Material.objects.get(material_id=request.GET.get('getdata_id'))
+        return Response({
+            "status": "success",
+            "message": 'Data Fetched Successfully',
+            "data": {
+            'material_id': material_obj.material_id,
+            'material_type_id': material_obj.material_type_id.material_type_id,
+            'material_owner': material_obj.material_owner.person_id,
+            'material_status': material_obj.material_status,
+            'material_buy_date': material_obj.material_buy_date,
+            'material_work_type': material_obj.material_work_type.work_type_id,
+            'material_work_no': material_obj.material_work_no,
+            'material_price': material_obj.material_price,
+            'material_total_price': material_obj.material_total_price,
+            'material_is_agent': material_obj.material_is_agent,
+            'material_agent_name': material_obj.material_agent_name,
+            'material_agent_contact': material_obj.material_agent_contact,
+            'material_agent_price_choice': material_obj.material_agent_price_choice,
+            'material_agent_percentage': material_obj.material_agent_percentage,
+            'material_agent_amount': material_obj.material_agent_amount,
+            'material_final_amount': material_obj.material_final_amount,
+            'material_details': material_obj.material_details
+            },
+            'material_types_data': material_types_data,
+            'work_types_data': work_types_data,
+            'project_types_data': project_types_data
+        })
 
-# @api_view(['POST', 'GET'])
-# def insert_update_material(request):
-#     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
-#     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-#     project_types_data = Project.objects.all().values('project_id', 'project_name')
-
-#     if request.method == 'POST':
-#         material_id = request.data.get('material_id')
-#         material_owner_name = request.data.get('material_owner_name')
-#         material_used_date = request.data.get('material_used_date')
-#         material_type_id = request.data.get('material_type_id')
-#         work_type_id = request.data.get('work_type_id')
-#         material_work_number = request.data.get('material_work_number')
-#         material_work_amount = request.data.get('material_work_amount')
-#         material_work_total_amount = request.data.get('material_work_total_amount')
-#         total_material_amount = request.data.get('total_material_amount')
-#         material_desc = request.data.get('material_desc')
-#         project_id = request.data.get('project_id')
-#         material_type_instance = Material_Types.objects.get(material_type_id=material_type_id)
-#         work_type_instance = Work_Types.objects.get(work_type_id=work_type_id)
-#         project_instance = Project.objects.get(project_id=project_id)
-    
-#     if request.GET.get('getdata_id'):
-#         material_obj = Materials.objects.get(material_id=request.GET.get('getdata_id'))
-#         return Response({
-#         "status": "success",
-#         "message": 'Data Fetched Successfully',
-#         "data": {
-#             'material_id': material_obj.material_id,
-#             'material_owner_name': material_obj.material_owner_name,               
-#             'material_used_date': material_obj.material_used_date,               
-#             'material_type_id': material_obj.material_type_id.material_type_id,               
-#             'work_type_id': material_obj.work_type_id.work_type_id,               
-#             'material_work_number': material_obj.material_work_number,               
-#             'material_work_amount': material_obj.material_work_amount,               
-#             'material_work_total_amount': material_obj.material_work_total_amount,               
-#             'total_material_amount': material_obj.total_material_amount,               
-#             'material_desc': material_obj.material_desc,               
-#             'project_id': material_obj.project_id.project_id,               
-#         },
-#         'material_types_data': material_types_data,
-#         'work_types_data': work_types_data,
-#         'project_types_data': project_types_data
-#         })
-
-#     if request.method == 'POST':
-#         if material_id:
-#             material = Materials.objects.get(material_id=material_id)
-#             material.material_owner_name = material_owner_name
-#             material.material_used_date = material_used_date
-#             material.material_type_id = material_type_instance
-#             material.work_type_id = work_type_instance
-#             material.material_work_number = material_work_number
-#             material.material_work_amount = material_work_amount
-#             material.material_work_total_amount = material_work_total_amount
-#             material.total_material_amount = total_material_amount
-#             material.material_desc = material_desc
-#             material.project_id = project_instance
-#             material.save()
-#             message = "Material updated successfully."
+    if request.method == 'POST':
+        material_id = request.data.get('material_id')
+        material_owner = request.data.get('material_owner')
+        material_type_id = request.data.get('material_type_id')
+        material_status = request.data.get('material_status')
+        material_buy_date = request.data.get('material_buy_date')
+        material_work_type = request.data.get('material_work_type')
+        material_work_no = int(request.data.get('material_work_no'))
+        material_price = int(request.data.get('material_price'))
+        material_total_price = material_price * material_work_no
+        material_is_agent = request.data.get('material_is_agent')
+        material_agent_name = request.data.get('material_agent_name')
+        material_agent_contact = request.data.get('material_agent_contact')
+        material_agent_price_choice = request.data.get('material_agent_price_choice')
+        material_agent_percentage = int(request.data.get('material_agent_percentage'))
+        material_agent_amount = request.data.get('material_agent_amount')
+        if material_agent_price_choice == "Discount":
+            material_agent_amount = material_total_price*material_agent_percentage/100
             
-#         else:
-#             material = Materials.objects.create(
-#                 material_owner_name=material_owner_name,
-#                 material_used_date=material_used_date,
-#                 material_type_id=material_type_instance,
-#                 work_type_id=work_type_instance,
-#                 material_work_number=material_work_number,
-#                 material_work_amount=material_work_amount,
-#                 material_work_total_amount=material_work_total_amount,
-#                 total_material_amount=total_material_amount,
-#                 material_desc=material_desc,
-#                 project_id=project_instance
-#             )
-#             message = "Material created successfully."
-#         return Response({
-#             "status": "success",
-#             "message": message,
-#             "data": {
-#                 "material_id": material.material_id,
-#                 "material_owner_name": material.material_owner_name,
-#                 "material_used_date": material.material_used_date,
-#                 "material_type_id": material.material_type_id.material_type_id,
-#                 "work_type_id": material.work_type_id.work_type_id,
-#                 "material_work_number": material.material_work_number,
-#                 "material_work_amount": material.material_work_amount,
-#                 "material_work_total_amount": material.material_work_total_amount,
-#                 "total_material_amount": material.total_material_amount,
-#                 "material_desc": material.material_desc,
-#                 "project_id": material.project_id.project_id
-#             },
-#             'material_types_data': material_types_data,
-#             'work_types_data': work_types_data,
-#             'project_types_data': project_types_data
-#         })
-#     else:
-#         return Response({
-#             'status': 'False'
-#         })
+        material_final_amount = material_total_price + material_agent_amount
+        material_details = request.data.get('material_details')
 
-# @api_view(['DELETE'])
-# def delete_material(request):
-#     material_id = request.GET.get('material_id')
-#     if not material_id:
-#         return Response({
-#             "status": "error",
-#             "message": "Material ID is required."
-#         }, status=400)
+        material_type_instance = Material_Types.objects.get(material_type_id=material_type_id)
+        work_type_instance = Work_Types.objects.get(work_type_id=material_work_type)
+        material_owner_instance = Person.objects.get(person_id=material_owner)
 
-#     try:
-#         material = Materials.objects.get(material_id=material_id)
-#         material.delete()
-#         return Response({
-#             "status": "success",
-#             "message": "Material deleted successfully."
-#         })
-#     except Materials.DoesNotExist:
-#         return Response({
-#             "status": "error",
-#             "message": "Material not found."
-#         }, status=404)
+        if material_id:
+            material = Material.objects.get(material_id=material_id)
+            material.material_owner = material_owner_instance
+            material.material_buy_date = material_buy_date
+            material.material_type_id = material_type_instance
+            material.material_work_type = work_type_instance
+            material.material_work_no = material_work_no
+            material.material_price = material_price
+            material.material_total_price = material_total_price
+            material.material_is_agent = material_is_agent
+            material.material_agent_name = material_agent_name
+            material.material_agent_contact = material_agent_contact
+            material.material_agent_price_choice = material_agent_price_choice
+            material.material_agent_percentage = material_agent_percentage
+            material.material_agent_amount = material_agent_amount
+            material.material_final_amount = material_final_amount
+            material.material_details = material_details
+            material.material_status = material_status
+            material.save()
+            message = "Material updated successfully."
+        else:
+            material = Material.objects.create(
+                material_owner=material_owner_instance,
+                material_buy_date=material_buy_date,
+                material_type_id=material_type_instance,
+                material_work_type=work_type_instance,
+                material_work_no=material_work_no,
+                material_price=material_price,
+                material_total_price=material_total_price,
+                material_is_agent=material_is_agent,
+                material_agent_name=material_agent_name,
+                material_agent_contact=material_agent_contact,
+                material_agent_price_choice=material_agent_price_choice,
+                material_agent_percentage=material_agent_percentage,
+                material_agent_amount=material_agent_amount,
+                material_final_amount=material_final_amount,
+                material_details=material_details,
+                material_status=material_status
+            )
+            message = "Material created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "material_id": material.material_id,
+                "material_owner": material.material_owner.person_id,
+                "material_buy_date": material.material_buy_date,
+                "material_type_id": material.material_type_id.material_type_id,
+                "material_work_type": material.material_work_type.work_type_id,
+                "material_work_no": material.material_work_no,
+                "material_price": material.material_price,
+                "material_total_price": material.material_total_price,
+                "material_is_agent": material.material_is_agent,
+                "material_agent_name": material.material_agent_name,
+                "material_agent_contact": material.material_agent_contact,
+                "material_agent_price_choice": material.material_agent_price_choice,
+                "material_agent_percentage": material.material_agent_percentage,
+                "material_agent_amount": material.material_agent_amount,
+                "material_final_amount": material.material_final_amount,
+                "material_details": material.material_details
+            },
+            'material_types_data': material_types_data,
+            'work_types_data': work_types_data,
+            'project_types_data': project_types_data
+        })
+
+    return Response({
+        'status': 'false',
+        'message': 'Invalid request method.'
+    })
+
+
+
+@api_view(['DELETE'])
+def delete_material(request):
+    material_id = request.GET.get('material_id')
+    if not material_id:
+        return Response({
+            "status": "error",
+            "message": "Material ID is required."
+        }, status=400)
+
+    try:
+        material = Materials.objects.get(material_id=material_id)
+        material.delete()
+        return Response({
+            "status": "success",
+            "message": "Material deleted successfully."
+        })
+    except Materials.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "Material not found."
+        }, status=404)
 
 # @api_view(['GET'])
 # def show_person_work_machine(request):

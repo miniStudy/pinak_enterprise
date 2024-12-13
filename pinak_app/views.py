@@ -1992,7 +1992,12 @@ def single_project_data(request):
 
 @api_view(['GET'])
 def show_project_day_details(request):
-    project_day_details_data = Project_Day_Details.objects.all().values(
+    project_day_details_data = Project_Day_Details.objects.all()
+
+    if request.GET.get('project_id'):
+        project_day_details_data = project_day_details_data.filter(project_id__project_id = request.GET.get('project_id'))
+
+    project_day_details_data = project_day_details_data.values(
         'project_day_detail_id',
         'proejct_day_detail_date',
         'project_day_detail_machine_id__machine_name',
@@ -2053,9 +2058,12 @@ def insert_update_project_day_detail(request):
         project_day_detail_work_no = int(request.data.get('project_day_detail_work_no'))
         project_day_detail_price = int(request.data.get('project_day_detail_price'))
         project_day_detail_details = request.data.get('project_day_detail_details', '')
+        project_id = request.data.get('project_id')
 
         machine_instance = get_object_or_404(Machines, pk=project_day_detail_machine_id)
         work_type_instance = get_object_or_404(Work_Types, pk=project_day_detail_work_type)
+        project_instance = get_object_or_404(Project, pk=project_id)
+
 
         if project_day_detail_id:
             project_day_detail = get_object_or_404(Project_Day_Details, project_day_detail_id=project_day_detail_id)
@@ -2066,6 +2074,8 @@ def insert_update_project_day_detail(request):
             project_day_detail.project_day_detail_price = project_day_detail_price
             project_day_detail.project_day_detail_total_price = project_day_detail_work_no * project_day_detail_price
             project_day_detail.project_day_detail_details = project_day_detail_details
+            project_day_detail.project_id = project_instance
+
             project_day_detail.save()
             message = "Project day detail updated successfully"
         else:
@@ -2076,7 +2086,8 @@ def insert_update_project_day_detail(request):
                 project_day_detail_work_no=project_day_detail_work_no,
                 project_day_detail_price=project_day_detail_price,
                 project_day_detail_total_price=project_day_detail_work_no * project_day_detail_price,
-                project_day_detail_details=project_day_detail_details
+                project_day_detail_details=project_day_detail_details,
+                project_id = project_instance
             )
             message = "Project day detail created successfully"
 
@@ -2131,7 +2142,10 @@ def delete_project_day_detail(request):
 
 @api_view(['GET'])
 def show_project_material(request):
-    project_material_data = Project_Material_Data.objects.all().values(
+    project_material_data = Project_Material_Data.objects.all()
+    if request.GET.get('project_id'):
+        project_material_data = project_material_data.filter(project_id__project_id = request.GET.get('project_id'))
+    project_material_data = project_material_data.values(
         'project_material_id',
         'project_material_date',
         'project_material_material_id__material_person_id__person_name',
@@ -2312,6 +2326,8 @@ def show_project_machine(request):
     if request.GET.get('machine_id'):
         project_machines_data = project_machines_data.filter(machine_project_id__machine_id = request.GET.get('machine_id'))
 
+    if request.GET.get('project_id'):
+        project_machines_data = project_machines_data.filter(project_id__project_id = request.GET.get('project_id'))
     project_machines_data = project_machines_data.values(
         'project_machine_data_id',
         'project_machine_date',
@@ -2377,9 +2393,11 @@ def insert_update_project_machine(request):
         project_machine_data_total_amount = project_machine_data_work_price * project_machine_data_work_number
         project_machine_data_work_details = request.data.get('project_machine_data_work_details')
         project_machine_data_more_details = request.data.get('project_machine_data_more_details')
+        project_id = request.data.get('project_id')
 
         machine_instance = get_object_or_404(Machines, pk=machine_project_id)
         work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
+        project_instance = get_object_or_404(Project, pk=project_id)
 
         if project_machine_id:
             project_machine = get_object_or_404(Project_Machine_Data, pk=project_machine_id)
@@ -2391,6 +2409,7 @@ def insert_update_project_machine(request):
             project_machine.project_machine_data_total_amount = project_machine_data_total_amount
             project_machine.project_machine_data_work_details = project_machine_data_work_details
             project_machine.project_machine_data_more_details = project_machine_data_more_details
+            project_machine.project_id = project_instance
             project_machine.save()
             message = "Project machine data updated successfully"
         else:
@@ -2403,6 +2422,7 @@ def insert_update_project_machine(request):
                 project_machine_data_total_amount=project_machine_data_total_amount,
                 project_machine_data_work_details=project_machine_data_work_details,
                 project_machine_data_more_details=project_machine_data_more_details,
+                project_id = project_instance
             )
             message = "Project machine data created successfully"
 
@@ -2461,6 +2481,10 @@ def show_project_person(request):
     project_person_data = Project_Person_Data.objects.all()
     if request.GET.get('person_id'):
         project_person_data = project_person_data.filter(person_id__person_id = request.GET.get('person_id'))
+
+    if request.GET.get('project_id'):
+        project_person_data = project_person_data.filter(project_id__project_id = request.GET.get('project_id'))
+
     project_person_data = project_person_data.values(
         'project_person_id',
         'person_id__person_name',
@@ -2537,10 +2561,12 @@ def insert_update_project_person(request):
         project_person_paid_by = request.data.get('project_person_paid_by')
         project_person_payment_details = request.data.get('project_person_payment_details')
         project_person_more_details = request.data.get('project_person_more_details')
+        project_id = request.data.get('project_id')
 
         person_instance = get_object_or_404(Person, pk=person_id)
         work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
         machine_instance = get_object_or_404(Project_Machine_Data, pk=project_machine_data_id)
+        project_instance = get_object_or_404(Project, pk=project_id)
 
         if project_person_id:
             project_person = get_object_or_404(Project_Person_Data, pk=project_person_id)
@@ -2554,6 +2580,8 @@ def insert_update_project_person(request):
             project_person.project_person_paid_by = project_person_paid_by
             project_person.project_person_payment_details = project_person_payment_details
             project_person.project_person_more_details = project_person_more_details
+            project_person.project_id = project_instance
+
             project_person.save()
             message = "Project person data updated successfully"
         else:
@@ -2568,6 +2596,7 @@ def insert_update_project_person(request):
                 project_person_paid_by=project_person_paid_by,
                 project_person_payment_details=project_person_payment_details,
                 project_person_more_details=project_person_more_details,
+                project_id = project_instance
             )
             message = "Project person data created successfully"
 

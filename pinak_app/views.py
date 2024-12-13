@@ -1982,20 +1982,22 @@ def single_project_data(request):
 
 
 
-
-
-
-
-
-
-
-
 @api_view(['GET'])
 def show_project_day_details(request):
     project_day_details_data = Project_Day_Details.objects.all()
 
     if request.GET.get('project_id'):
         project_day_details_data = project_day_details_data.filter(project_id__project_id = request.GET.get('project_id'))
+
+        total_amount = project_day_details_data.aggregate(
+            total_amount=Sum('project_day_detail_total_price')
+        )['total_amount']
+
+    else:
+        total_amount = project_day_details_data.aggregate(
+            total_amount=Sum('project_day_detail_total_price')
+        )['total_amount']
+
 
     project_day_details_data = project_day_details_data.values(
         'project_day_detail_id',
@@ -2016,7 +2018,8 @@ def show_project_day_details(request):
         'title': 'Project Day Details',
         'machines_data': machine_data,
         'work_types_data': work_types_data,
-        'data': project_day_details_data
+        'data': project_day_details_data,
+        'total_amount': total_amount,
     })
 
 
@@ -2328,6 +2331,16 @@ def show_project_machine(request):
 
     if request.GET.get('project_id'):
         project_machines_data = project_machines_data.filter(project_id__project_id = request.GET.get('project_id'))
+        
+        total_amount = project_machines_data.aggregate(
+            total_amount=Sum('project_machine_data_total_amount')
+        )['total_amount']
+    else:
+        total_amount = project_machines_data.aggregate(
+            total_amount=Sum('project_machine_data_total_amount')
+        )['total_amount']
+
+
     project_machines_data = project_machines_data.values(
         'project_machine_data_id',
         'project_machine_date',
@@ -2337,7 +2350,7 @@ def show_project_machine(request):
         'project_machine_data_work_price',
         'project_machine_data_total_amount',
         'project_machine_data_work_details',
-        'project_machine_data_more_details'
+        'project_machine_data_more_details',
     )
 
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')
@@ -2348,7 +2361,8 @@ def show_project_machine(request):
         'title': 'Project Machine',
         'machines_data': machines_data,
         'work_types_data': work_types_data,
-        'data': project_machines_data
+        'data': project_machines_data,
+        'total_amount': total_amount,
 
     })
 
@@ -2485,6 +2499,10 @@ def show_project_person(request):
     if request.GET.get('project_id'):
         project_person_data = project_person_data.filter(project_id__project_id = request.GET.get('project_id'))
 
+        total_amount = project_person_data.aggregate(total_amount=Sum('project_person_total_price'))['total_amount']
+    else:
+        total_amount = project_person_data.aggregate(total_amount=Sum('project_person_total_price'))['total_amount']
+
     project_person_data = project_person_data.values(
         'project_person_id',
         'person_id__person_name',
@@ -2509,7 +2527,8 @@ def show_project_person(request):
         'persons_data': persons_data,
         'work_types_data': work_types_data,
         'project_machine_data': project_machine_data,
-        'data': project_person_data
+        'data': project_person_data,
+        'total_amount': total_amount
     })
 
 

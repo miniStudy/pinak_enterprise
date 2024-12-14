@@ -420,6 +420,29 @@ class Documents(models.Model):
 
     class Meta:
         db_table = 'Documents'
+
+
+
+class Project_Expense(models.Model):
+    class payment_options_field(models.TextChoices):
+        Cash = 'Cash', 'Cash'
+        Bank = 'Bank', 'Bank'
+    project_expense_id = models.BigAutoField(primary_key=True)
+    project_expense_name = models.CharField(max_length=155)
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project_expense_date = models.DateField()
+    project_expense_amount = models.CharField(max_length=55)
+    project_payment_mode = models.CharField(choices=payment_options_field, max_length=155)
+    bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE)
+    project_expense_desc = models.TextField()
+
+    def __str__(self):
+        return f'{self.project_expense_name}'
+
+    class Meta:
+        db_table = 'Project_Expense'
+
+
         
 #-----------------------------------Under Construction-----------------------------------------------------------------------------
 

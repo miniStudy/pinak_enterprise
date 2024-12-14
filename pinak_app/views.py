@@ -1010,7 +1010,6 @@ def insert_update_machine(request):
                 "machine_sold_out_date": machine_obj.machine_sold_out_date,
                 "machine_other_details": machine_obj.machine_other_details,
             },
-            "machine_types": machine_types_data,
         })
 
     if request.method == 'POST':
@@ -1075,7 +1074,6 @@ def insert_update_machine(request):
                 "machine_sold_out_date": machine.machine_sold_out_date,
                 "machine_other_details": machine.machine_other_details,
             },
-            "machine_types": machine_types_data,
         })
     else:
         return Response({
@@ -2667,6 +2665,152 @@ def show_reports(request):
 
 
 
+@api_view(['GET'])
+def show_project_expense(request):
+    project_expense_data = Project_Expense.objects.all()
+    if request.GET.get('project_id'):
+        project_expense_data = project_expense_data.filter(project_id__project_id = request.GET.get('project_id'))
+
+        total_amount = project_expense_data.aggregate(
+            total_amount=Sum('project_expense_amount')
+        )['total_amount']
+    else:
+        total_amount = project_expense_data.aggregate(
+            total_amount=Sum('project_expense_amount')
+        )['total_amount']
+
+    project_expense_data = Project_Expense.objects.all().values(
+        'project_expense_id',
+        'project_expense_name',
+        'project_id__project_name',
+        'project_expense_date',
+        'project_expense_amount',
+        'project_payment_mode',
+        'bank_id__bank_name',
+        'project_expense_desc',
+    )
+
+    projects_data = Project.objects.all().values('project_id', 'project_name')
+    banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name')
+
+    return Response({
+        'status': 'success',
+        'title': 'Project Expense',
+        'projects_data': projects_data,
+        'banks_data': banks_data,
+        'total_amount': total_amount,
+        'data': project_expense_data,
+    })
+
+
+@api_view(['POST', 'GET'])
+def insert_update_project_expense(request):
+
+    if request.method == 'GET':
+        project_expense_id = request.GET.get('getdata_id')
+        if project_expense_id:
+            project_expense = get_object_or_404(Project_Expense, pk=project_expense_id)
+            return Response({
+                "status": "success",
+                "message": "Project expense data fetched successfully",
+                "data": {
+                    "project_expense_id": project_expense.project_expense_id,
+                    "project_expense_name": project_expense.project_expense_name,
+                    "project_id": project_expense.project_id.project_id,
+                    "project_expense_date": project_expense.project_expense_date,
+                    "project_expense_amount": project_expense.project_expense_amount,
+                    "project_payment_mode": project_expense.project_payment_mode,
+                    "bank_id": project_expense.bank_id.bank_id,
+                    "project_expense_desc": project_expense.project_expense_desc,
+                }
+            })
+        return Response({
+            "status": "error",
+            "message": "Project expense ID not provided"
+        }, status=400)
+
+    if request.method == 'POST':
+        project_expense_id = request.data.get('project_expense_id')
+        project_expense_name = request.data.get('project_expense_name')
+        project_id = request.data.get('project_id')
+        project_expense_date = request.data.get('project_expense_date')
+        project_expense_amount = request.data.get('project_expense_amount')
+        project_payment_mode = request.data.get('project_payment_mode')
+        bank_id = request.data.get('bank_id')
+        project_expense_desc = request.data.get('project_expense_desc')
+
+        project_instance = get_object_or_404(Project, pk=project_id)
+        bank_instance = get_object_or_404(Bank_Details, pk=bank_id)
+
+        if project_expense_id:
+            project_expense = get_object_or_404(Project_Expense, pk=project_expense_id)
+            project_expense.project_expense_name = project_expense_name
+            project_expense.project_id = project_instance
+            project_expense.project_expense_date = project_expense_date
+            project_expense.project_expense_amount = project_expense_amount
+            project_expense.project_payment_mode = project_payment_mode
+            project_expense.bank_id = bank_instance
+            project_expense.project_expense_desc = project_expense_desc
+
+            project_expense.save()
+            message = "Project expense data updated successfully"
+        else:
+            project_expense = Project_Expense.objects.create(
+                project_expense_name=project_expense_name,
+                project_id=project_instance,
+                project_expense_date=project_expense_date,
+                project_expense_amount=project_expense_amount,
+                project_payment_mode=project_payment_mode,
+                bank_id=bank_instance,
+                project_expense_desc=project_expense_desc
+            )
+            message = "Project expense data created successfully"
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "project_expense_id": project_expense.project_expense_id,
+                "project_expense_name": project_expense.project_expense_name,
+                "project_id": project_expense.project_id.project_id,
+                "project_expense_date": project_expense.project_expense_date,
+                "project_expense_amount": project_expense.project_expense_amount,
+                "project_payment_mode": project_expense.project_payment_mode,
+                "bank_id": project_expense.bank_id.bank_id,
+                "project_expense_desc": project_expense.project_expense_desc,
+            }
+        })
+
+    return Response({
+        "status": "error",
+        "message": "Invalid request method"
+    }, status=405)
+
+
+@api_view(['DELETE'])
+def delete_project_expense(request):
+    project_expense_id = request.GET.get('project_expense_id')
+
+    if not project_expense_id:
+        return Response({
+            "status": "error",
+            "message": "Project Expense ID is required."
+        }, status=400)
+
+    try:
+        project_expense = get_object_or_404(Project_Expense, project_expense_id=project_expense_id)
+        project_expense.delete()
+
+        return Response({
+            "status": "success",
+            "message": f"Project Expense deleted successfully."
+        })
+
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"An unexpected error occurred: {str(e)}"
+        }, status=500)
 
 
 

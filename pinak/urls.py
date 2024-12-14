@@ -114,6 +114,11 @@ urlpatterns = [
     path('show_project_person/', views.show_project_person, name='show_project_person'),
     path('insert_update_project_person/', views.insert_update_project_person, name='insert_update_project_person'),
     path('delete_project_person/', views.delete_project_person, name='delete_project_person'),
+
+
+    path('show_project_expense/', views.show_project_expense, name='show_project_expense'),
+    path('insert_update_project_expense/', views.insert_update_project_expense, name='insert_update_project_expense'),
+    path('delete_project_expense/', views.delete_project_expense, name='delete_project_expense'),
     
 
     path('single_project_data/',views.single_project_data, name='single_project_data'),

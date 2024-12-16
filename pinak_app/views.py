@@ -933,8 +933,8 @@ def show_machines(request):
         'machine_working', 
         'machine_types_id__machine_type_name', 
         'machine_details', 
-        'machine_owner_name', 
-        'machine_owner_contact', 
+        'machine_owner_id__person_id',
+        'machine_owner_id__person_name',
         'machine_buy_price', 
         'machine_buy_date', 
         'machine_sold_price', 
@@ -945,12 +945,15 @@ def show_machines(request):
         'machine_type_id', 
         'machine_type_name'
     )
+
+    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     
     return Response({
         "status": "success",
         "title": "Machine",
         "data": company_machines,
         "machine_types": machine_types_data,
+        "persons_data":persons_data
     })
 
 
@@ -968,8 +971,8 @@ def insert_update_machine(request):
         machine_working = request.data.get('machine_working')
         machine_types_id = request.data.get('machine_types_id')
         machine_details = request.data.get('machine_details')
-        machine_owner_name = request.data.get('machine_owner_name')
-        machine_owner_contact = request.data.get('machine_owner_contact')
+        machine_owner_id = request.data.get('machine_owner_id')
+        print(machine_owner_id)
         machine_buy_price = request.data.get('machine_buy_price')
         machine_buy_date = request.data.get('machine_buy_date')
         machine_sold_price = request.data.get('machine_sold_price')
@@ -977,6 +980,9 @@ def insert_update_machine(request):
         machine_other_details = request.data.get('machine_other_details')
 
         machine_types_instance = Machine_Types.objects.get(machine_type_id=machine_types_id)
+        if machine_owner_id:
+            machine_owner_id = Person.objects.get(person_id = machine_owner_id)
+
         if machine_buy_date:
             pass
         else:
@@ -1002,8 +1008,7 @@ def insert_update_machine(request):
                 "machine_types_id": machine_obj.machine_types_id.machine_type_id,
                 "machine_types_name": machine_obj.machine_types_id.machine_type_name,
                 "machine_details": machine_obj.machine_details,
-                "machine_owner_name": machine_obj.machine_owner_name,
-                "machine_owner_contact": machine_obj.machine_owner_contact,
+                "machine_owner_id": machine_obj.machine_owner_id.person_id,
                 "machine_buy_price": machine_obj.machine_buy_price,
                 "machine_buy_date": machine_obj.machine_buy_date,
                 "machine_sold_price": machine_obj.machine_sold_price,
@@ -1023,8 +1028,7 @@ def insert_update_machine(request):
             machine.machine_working = machine_working
             machine.machine_types_id = machine_types_instance
             machine.machine_details = machine_details
-            machine.machine_owner_name = machine_owner_name
-            machine.machine_owner_contact = machine_owner_contact
+            machine.machine_owner_id = machine_owner_id
             machine.machine_buy_price = machine_buy_price
             machine.machine_buy_date = machine_buy_date
             machine.machine_sold_price = machine_sold_price
@@ -1042,8 +1046,7 @@ def insert_update_machine(request):
                 machine_working=machine_working,
                 machine_types_id=machine_types_instance,
                 machine_details=machine_details,
-                machine_owner_name=machine_owner_name,
-                machine_owner_contact=machine_owner_contact,
+                machine_owner_id = machine_owner_id,
                 machine_buy_price=machine_buy_price,
                 machine_buy_date=machine_buy_date,
                 machine_sold_price=machine_sold_price,
@@ -1066,8 +1069,7 @@ def insert_update_machine(request):
                 "machine_types_id": machine.machine_types_id.machine_type_id,
                 "machine_types_name": machine.machine_types_id.machine_type_name,
                 "machine_details": machine.machine_details,
-                "machine_owner_name": machine.machine_owner_name,
-                "machine_owner_contact": machine.machine_owner_contact,
+                "machine_owner_id": machine.machine_owner_id.person_id,
                 "machine_buy_price": machine.machine_buy_price,
                 "machine_buy_date": machine.machine_buy_date,
                 "machine_sold_price": machine.machine_sold_price,

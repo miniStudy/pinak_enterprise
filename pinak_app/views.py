@@ -1919,12 +1919,17 @@ def insert_update_material(request):
         material_agent_name = request.data.get('material_agent_name')
         material_agent_contact = request.data.get('material_agent_contact')
         material_agent_price_choice = request.data.get('material_agent_price_choice')
-        material_agent_percentage = int(request.data.get('material_agent_percentage'))
+        material_agent_percentage = request.data.get('material_agent_percentage')
+        if material_agent_percentage:
+            material_agent_percentage = int(material_agent_percentage)
         material_agent_amount = request.data.get('material_agent_amount')
         if material_agent_price_choice == "Discount":
             material_agent_amount = material_total_price*material_agent_percentage/100
-            
-        material_final_amount = material_total_price + material_agent_amount
+        
+        if material_agent_amount:
+            material_final_amount = material_total_price + material_agent_amount
+        else:
+            material_final_amount = material_total_price
         material_details = request.data.get('material_details')
 
         material_type_instance = Material_Types.objects.get(material_type_id=material_type_id)

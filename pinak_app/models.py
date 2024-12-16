@@ -305,8 +305,7 @@ class Machine_Maintenance(models.Model):
     machine_maintenance_amount_paid = models.BooleanField(default=0)
     machine_maintenance_types_id = models.ForeignKey(Maintenance_Types, on_delete=models.CASCADE)
     machine_maintenance_details = models.TextField(null=True, blank=True)
-    machine_maintenance_driver_name = models.CharField(max_length=155, null=True, blank=True)
-    machine_maintenance_driver_contact = models.CharField(max_length=15, null=True, blank=True)
+    machine_maintenance_driver_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True)
     machine_maintenance_person_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 

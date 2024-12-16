@@ -508,7 +508,6 @@ def show_pay_types(request):
     pay_types = Pay_Types.objects.all().values(
         'pay_type_id',
         'pay_type_name',
-        'pay_type_date'
     )
     return Response({
         "status": "success",
@@ -519,7 +518,6 @@ def show_pay_types(request):
 def insert_update_pay_type(request):
     pay_type_id = request.data.get('pay_type_id')
     pay_type_name = request.data.get('pay_type_name')
-    pay_type_date = request.data.get('pay_type_date')
 
     if request.GET.get('getdata_id'):
         pay_type_obj = Pay_Types.objects.get(pay_type_id=request.GET.get('getdata_id'))
@@ -529,7 +527,6 @@ def insert_update_pay_type(request):
         "data": {
             'pay_type_id': pay_type_obj.pay_type_id,
             'pay_type_name': pay_type_obj.pay_type_name,
-            'pay_type_date': pay_type_obj.pay_type_date,
         }
         })
 
@@ -537,13 +534,12 @@ def insert_update_pay_type(request):
         if pay_type_id:
             pay_type = Pay_Types.objects.get(pay_type_id=pay_type_id)
             pay_type.pay_type_name = pay_type_name
-            pay_type.pay_type_date = pay_type_date
             pay_type.save()
             message = "Pay type updated successfully."
         else:
             pay_type = Pay_Types.objects.create(
                 pay_type_name=pay_type_name,
-                pay_type_date=pay_type_date
+
             )
             message = "Pay type created successfully."
 
@@ -553,7 +549,7 @@ def insert_update_pay_type(request):
             "data": {
                 "pay_type_id": pay_type.pay_type_id,
                 "pay_type_name": pay_type.pay_type_name,
-                "pay_type_date": pay_type.pay_type_date
+
             }
         })
     else:

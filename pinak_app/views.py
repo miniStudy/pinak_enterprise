@@ -935,7 +935,10 @@ def show_machines(request):
         'machine_buy_date', 
         'machine_sold_price', 
         'machine_sold_out_date', 
-        'machine_other_details'
+        'machine_other_details',
+        'machine_rented_work_price',
+        'machine_rented_work_type__work_type_id',
+
     )
     machine_types_data = Machine_Types.objects.all().values(
         'machine_type_id', 
@@ -1043,6 +1046,7 @@ def insert_update_machine(request):
             machine.machine_sold_out_date = machine_sold_out_date
             machine.machine_other_details = machine_other_details
             machine.machine_rented_work_price = machine_rented_work_price
+            machine_rented_work_type = machine_rented_work_type
             machine.save()
             message = "Machine details updated successfully."
         else:
@@ -1062,6 +1066,7 @@ def insert_update_machine(request):
                 machine_sold_out_date=machine_sold_out_date,
                 machine_other_details=machine_other_details,
                 machine_rented_work_price = machine_rented_work_price,
+                machine_rented_work_type = machine_rented_work_type
             )
             message = "Machine details created successfully."
 
@@ -1086,6 +1091,7 @@ def insert_update_machine(request):
                 "machine_sold_out_date": machine.machine_sold_out_date,
                 "machine_other_details": machine.machine_other_details,
                 "machine_rented_work_price": machine.machine_rented_work_price,
+                "machine_rented_work_type":machine.machine_rented_work_type.work_type_id,
             },
         })
     else:

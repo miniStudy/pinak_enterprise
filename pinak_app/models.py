@@ -57,7 +57,7 @@ class Machine_Types(models.Model):
 class Project_Types(models.Model):
     project_type_id = models.BigAutoField(primary_key=True)
     project_type_name = models.CharField(max_length=155)
-    project_type_details = models.TextField()
+    project_type_details = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.project_type_name}'
@@ -69,7 +69,7 @@ class Project_Types(models.Model):
 class Work_Types(models.Model):
     work_type_id = models.BigAutoField(primary_key=True)
     work_type_name = models.CharField(max_length=155)
-    work_type_details = models.TextField()
+    work_type_details = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.work_type_name}'
@@ -103,7 +103,6 @@ class Maintenance_Types(models.Model):
 class Pay_Types(models.Model):
     pay_type_id = models.BigAutoField(primary_key=True)
     pay_type_name = models.CharField(max_length=155)
-    pay_type_date = models.DateField()
 
     def __str__(self):
         return f'{self.pay_type_name}'

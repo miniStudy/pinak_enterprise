@@ -205,6 +205,8 @@ class Machines(models.Model):
     machine_types_id = models.ForeignKey(Machine_Types, on_delete=models.CASCADE)
     machine_details = models.TextField(null=True, blank=True)
     machine_owner_id = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True)
+    machine_rented_work_type = models.ForeignKey(Work_Types, models.CASCADE, null=True,blank=True)
+    machine_rented_work_price = models.CharField(max_length=150, null=True,blank=True)
     machine_buy_price = models.CharField(max_length=155, null=True, blank=True)
     machine_buy_date = models.DateField(null=True, blank=True)
     machine_sold_price = models.CharField(max_length=155, null=True, blank=True)

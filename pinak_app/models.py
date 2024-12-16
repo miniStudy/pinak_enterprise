@@ -307,8 +307,8 @@ class Machine_Maintenance(models.Model):
     machine_maintenance_amount_paid = models.BooleanField(default=0)
     machine_maintenance_types_id = models.ForeignKey(Maintenance_Types, on_delete=models.CASCADE)
     machine_maintenance_details = models.TextField(null=True, blank=True)
-    machine_maintenance_driver_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True)
-    machine_maintenance_person_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True)
+    machine_maintenance_driver_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name="driver")
+    machine_maintenance_person_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name="repair_person")
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
 
     def __str__(self):

@@ -6,6 +6,9 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.db.models import Sum, FloatField
 from django.db.models.functions import Cast
+from .serializers import DocumentsSerializer
+from django.conf import settings
+
 
 # Create your views here.
 
@@ -975,6 +978,7 @@ def insert_update_machine(request):
         machine_owner_id = request.data.get('machine_owner_id')
         if machine_own == 'Company':
             machine_owner_id = 1
+
         machine_buy_price = request.data.get('machine_buy_price')
         machine_rented_work_type = request.data.get('machine_rented_work_type')
         if machine_rented_work_type:
@@ -2950,8 +2954,72 @@ def delete_project_expense(request):
 
 
 
+from rest_framework.response import Response
+from rest_framework import status
+
+# GET all documents, POST a new document
+@api_view(['GET', 'POST'])
+def show_documents(request):
+    domain = request.get_host()
+    data = Documents.objects.all().values('document_name','document_id','document_date','document_unique_code','document_file')
+    for document in data:
+        document['document_file_url'] = domain + settings.MEDIA_URL + str(document['document_file'])
+        document['data'] = 'hello'
+
+    document_types = Document_Types.objects.all().values('document_type_name','document_type_id')
+    return Response({
+        'status':True,
+        'message': 'Documents Fetched Successfully',
+        'data':data,
+        'document_types':document_types
+    })
+
+# GET, PUT, DELETE a single document
+@api_view(['GET','POST', 'PUT', 'DELETE'])
+def insert_update_documents(request):
+    product_data = request.data
+    form = DocumentsSerializer(data = product_data)
+
+    if form.is_valid():
+            form.save()
+            return Response({
+                'status': True,
+                'message': 'Product has been added successfully'
+            })
+    else:
+            error_messages = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_messages.append(f"{field}: {error}")
+
+            return Response({
+                'status':False,
+                'message': " ".join(error_messages)
+            })
 
 
+@api_view(['GET','DELETE'])
+def delete_document(request):
+    document_id = request.GET.get('document_id')
+    
+    if not document_id:
+        return Response({
+            "status": "error",
+            "message": "document_id is required"
+        }, status=400)
+
+    try:
+        document = get_object_or_404(Documents, document_id=document_id)
+        document.delete()
+        return Response({
+            "status": "success",
+            "message": "Document deleted successfully"
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"Failed to delete Document: {str(e)}"
+        }, status=500)
 
 
 

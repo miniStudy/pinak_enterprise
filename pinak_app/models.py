@@ -479,6 +479,7 @@ class Project_Expense(models.Model):
 
 class Document_Dates(models.Model):
     dd_id = models.BigAutoField(primary_key=True)
+    dd_document = models.ForeignKey(Documents, on_delete=models.CASCADE, null=True,blank=True)
     dd_date_name = models.CharField(max_length=200)
     dd_date = models.DateField(auto_now_add=True)
 

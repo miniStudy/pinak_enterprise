@@ -193,7 +193,8 @@ class Machines(models.Model):
 
     class own_options(models.TextChoices):
         Company = 'Company', 'Company'
-        Rented = 'Rented', 'Rented'
+        Rented_fixedprice = 'Rented_fixedprice', 'Rented_fixedprice'
+        Rented_variableprice = 'Rented_variableprice', 'Rented_variableprice'
 
     machine_id = models.BigAutoField(primary_key=True)
     machine_name = models.CharField(max_length=155)

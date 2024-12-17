@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from pinak_app import views
+from django.urls import include, path
+from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -130,6 +134,9 @@ urlpatterns = [
 
 
     path('show_reports/', views.show_reports, name='show_reports'),
+
+    path('show_documents/', views.show_documents, name='show_documents'),
+    path('insert_update_documents/', views.insert_update_documents, name='insert_update_documents'),
     
 
     
@@ -166,3 +173,5 @@ urlpatterns = [
     # path('insert_update_document/', views.insert_update_document, name='insert_update_document'),
     # path('delete_document/', views.delete_document, name='delete_document'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -475,93 +475,6 @@ class Project_Expense(models.Model):
 
 
         
-#-----------------------------------Under Construction-----------------------------------------------------------------------------
-
-
-
-
-
-# class Working_Machines(models.Model):
-#     class ownership_options(models.TextChoices):
-#         Rent_Machine = 'Rent_Machine', 'Rent_Machine'
-#         Own_Machine = 'Own_Machine', 'Own_Machine'
-#         Company_Machine = 'Company_Machine', 'Company_Machine'
-
-#     working_machine_id = models.BigAutoField(primary_key=True)
-#     working_machine_name = models.CharField(max_length=155)
-#     working_machine_owner_name = models.CharField(max_length=155)
-#     working_machine_owner_contact = models.CharField(max_length=15)
-#     working_machine_plate_number = models.CharField(max_length=55)
-#     working_machine_start_date = models.DateField(null=True, blank=True)
-#     working_machine_end_date = models.DateField(null=True, blank=True)
-#     working_machine_ownership = models.CharField(choices=ownership_options, max_length=55)
-#     working_machine_details = models.TextField()
-#     working_machine_rented_amount = models.CharField(max_length=55, null=True, blank=True)
-#     machine_type_id = models.ForeignKey(Machine_Types, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f'{self.working_machine_name} {self.working_machine_owner_name}'
-
-#     class Meta:
-#         db_table = 'Working_Machines'
-
-
-# class Person_Work_Machine(models.Model):
-#     class payment_options(models.TextChoices):
-#         Company_Owner = 'Company_Owner', 'Company_Owner'
-#         Pinak_Enterprise = 'Pinak_Enterprise', 'Pinak_Enterprise'
-#         Pinak = 'Pinak', 'Pinak'
-
-#     pwm_id = models.BigAutoField(primary_key=True)
-#     pwm_machine_name = models.CharField(max_length=155)
-#     pwm_machine_owner_name = models.CharField(max_length=155)
-#     pwm_machine_owner_number = models.CharField(max_length=15)
-#     working_machine_id = models.ForeignKey(Working_Machines, on_delete=models.CASCADE)
-#     pwm_person_joining_date = models.DateField(null=True, blank=True)
-#     pwm_person_contact_number = models.CharField(max_length=15)
-#     pwm_person_payment_by = models.CharField(choices=payment_options, max_length=155)
-#     pwm_person_payment_desc = models.TextField(null=True, blank=True)
-#     person_type_id = models.ForeignKey(Person_Type, on_delete=models.CASCADE)
-#     person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
-#     project_type_id = models.ForeignKey(Project_Types, on_delete=models.CASCADE)
-#     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
-#     work_types_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
-#     pwm_work_number = models.CharField(max_length=55)
-#     pwm_work_amount = models.CharField(max_length=55)
-#     pwm_total_amount = models.CharField(max_length=55)
-#     pwm_work_desc = models.TextField(null=True, blank=True)
-
-#     def __str__(self):
-#         return f'{self.pwm_machine_name} {self.pwm_machine_owner_name}'
-
-#     class Meta:
-#         db_table = 'Person_Work_Machine'
-
-# class Materials(models.Model):
-#     material_id = models.BigAutoField(primary_key=True)
-#     material_owner_name = models.CharField(max_length=155)
-#     material_used_date = models.DateField(null=True, blank=True)
-#     material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
-#     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
-#     material_work_number = models.CharField(max_length=55)
-#     material_work_amount = models.CharField(max_length=55)
-#     material_work_total_amount = models.CharField(max_length=55)
-#     total_material_amount = models.CharField(max_length=55)
-#     material_desc = models.TextField(null=True, blank=True)
-#     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
-    
-#     def __str__(self):
-#         return f'{self.material_type_id.material_type_name} {self.material_owner_name}'
-
-#     class Meta:
-#         db_table = 'Materials'
-
-
-
-
-
-
-
 
 
 
@@ -582,4 +495,3 @@ class Project_Expense(models.Model):
 # notification Data 
 # notification title
 # date
-# notification_work completed/pending/inform

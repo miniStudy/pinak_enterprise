@@ -53,8 +53,8 @@ class Company_Details(models.Model):
     company_owner_name = models.CharField(max_length=155)
     company_owner_contact = models.CharField(max_length=15)
     company_address = models.TextField()
-    company_logo = models.ImageField(upload_to='uploads/')
-    company_logo_icon = models.ImageField(upload_to='uploads/')
+    company_logo = models.ImageField(upload_to='uploads/', null=True, blank=True)
+    company_logo_icon = models.ImageField(upload_to='uploads/', null=True, blank=True)
 
     def __str__(self):
         return self.company_owner_name

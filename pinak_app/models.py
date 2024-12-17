@@ -1,6 +1,37 @@
 from django.db import models
 
 # Create your models here.
+class User(models.Model):
+    user_id = models.BigAutoField(primary_key=True)
+    user_name = models.CharField(max_length=155)
+    user_email = models.EmailField()
+    user_contact = models.CharField(max_length=15)
+    user_password = models.CharField(max_length=55)
+    user_otp = models.CharField(max_length=6, null=True, blank=True)
+
+
+    def __str__(self):
+        return self.user_email
+
+    class Meta:
+        db_table = 'User'
+
+
+class Notification(models.Model):
+    notification_id = models.BigAutoField(primary_key=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    notification_title = models.CharField(max_length=55)
+    notification_msg = models.CharField(max_length=255)
+    notification_date = models.DateField(auto_now_add=True)
+
+
+    def __str__(self):
+        return self.user_id.user_email
+
+    class Meta:
+        db_table = 'Notification'
+
+
 class Languages(models.Model):
     class language_choices(models.TextChoices):
         English = 'English', 'English'

@@ -6,9 +6,93 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from django.db.models import Sum, FloatField
 from django.db.models.functions import Cast
+from django.contrib.auth import authenticate
+from rest_framework import status
 
 # Create your views here.
 
+@api_view(['GET'])
+def show_user(request):
+    user_data = User.objects.all().values(
+        'user_id',
+        'user_name',
+        'user_email',
+        'user_contact'
+    )
+
+    return Response({
+        'status': 'success',
+        'title': 'User',
+        'data': user_data
+    })
+
+@api_view(['GET', 'POST'])
+def insert_update_user(request):
+    if request.GET.get('getdata'):
+        getdata = request.GET.get('getdata')
+        user_data = User.objects.get(user_id = getdata)
+        return Response({
+            'status': 'success',
+            'message': 'Data fetch successfully',
+            'data': {
+                'user_id': user_data.user_id,
+                'user_name': user_data.user_name,
+                'user_email': user_data.user_email,
+                'user_password': user_data.user_password,
+            }
+        })
+    
+    if request.method == 'POST':
+        user_id = request.data.get('user_id')
+        user_name = request.data.get('user_name')
+        user_email = request.data.get('user_email')
+        user_contact = request.data.get('user_contact')
+        user_password = request.data.get('user_password')
+
+        if user_id:
+            user_data = User.objects.get(user_id = user_id)
+            user_data.user_name = user_name
+            user_data.user_email = user_email
+            user_data.user_contact = user_contact
+            user_data.save()
+            message = 'User data has been updated successfully'
+        else:
+            User.objects.create(user_name = user_name,
+            user_email = user_email,
+            user_contact = user_contact,
+            user_password = user_password)
+            message = 'User has been created successfully'
+
+            return Response({
+            'status': 'success',
+            'title': 'User',
+            'message': message
+            })
+    else:
+            return Response({
+                "status": "False"
+            })
+
+@api_view(['POST'])
+def user_login(request):
+    user_email = request.data.get('user_email')
+    user_password = request.data.get('user_password')
+
+    if not user_email or not user_password:
+        return Response(
+            {"error": "Email and password are required."},
+        )
+
+    user = User.objects.get(user_email=user_email, user_password=user_password)
+    if user:
+        return Response(
+            {"message": "Login successful!"},
+        )
+    else:
+        return Response(
+            {"error": "Invalid email or password."},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 @api_view(['GET'])
 def show_comapny_details(request):
@@ -1559,7 +1643,7 @@ def insert_update_machine_maintenance(request):
         machine_maintenance_person_id = request.data.get('machine_maintenance_person_id')
         machine_maintenance_details = request.data.get('machine_maintenance_details')
         machine_maintenance_types_id = request.data.get('machine_maintenance_types_id')
-        project_id = request.data.get('project_id')
+        project_id = request.GET.get('project_id')
 
         maintenance_type_instance = Maintenance_Types.objects.get(maintenance_type_id=machine_maintenance_types_id)
         machine_instance = Machines.objects.get(machine_id = machine_machine_id)
@@ -2275,6 +2359,15 @@ def show_project_material(request):
     project_material_data = Project_Material_Data.objects.all()
     if request.GET.get('project_id'):
         project_material_data = project_material_data.filter(project_id__project_id = request.GET.get('project_id'))
+
+        total_amount = project_material_data.aggregate(
+            total_amount=Sum('project_material_total_amount')
+        )['total_amount']
+    else:
+        total_amount = project_material_data.aggregate(
+            total_amount=Sum('project_material_total_amount')
+        )['total_amount']
+
     project_material_data = project_material_data.values(
         'project_material_id',
         'project_material_date',
@@ -2300,6 +2393,7 @@ def show_project_material(request):
         'material_types_data': material_types_data,
         'work_types_data': work_types_data,
         'persons_data': persons_data,
+        "total_amount": total_amount,
         'data': project_material_data
     })
 
@@ -2440,18 +2534,29 @@ def delete_project_material(request):
 @api_view(['GET'])
 def show_project_machine(request):
     project_machines_data = Project_Machine_Data.objects.all()
+    machine_maintenance_data = Machine_Maintenance.objects.all()
     if request.GET.get('machine_id'):
         project_machines_data = project_machines_data.filter(machine_project_id__machine_id = request.GET.get('machine_id'))
 
     if request.GET.get('project_id'):
         project_machines_data = project_machines_data.filter(project_id__project_id = request.GET.get('project_id'))
+        machine_maintenance_data = machine_maintenance_data.filter(project_id__project_id = request.GET.get('project_id'))
         
         total_amount = project_machines_data.aggregate(
             total_amount=Sum('project_machine_data_total_amount')
         )['total_amount']
+
+        maintenance_total_amount = machine_maintenance_data.aggregate(
+            total_amount=Sum('machine_maintenance_amount')
+        )['total_amount']
+
     else:
         total_amount = project_machines_data.aggregate(
             total_amount=Sum('project_machine_data_total_amount')
+        )['total_amount']
+
+        maintenance_total_amount = machine_maintenance_data.aggregate(
+            total_amount=Sum('machine_maintenance_amount')
         )['total_amount']
 
 
@@ -2467,17 +2572,45 @@ def show_project_machine(request):
         'project_machine_data_more_details',
     )
 
+    machine_maintenance_data = machine_maintenance_data.values(
+        'machine_maintenance_id',
+        'machine_machine_id__machine_name',
+        'machine_machine_id__machine_number_plate',
+        'machine_machine_id__machine_types_id__machine_type_name',
+        'machine_maintenance_amount',
+        'machine_maintenance_date',
+        'machine_maintenance_amount_paid',
+        'machine_maintenance_amount_paid_by',
+        'machine_maintenance_driver_id__person_name',
+        'machine_maintenance_person_id__person_name',
+        'machine_maintenance_details',
+        'machine_maintenance_types_id__maintenance_type_name',
+        'project_id__project_name',
+    )
+
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+
+    maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
+    maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
+    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'driver').values('person_id', 'person_name')
+    projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
         'status': 'success',
         'title': 'Project Machine',
         'machines_data': machines_data,
         'work_types_data': work_types_data,
+        "maintenance_types_data": maintenance_types_data,
+        "machines_data": machines_data,
+        "persons_data": maintenance_persons_data,
+        "driver_persons_data": driver_persons_data,
+        "projects_data": projects_data,
         'data': project_machines_data,
         'total_amount': total_amount,
-
+        'machine_maintenance_data': machine_maintenance_data,
+        'maintenance_total_amount': maintenance_total_amount
     })
 
 

@@ -19,6 +19,11 @@ from pinak_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('show_user/', views.show_user, name='show_user'),
+    path('user_login/', views.user_login, name='user_login'),
+    path('insert_update_user/', views.insert_update_user, name='insert_update_user'),
+
     path('show_comapny_details/', views.show_comapny_details, name='show_comapny_details'),
     path('insert_update_comapny_detail/', views.insert_update_comapny_detail, name='insert_update_comapny_detail'),
 

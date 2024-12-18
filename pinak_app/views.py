@@ -884,17 +884,20 @@ def show_bank_details(request):
 
     company_person_name = [persons.person_id.person_name for persons in Bank_Details.objects.filter(company_bank_account = True)]
 
-    credit_debit_data = Money_Debit_Credit.objects.filter(money_payment_mode = 'BANK').values('sender_person_id__person_name', 'money_amount')
+    credit_debit_data = Money_Debit_Credit.objects.filter(money_payment_mode = 'BANK').values('sender_person_id__person_name', 'receiver_person_id__person_name', 'money_amount', 'pay_type_id__pay_type_name', 'money_payment_mode', 'money_date', 'sender_bank_id__bank_name', 'receiver_bank_id__bank_name', 'money_payment_details')
 
+    bank_credit_total = 0
+    bank_debit_total = 0
     for credit_debit in credit_debit_data:
-        bank_credit_total = 0
-        bank_debit_total = 0
+        
         if credit_debit['sender_person_id__person_name'] in company_person_name:
             credit_debit['credit_debit'] = 'Debit'
             bank_debit_total += int(credit_debit['money_amount'])
         else:
             credit_debit['credit_debit'] = 'Credit'
             bank_credit_total += int(credit_debit['money_amount'])
+    print("de", bank_debit_total)
+    print("ce", bank_credit_total)
 
     persons = Person.objects.all().values(
         'person_id',

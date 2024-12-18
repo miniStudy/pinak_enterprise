@@ -1301,7 +1301,6 @@ def insert_update_money_debit_credit(request):
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name') 
     bank_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
-
     if request.method == 'POST':
         money_id = request.data.get('money_id')
         sender_person_id = request.data.get('sender_person_id')
@@ -1315,7 +1314,6 @@ def insert_update_money_debit_credit(request):
         receiver_bank_id = request.data.get('receiver_bank_id')
         money_payment_details = request.data.get('money_payment_details')
         machine_id = request.data.get('machine_id')
-
         if machine_id:
             machine_instance = Machines.objects.get(machine_id=machine_id)
         else:

@@ -908,6 +908,8 @@ def show_bank_details(request):
         "data": bank_details_data,
         "company_bank_details_data": company_bank_details_data,
         "credit_debit_data": credit_debit_data,
+        "bank_credit_total": bank_credit_total,
+        "bank_debit_total": bank_debit_total,
     })
 
 @api_view(['POST', 'GET'])

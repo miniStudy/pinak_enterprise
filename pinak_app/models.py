@@ -53,8 +53,8 @@ class Company_Details(models.Model):
     company_owner_name = models.CharField(max_length=155)
     company_owner_contact = models.CharField(max_length=15)
     company_address = models.TextField()
-    company_logo = models.ImageField(upload_to='uploads/')
-    company_logo_icon = models.ImageField(upload_to='uploads/')
+    company_logo = models.ImageField(upload_to='uploads/', null=True, blank=True)
+    company_logo_icon = models.ImageField(upload_to='uploads/', null=True, blank=True)
 
     def __str__(self):
         return self.company_owner_name
@@ -193,6 +193,7 @@ class Bank_Details(models.Model):
     bank_initial_amount = models.CharField(max_length=155, null=True, blank=True)
     bank_open_closed = models.BooleanField(default=1)
     person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    company_bank_account = models.BooleanField(default=0)
 
     def __str__(self):
         return self.bank_name
@@ -471,10 +472,7 @@ class Project_Expense(models.Model):
         return f'{self.project_expense_name}'
 
     class Meta:
-        db_table = 'Project_Expense'
-
-
-        
+        db_table = 'Project_Expense'        
 
 
 class Document_Dates(models.Model):

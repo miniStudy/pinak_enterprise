@@ -856,7 +856,7 @@ def delete_person(request):
 
 @api_view(['GET'])
 def show_bank_details(request):
-    bank_details_data = Bank_Details.objects.all().values(
+    bank_details_data = Bank_Details.objects.filter(company_bank_account = False).values(
         'bank_id',
         'bank_name',
         'bank_branch',
@@ -869,6 +869,33 @@ def show_bank_details(request):
         'person_id__person_contact_number',
     )
 
+    company_bank_details_data = Bank_Details.objects.filter(company_bank_account = True).values(
+        'bank_id',
+        'bank_name',
+        'bank_branch',
+        'bank_account_number',
+        'bank_ifsc_code',
+        'bank_account_holder',
+        'bank_initial_amount',
+        'bank_open_closed',
+        'person_id__person_name',
+        'person_id__person_contact_number',
+    )
+
+    company_person_name = [persons.person_id.person_name for persons in Bank_Details.objects.filter(company_bank_account = True)]
+
+    credit_debit_data = Money_Debit_Credit.objects.filter(money_payment_mode = 'BANK').values('sender_person_id__person_name', 'money_amount')
+
+    for credit_debit in credit_debit_data:
+        bank_credit_total = 0
+        bank_debit_total = 0
+        if credit_debit['sender_person_id__person_name'] in company_person_name:
+            credit_debit['credit_debit'] = 'Debit'
+            bank_debit_total += int(credit_debit['money_amount'])
+        else:
+            credit_debit['credit_debit'] = 'Credit'
+            bank_credit_total += int(credit_debit['money_amount'])
+
     persons = Person.objects.all().values(
         'person_id',
         'person_name'
@@ -878,7 +905,11 @@ def show_bank_details(request):
         "status": "success",
         "title": "Bank",
         "persons": persons,
-        "data": bank_details_data
+        "data": bank_details_data,
+        "company_bank_details_data": company_bank_details_data,
+        "credit_debit_data": credit_debit_data,
+        "bank_credit_total": bank_credit_total,
+        "bank_debit_total": bank_debit_total,
     })
 
 @api_view(['POST', 'GET'])
@@ -904,6 +935,7 @@ def insert_update_bank_detail(request):
                     "bank_initial_amount": bank_obj.bank_initial_amount,
                     "bank_open_closed": bank_obj.bank_open_closed,
                     "person_id": bank_obj.person_id.person_id,
+                    "company_bank_account": bank_obj.company_bank_account
                 },
                 'persons': persons
             })
@@ -922,6 +954,7 @@ def insert_update_bank_detail(request):
         bank_initial_amount = request.data.get('bank_initial_amount')
         bank_open_closed = request.data.get('bank_open_closed')
         person_id = request.data.get('person_id')
+        company_bank_account = request.data.get('company_bank_account')
 
         if not all([bank_name, bank_branch, bank_account_number, bank_ifsc_code, person_id]):
             return Response({
@@ -941,6 +974,7 @@ def insert_update_bank_detail(request):
             bank_detail.bank_initial_amount = bank_initial_amount
             bank_detail.bank_open_closed = bank_open_closed
             bank_detail.person_id = person_instance
+            bank_detail.company_bank_account = company_bank_account
             bank_detail.save()
             message = "Bank details updated successfully."
         else:
@@ -952,7 +986,8 @@ def insert_update_bank_detail(request):
                 bank_account_holder=bank_account_holder,
                 bank_initial_amount=bank_initial_amount,
                 bank_open_closed=bank_open_closed,
-                person_id=person_instance
+                person_id=person_instance,
+                company_bank_account = company_bank_account,
             )
             message = "Bank details created successfully."
 
@@ -972,7 +1007,8 @@ def insert_update_bank_detail(request):
                 "person_name": bank_detail.person_id.person_name,
                 "person_contact_number": bank_detail.person_id.person_contact_number,
                 "person_types_for_project": bank_detail.person_id.person_types_for_project,
-                "person_type_name": bank_detail.person_id.person_type_id.person_type_name
+                "person_type_name": bank_detail.person_id.person_type_id.person_type_name,
+                "company_bank_account": bank_detail.company_bank_account,
             },
             'persons': persons
         })
@@ -3150,6 +3186,7 @@ def delete_document(request):
             "status": "error",
             "message": f"Failed to delete Document: {str(e)}"
         }, status=500)
+
 
 
 

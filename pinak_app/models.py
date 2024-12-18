@@ -193,6 +193,7 @@ class Bank_Details(models.Model):
     bank_initial_amount = models.CharField(max_length=155, null=True, blank=True)
     bank_open_closed = models.BooleanField(default=1)
     person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    company_bank_account = models.BooleanField(default=0)
 
     def __str__(self):
         return self.bank_name
@@ -471,10 +472,7 @@ class Project_Expense(models.Model):
         return f'{self.project_expense_name}'
 
     class Meta:
-        db_table = 'Project_Expense'
-
-
-        
+        db_table = 'Project_Expense'        
 
 
 class Document_Dates(models.Model):

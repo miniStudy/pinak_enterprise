@@ -489,6 +489,19 @@ class Document_Dates(models.Model):
 
 
 
+class bank_cash(models.Model):
+    bank_cash_id = models.BigAutoField(primary_key=True)
+    credit_debit = models.CharField(max_length=100)
+    amount = models.CharField(max_length=200)
+    bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE)
+    date = models.DateField()
+    details = models.TextField(null=True,blank=True)
+
+    def __str__(self):
+        return f'{self.date} {self.bank_id.bank_name} {self.amount}'
+
+    class Meta:
+        db_table = 'bank_cash'
 
 
 #Add Expiry Date for Document

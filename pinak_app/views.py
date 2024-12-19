@@ -904,6 +904,16 @@ def show_bank_details(request):
         'person_name'
     )
 
+
+    bank_cash_data = bank_cash.objects.all().values(
+        'bank_cash_id',
+        'credit_debit',
+        'amount',
+        'bank_id__bank_name',
+        'date',
+        'details'
+    )
+
     return Response({
         "status": "success",
         "title": "Bank",
@@ -913,6 +923,7 @@ def show_bank_details(request):
         "credit_debit_data": credit_debit_data,
         "bank_credit_total": bank_credit_total,
         "bank_debit_total": bank_debit_total,
+        "bank_cash_data": bank_cash_data,
     })
 
 @api_view(['POST', 'GET'])
@@ -1085,7 +1096,6 @@ def show_machines(request):
 @api_view(['POST', 'GET'])
 def insert_update_machine(request):
     machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
-
     if request.method == 'POST':
         machine_id = request.data.get('machine_id')
         machine_name = request.data.get('machine_name')
@@ -1289,6 +1299,7 @@ def show_money_debit_credit(request):
         'receiver_bank_id__bank_name',
         'money_payment_details',
         'machine_id__machine_name',
+        'project_id__project_name',
     )
 
     money_credit_data = money_debit_credit_data.filter(sender_person_id__person_name = 'pinak enterprise').values(
@@ -1301,7 +1312,8 @@ def show_money_debit_credit(request):
         'money_date',
         'sender_bank_id__bank_name',
         'receiver_bank_id__bank_name',
-        'machine_id__machine_name'
+        'machine_id__machine_name',
+        'project_id__project_name',
     )
 
     money_debit_data =  money_debit_credit_data.filter(receiver_person_id__person_name = 'pinak enterprise').values(
@@ -1314,13 +1326,15 @@ def show_money_debit_credit(request):
         'money_date',
         'sender_bank_id__bank_name',
         'receiver_bank_id__bank_name',
-        'machine_id__machine_name'
+        'machine_id__machine_name',
+        'project_id__project_name',
     )
 
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')  
+    projects_data = Project.objects.all().values('project_id', 'project_name')
     return Response({
         "status": "success",
         "title": "Money Transactions",
@@ -1328,6 +1342,7 @@ def show_money_debit_credit(request):
         "persons_data": persons_data,
         "pay_types_data": pay_types_data,
         "machines_data": machines_data,
+        "projects_data": projects_data,
         "data": money_debit_credit_data,
         "money_credit_data": money_credit_data,
         "money_debit_data": money_debit_data,
@@ -1339,6 +1354,7 @@ def insert_update_money_debit_credit(request):
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name') 
+    projects_data = Project.objects.all().values('project_id', 'project_name')
     bank_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     if request.method == 'POST':
         money_id = request.data.get('money_id')
@@ -1353,10 +1369,17 @@ def insert_update_money_debit_credit(request):
         receiver_bank_id = request.data.get('receiver_bank_id')
         money_payment_details = request.data.get('money_payment_details')
         machine_id = request.data.get('machine_id')
+        project_id = request.data.get('project_id')
         if machine_id:
             machine_instance = Machines.objects.get(machine_id=machine_id)
         else:
             machine_instance = None
+
+        if project_id:
+            project_instance = Project.objects.get(project_id=project_id)
+        else:
+            project_instance = None
+
         sender_person_instance = Person.objects.get(person_id=sender_person_id)
         receiver_person_instance = Person.objects.get(person_id=receiver_person_id)
         pay_type_instance = Pay_Types.objects.get(pay_type_id=pay_type_id)
@@ -1365,6 +1388,7 @@ def insert_update_money_debit_credit(request):
             sender_bank_instance = Bank_Details.objects.get(bank_id=sender_bank_id)
         else :
             sender_bank_instance = None
+
         if receiver_bank_id:
             receiver_bank_instance = Bank_Details.objects.get(bank_id=receiver_bank_id)
         else:
@@ -1384,6 +1408,7 @@ def insert_update_money_debit_credit(request):
             money_debit_credit.receiver_bank_id = receiver_bank_instance
             money_debit_credit.money_payment_details = money_payment_details
             money_debit_credit.machine_id = machine_instance
+            money_debit_credit.project_id = project_instance
             money_debit_credit.save()
             message = "Money Debit/Credit record updated successfully."
         else:
@@ -1398,7 +1423,8 @@ def insert_update_money_debit_credit(request):
                 money_sender_cheque_no=money_sender_cheque_no,
                 receiver_bank_id = receiver_bank_instance,
                 money_payment_details=money_payment_details,
-                machine_id=machine_instance
+                machine_id=machine_instance,
+                project_id = project_instance,
             )   
             message = "Money Debit/Credit record created successfully."
 
@@ -1423,12 +1449,14 @@ def insert_update_money_debit_credit(request):
                 "money_sender_cheque_no": money_debit_credit.money_sender_cheque_no,
                 "receiver_bank_id": None if money_debit_credit.receiver_bank_id is None else money_debit_credit.receiver_bank_id.bank_id,
                 "money_payment_details": money_debit_credit.money_payment_details,
-                "machine_id": machine_id
+                "machine_id": machine_id,
+                "project_id": project_id
             },
             "persons_data": persons_data,
             "pay_types_data": pay_types_data,
             "machines_data": machines_data,
             "banks_data": bank_data,
+            "projects_data": projects_data,
         })
 
     elif request.GET.get('getdata_id'):
@@ -1437,6 +1465,10 @@ def insert_update_money_debit_credit(request):
             machine_id = None
         else:
             machine_id = money_debit_credit_obj.machine_id.machine_id
+        if not money_debit_credit_obj.project_id:
+            project_id = None
+        else:
+            project_id = money_debit_credit_obj.project_id.project_id
         return Response({
             "status": "success",
             "message": 'Data Fetched Successfully',
@@ -1452,12 +1484,14 @@ def insert_update_money_debit_credit(request):
                 "money_sender_cheque_no": money_debit_credit_obj.money_sender_cheque_no,
                 "receiver_bank_id": None if money_debit_credit_obj.receiver_bank_id is None else money_debit_credit_obj.receiver_bank_id.bank_id,
                 "money_payment_details": money_debit_credit_obj.money_payment_details,
-                "machine_id": machine_id
+                "machine_id": machine_id,
+                "project_id": project_id,
             },
             "persons_data": persons_data,
             "pay_types_data": pay_types_data,
             "machines_data": machines_data,
             "bank_data": bank_data,
+            "projects_data": projects_data,
         })
 
     else:
@@ -1859,7 +1893,6 @@ def insert_update_project(request):
         project_amount = request.data.get('project_amount')
         project_location = request.data.get('project_location')
         project_owner = request.data.get('project_owner_name')
-        print(project_owner)
         project_owner_instance = Person.objects.get(person_id = project_owner)
         project_status = request.data.get('project_status')
         project_cgst = request.data.get('project_cgst')
@@ -1997,6 +2030,7 @@ def show_materials(request):
         'material_owner__person_name',
         'material_status',
         'material_buy_date',
+        'material_buy_location',
         'material_work_type__work_type_id',
         'material_work_type__work_type_name',
         'material_work_no',
@@ -2042,6 +2076,7 @@ def insert_update_material(request):
             'material_owner': material_obj.material_owner.person_id,
             'material_status': material_obj.material_status,
             'material_buy_date': material_obj.material_buy_date,
+            'material_buy_location': material_obj.material_buy_location,
             'material_work_type': material_obj.material_work_type.work_type_id,
             'material_work_no': material_obj.material_work_no,
             'material_price': material_obj.material_price,
@@ -2066,6 +2101,7 @@ def insert_update_material(request):
         material_type_id = request.data.get('material_type_id')
         material_status = request.data.get('material_status')
         material_buy_date = request.data.get('material_buy_date')
+        material_buy_location = request.data.get('material_buy_location')
         material_work_type = request.data.get('material_work_type')
         material_work_no = int(request.data.get('material_work_no'))
         material_price = int(request.data.get('material_price'))
@@ -2095,6 +2131,7 @@ def insert_update_material(request):
             material = Material.objects.get(material_id=material_id)
             material.material_owner = material_owner_instance
             material.material_buy_date = material_buy_date
+            material.material_buy_location = material_buy_location
             material.material_type_id = material_type_instance
             material.material_work_type = work_type_instance
             material.material_work_no = material_work_no
@@ -2128,7 +2165,8 @@ def insert_update_material(request):
                 material_agent_amount=material_agent_amount,
                 material_final_amount=material_final_amount,
                 material_details=material_details,
-                material_status=material_status
+                material_status=material_status,
+                material_buy_location=material_buy_location,
             )
             message = "Material created successfully."
 
@@ -2139,6 +2177,7 @@ def insert_update_material(request):
                 "material_id": material.material_id,
                 "material_owner": material.material_owner.person_id,
                 "material_buy_date": material.material_buy_date,
+                "material_buy_location": material.material_buy_location,
                 "material_type_id": material.material_type_id.material_type_id,
                 "material_work_type": material.material_work_type.work_type_id,
                 "material_work_no": material.material_work_no,
@@ -3208,43 +3247,136 @@ def delete_document(request):
         }, status=500)
 
 
+@api_view(['GET'])
+def show_bank_cash(request):
+    bank_cash_data = bank_cash.objects.all().values(
+        'bank_cash_id',
+        'credit_debit',
+        'amount',
+        'bank_id__bank_name',
+        'date',
+        'details'
+    )
+    
+    bank_details_data = Bank_Details.objects.filter(person_id__person_name = 'Pinak Enterprise').values(
+        'bank_id',
+        'bank_name'
+    )
+
+    return Response({
+        "status": "success",
+        "title": "Bank Cash",
+        "data": bank_cash_data,
+        "bank_details_data": bank_details_data
+    })
+
+
+@api_view(['POST', 'GET'])
+def insert_update_bank_cash(request):
+    bank_details_data = Bank_Details.objects.all().values(
+        'bank_id',
+        'bank_name'
+    )
+
+    if request.method == 'POST':
+        bank_cash_id = request.data.get('bank_cash_id')
+        credit_debit = request.data.get('credit_debit')
+        amount = request.data.get('amount')
+        bank_id = request.data.get('bank_id')
+        date = request.data.get('date')
+        details = request.data.get('details')
+
+        if bank_id:
+            bank_instance = Bank_Details.objects.get(bank_id=bank_id)
+        else:
+            bank_instance = None
+
+        if bank_cash_id:
+            bank_cash_data = bank_cash.objects.get(bank_cash_id=bank_cash_id)
+            bank_cash_data.credit_debit = credit_debit
+            bank_cash_data.amount = amount
+            bank_cash_data.bank_id = bank_instance
+            bank_cash_data.date = date
+            bank_cash_data.details = details
+            bank_cash_data.save()
+            message = "Bank cash details updated successfully."
+
+        else:
+            bank_cash_data = bank_cash.objects.create(
+                credit_debit=credit_debit,
+                amount=amount,
+                bank_id=bank_instance,
+                date=date,
+                details=details
+            )
+            message = "Bank cash details created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+            "data": {
+                "bank_cash_id": bank_cash_data.bank_cash_id,
+                "credit_debit": bank_cash_data.credit_debit,
+                "amount": bank_cash_data.amount,
+                "bank_id": bank_cash_data.bank_id.bank_id,
+                "date": bank_cash_data.date,
+                "details": bank_cash_data.details,
+            },
+            "bank_details_data": bank_details_data
+        })
+
+    if request.GET.get('getdata_id'):
+        bank_cash_id = request.GET.get('getdata_id')
+        try:
+            bank_cash_data = bank_cash.objects.get(bank_cash_id=bank_cash_id)
+            return Response({
+                "status": "success",
+                "message": "Data fetched successfully.",
+                "data": {
+                    "bank_cash_id": bank_cash_data.bank_cash_id,
+                    "credit_debit": bank_cash_data.credit_debit,
+                    "amount": bank_cash_data.amount,
+                    "bank_id": bank_cash_data.bank_id.bank_id,
+                    "bank_name": bank_cash_data.bank_id.bank_name,
+                    "date": bank_cash_data.date,
+                    "details": bank_cash_data.details,
+                },
+                "bank_details_data": bank_details_data
+            })
+        except bank_cash.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Bank cash ID does not exist."
+            }, status=404)
+
+    return Response({
+        "status": "error",
+        "message": "Invalid request method."
+    }, status=405)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+@api_view(['GET','DELETE'])
+def delete_bank_cash(request):
+    bank_cash_id = request.GET.get('bank_cash_id')
+    
+    if not bank_cash_id:
+        return Response({
+            "status": "error",
+            "message": "bank_cash_id is required"
+        }, status=400)
+    try:
+        bank_cash_data = get_object_or_404(bank_cash, bank_cash_id=bank_cash_id)
+        bank_cash_data.delete()
+        return Response({
+            "status": "success",
+            "message": "Bank Cash deleted successfully"
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"Failed to delete Bank Cash: {str(e)}"
+        }, status=500)
 
 
 

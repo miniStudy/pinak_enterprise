@@ -139,6 +139,12 @@ urlpatterns = [
     path('insert_update_documents/', views.insert_update_documents, name='insert_update_documents'),
     
 
+    path('show_documents/', views.show_documents, name='show_documents'),
+
+
+    path('show_bank_cash/', views.show_bank_cash, name='show_bank_cash'),
+    path('insert_update_bank_cash/', views.insert_update_bank_cash, name='insert_update_bank_cash'),
+    path('delete_bank_cash/', views.delete_bank_cash, name='delete_bank_cash'),
     
 
     

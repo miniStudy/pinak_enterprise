@@ -381,6 +381,7 @@ class Material(models.Model):
     material_owner = models.ForeignKey(Person, on_delete=models.CASCADE)
     material_status = models.BooleanField(default=1)
     material_buy_date = models.DateField(null=True,blank=True)
+    material_buy_location = models.TextField(null=True, blank=True)
     material_work_type = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     material_work_no = models.CharField(max_length=100)
     material_price = models.CharField(max_length=250)

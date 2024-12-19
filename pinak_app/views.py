@@ -2786,8 +2786,24 @@ def show_project_person(request):
     if request.GET.get('project_id'):
         project_person_data = project_person_data.filter(project_id__project_id = request.GET.get('project_id'))
 
+        # for showcasing projectdata in reports
+        project = get_object_or_404(Project, project_id=request.GET.get('project_id'))
+        project_data = {
+        'project_name': project.project_name,
+        'project_amount': project.project_amount,
+        'project_location': project.project_location,
+        'project_type': project.project_types_id.project_type_name,
+        'project_status': project.project_status,
+        'project_start_date': project.project_start_date,
+        'project_end_date': project.project_end_date,
+        'owner_name': project.project_owner_name.person_name,
+        'owner_contact_number': project.project_owner_name.person_contact_number,
+        }
+
+
         total_amount = project_person_data.aggregate(total_amount=Sum('project_person_total_price'))['total_amount']
     else:
+        project_data = None
         total_amount = project_person_data.aggregate(total_amount=Sum('project_person_total_price'))['total_amount']
 
     project_person_data = project_person_data.values(
@@ -2815,7 +2831,8 @@ def show_project_person(request):
         'work_types_data': work_types_data,
         'project_machine_data': project_machine_data,
         'data': project_person_data,
-        'total_amount': total_amount
+        'total_amount': total_amount,
+        'project_data':project_data
     })
 
 

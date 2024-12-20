@@ -3418,6 +3418,52 @@ def delete_bank_cash(request):
 
 
 
+@api_view(['GET'])
+def language_data(request):
+    data = language.objects.all().values('language_id','gujarati','english')
+
+    default = 'gujarat'
+    if default=='gujarati':
+        for x in data:
+            x['lang'] = x['gujarati']
+    else:
+        for x in data:
+            x['lang'] = x['english']   
+
+
+    return Response({
+            "status": "success",
+            "message": "Language Data Fetched Successfully.",
+            'data':data
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

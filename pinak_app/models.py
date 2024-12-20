@@ -515,6 +515,19 @@ class bank_cash(models.Model):
         db_table = 'bank_cash'
 
 
+class language(models.Model):
+    language_id = models.BigAutoField(primary_key=True)
+    gujarati = models.CharField(max_length=200)
+    english = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'{self.language_id} - {self.english} {self.gujarati}'
+
+    class Meta:
+        db_table = 'language'
+
+
+
 #Add Expiry Date for Document
 #Add Service Date for Vehicle Data
 #Day Wise kM for vehicle

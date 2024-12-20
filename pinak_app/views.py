@@ -2860,6 +2860,7 @@ def show_project_person(request):
         project_person_data = project_person_data.filter(person_id__person_id = request.GET.get('person_id'))
 
     if request.GET.get('project_id'):
+
         project_person_data = project_person_data.filter(project_id__project_id = request.GET.get('project_id'))
 
         # for showcasing projectdata in reports
@@ -2892,8 +2893,7 @@ def show_project_person(request):
         'project_person_price',
         'project_person_total_price',
         'project_person_paid_by',
-        'project_person_payment_details',
-        'project_person_more_details'
+        +'project_person_payment_details',+       'project_person_more_details'
     )
 
     persons_data = Person.objects.all().values('person_id', 'person_name')
@@ -3465,6 +3465,40 @@ def delete_document_date(request):
             "status": "error",
             "message": f"Failed to delete Document Date: {str(e)}"
         }, status=500)
+
+from datetime import date
+@api_view(['GET'])
+def show_daily_report(request):
+    if request.GET.get('report_date'):
+        today_date = request.GET.get('report_date')
+        print("---", today_date)
+    else:
+        today_date = date.today()
+
+    dailywise_credit_report = Money_Debit_Credit.objects.filter(money_date = today_date, receiver_person_id__person_name = 'Pinak Enterprise').values('sender_person_id__person_name', 'receiver_person_id__person_name', 'pay_type_id__pay_type_name', 'money_amount')
+
+    x = Money_Debit_Credit.objects.filter(money_date = today_date, receiver_person_id__person_name = 'Pinak Enterprise').values('sender_person_id__person_name', 'receiver_person_id__person_name', 'pay_type_id__pay_type_name', 'money_amount').aggregate(total_amount_credit=Sum('money_amount'))
+    total_credit_amount = x['total_amount_credit'] or 0 
+
+    dailywise_debit_report = Money_Debit_Credit.objects.filter(money_date = today_date, sender_person_id__person_name = 'Pinak Enterprise').values('sender_person_id__person_name' , 'receiver_person_id__person_name', 'pay_type_id__pay_type_name', 'money_amount')
+
+    y = Money_Debit_Credit.objects.filter(money_date = today_date, sender_person_id__person_name = 'Pinak Enterprise').values('sender_person_id__person_name' , 'receiver_person_id__person_name', 'pay_type_id__pay_type_name', 'money_amount').aggregate(total_amount=Sum('money_amount'))
+    total_debit_amount = y['total_amount'] or 0
+
+
+    return Response({
+        'status': 'success',
+        'title': 'Daily Reports',
+        'dailywise_credit_report': dailywise_credit_report,
+        'total_credit_amount': total_credit_amount,
+        'dailywise_debit_report': dailywise_debit_report,
+        'total_debit_amount': total_debit_amount
+    })
+
+
+
+    
+
 
 
 

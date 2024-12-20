@@ -476,7 +476,7 @@ class Project_Expense(models.Model):
     project_expense_date = models.DateField()
     project_expense_amount = models.CharField(max_length=55)
     project_payment_mode = models.CharField(choices=payment_options_field, max_length=155)
-    bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE)
+    bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE,null=True,blank=True)
     project_expense_desc = models.TextField()
 
     def __str__(self):
@@ -525,6 +525,19 @@ class language(models.Model):
 
     class Meta:
         db_table = 'language'
+
+
+class Settingsss(models.Model):
+    settings_id = models.BigAutoField(primary_key=True)
+    settings_field_name = models.CharField(max_length=200)
+    settings_field_value = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f'{self.settings_field_name} - {self.settings_field_value}'
+
+    class Meta:
+        db_table = 'Settingsss'
+
 
 
 

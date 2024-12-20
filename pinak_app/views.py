@@ -3122,7 +3122,7 @@ def insert_update_project_expense(request):
                     "project_expense_date": project_expense.project_expense_date,
                     "project_expense_amount": project_expense.project_expense_amount,
                     "project_payment_mode": project_expense.project_payment_mode,
-                    "bank_id": project_expense.bank_id.bank_id,
+                    "bank_id": project_expense.bank_id.bank_id if project_expense.bank_id else None,
                     "project_expense_desc": project_expense.project_expense_desc,
                 }
             })
@@ -3142,7 +3142,10 @@ def insert_update_project_expense(request):
         project_expense_desc = request.data.get('project_expense_desc')
 
         project_instance = get_object_or_404(Project, pk=project_id)
-        bank_instance = get_object_or_404(Bank_Details, pk=bank_id)
+        if bank_id:
+            bank_instance = get_object_or_404(Bank_Details, pk=bank_id)
+        else:
+            bank_instance = None
 
         if project_expense_id:
             project_expense = get_object_or_404(Project_Expense, pk=project_expense_id)
@@ -3178,7 +3181,7 @@ def insert_update_project_expense(request):
                 "project_expense_date": project_expense.project_expense_date,
                 "project_expense_amount": project_expense.project_expense_amount,
                 "project_payment_mode": project_expense.project_payment_mode,
-                "bank_id": project_expense.bank_id.bank_id,
+                "bank_id": project_expense.bank_id.bank_id if project_expense.bank_id else None,
                 "project_expense_desc": project_expense.project_expense_desc,
             }
         })
@@ -3422,8 +3425,14 @@ def delete_bank_cash(request):
 def language_data(request):
     data = language.objects.all().values('language_id','gujarati','english')
 
-    default = 'gujarat'
-    if default=='gujarati':
+    settingss = Settingsss.objects.get(settings_field_name = 'language')
+
+    
+    if request.GET.get('language_change'):
+        settingss.settings_field_value = request.GET.get('language_change')
+        settingss.save()
+
+    if settingss.settings_field_value == 'gujarati':
         for x in data:
             x['lang'] = x['gujarati']
     else:
@@ -3434,7 +3443,8 @@ def language_data(request):
     return Response({
             "status": "success",
             "message": "Language Data Fetched Successfully.",
-            'data':data
+            'data':data,
+            'currentlanguage':settingss.settings_field_value
         })
 
 

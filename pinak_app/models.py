@@ -261,6 +261,10 @@ class Project(models.Model):
         Closed = 'Closed', 'Closed'
         Taken = 'Taken', 'Taken'
 
+    class agent_type(models.TextChoices):
+        Percentage = 'Percentage', 'Percentage',
+        Fixed = 'Fixed', 'Fixed',
+
     project_id = models.BigAutoField(primary_key=True)
     project_name = models.CharField(max_length=155)
     project_amount= models.CharField(max_length=55)
@@ -269,12 +273,18 @@ class Project(models.Model):
     project_status = models.CharField(choices=status_options, max_length=55)
     project_start_date = models.DateField(null=True, blank=True)
     project_end_date = models.DateField(null=True, blank=True)
-    project_owner_name = models.ForeignKey(Person, on_delete=models.CASCADE ,null=True,blank=True)
+    project_owner_name = models.ForeignKey(Person, on_delete=models.CASCADE ,null=True,blank=True, related_name='owner_name')
     project_cgst = models.CharField(max_length=55, null=True, blank=True)
     project_sgst = models.CharField(max_length=55, null=True, blank=True)
     project_tax = models.CharField(max_length=55, null=True, blank=True)
     project_discount = models.CharField(max_length=55, null=True, blank=True)
-    
+
+    project_agent = models.BooleanField(default=0)
+    project_agent_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name='agent_name')
+    project_agent_type = models.CharField(choices=agent_type, max_length=155, null=True, blank=True)
+    project_agent_percentage = models.CharField(max_length=155, null=True, blank=True)
+    project_agent_fixed_amount = models.CharField(max_length=155, null=True, blank=True)
+    project_final_amount = models.CharField(max_length=155, null=True, blank=True)
 
     def __str__(self):
         return f'{self.project_types_id.project_type_name} {self.project_name}'

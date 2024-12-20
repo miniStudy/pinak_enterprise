@@ -1859,16 +1859,19 @@ def show_projects(request):
         'project_tax',
         'project_discount',
         'project_types_id__project_type_id',
-        'project_types_id__project_type_name'
+        'project_types_id__project_type_name',
     )
     project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
     persons_data = Person.objects.all().values('person_name','person_contact_number','person_id')
+    agent_persons = Person.objects.all().values('person_name','person_contact_number','person_id')
+
     return Response({
         "status": "success",
         "title": "Project",
         "project_types_data": project_types_data,
         "data": projects,
         "persons_data":persons_data,
+        "agent_persons": agent_persons,
     })
 
 @api_view(['POST', 'GET'])
@@ -1883,14 +1886,13 @@ def insert_update_project(request):
         else:
             project_start_date = None
 
-
         project_end_date = request.data.get('project_end_date')
         if project_end_date:
             pass
         else:
            project_end_date = None
 
-        project_amount = request.data.get('project_amount')
+        project_amount = int(request.data.get('project_amount'))
         project_location = request.data.get('project_location')
         project_owner = request.data.get('project_owner_name')
         project_owner_instance = Person.objects.get(person_id = project_owner)
@@ -1901,6 +1903,29 @@ def insert_update_project(request):
         project_discount = request.data.get('project_discount')
         project_types_id = int(request.data.get('project_types_id'))
         project_type_instance = Project_Types.objects.get(project_type_id=project_types_id)
+
+        project_agent = request.data.get('project_agent')
+        project_agent_id = request.data.get('project_agent_id')
+        project_agent_type = request.data.get('project_agent_type')
+        project_agent_percentage = request.data.get('project_agent_percentage')
+        project_agent_fixed_amount = request.data.get('project_agent_fixed_amount')
+
+        if project_agent_type == 'Percentage':
+            project_final_amount = (((int(project_agent_percentage)/100) * project_amount) + project_amount)
+       
+
+        elif project_agent_type == 'Fixed':
+            project_final_amount = (int(project_agent_fixed_amount) + project_amount)
+
+
+        else:
+            project_final_amount = project_amount
+
+
+        if project_agent_id:
+            agent_instance = Person.objects.get(person_id = project_agent_id)
+        else:
+            agent_instance = None
     
     if request.GET.get('getdata_id'):
         project_obj = Project.objects.get(project_id = request.GET.get('getdata_id'))
@@ -1921,6 +1946,11 @@ def insert_update_project(request):
             'project_tax': project_obj.project_tax,
             'project_discount': project_obj.project_discount,
             'project_types_id': project_obj.project_types_id.project_type_id,
+            'project_agent': project_obj.project_agent,
+            'project_agent_id': project_obj.project_agent_id.person_id if project_obj.project_agent else None,
+            'project_agent_type': project_obj.project_agent_type,
+            "project_agent_percentage": project_obj.project_agent_percentage,
+            "project_agent_fixed_amount": project_obj.project_agent_fixed_amount,
         },
         'project_types_data': project_types_data
         })
@@ -1940,6 +1970,13 @@ def insert_update_project(request):
             project.project_sgst = project_sgst
             project.project_discount = project_discount
             project.project_types_id = project_type_instance
+            project.project_agent = project_agent
+            project.project_agent_id = agent_instance
+            project.project_agent_type = project_agent_type
+            project.project_agent_percentage = project_agent_percentage
+            project.project_agent_fixed_amount = project_agent_fixed_amount
+            project.project_final_amount = project_final_amount
+
             project.save()
             message = "Project updated successfully."
         else:
@@ -1955,7 +1992,15 @@ def insert_update_project(request):
                 project_sgst=project_sgst,
                 project_tax=project_tax,
                 project_discount=project_discount,
-                project_types_id=project_type_instance
+                project_types_id=project_type_instance,
+                project_agent = project_agent,
+                project_agent_id = agent_instance,
+                project_agent_type = project_agent_type,
+                project_agent_percentage = project_agent_percentage,
+                project_agent_fixed_amount = project_agent_fixed_amount,
+                project_final_amount = project_final_amount,
+
+
             )
             message = "Project created successfully."
 
@@ -1978,7 +2023,13 @@ def insert_update_project(request):
                 "project_sgst": project.project_sgst,
                 "project_tax": project.project_tax,
                 "project_discount": project.project_discount,
-                "project_types_id": project.project_types_id.project_type_id
+                "project_types_id": project.project_types_id.project_type_id,
+                "project_agent": project.project_agent,
+                "project_agent_id": project.project_agent_id.person_id if project.project_agent else None,
+                "project_agent_type": project.project_agent_type,
+                "project_agent_percentage": project.project_agent_percentage,
+                "project_agent_fixed_amount": project.project_agent_fixed_amount,
+                "project_final_amount": project.project_final_amount,
             },
             'project_types_data': project_types_data
         })
@@ -2008,16 +2059,6 @@ def delete_project(request):
             "status": "error",
             "message": "Project not found."
         }, status=404)
-
-
-
-
-
-
-
-
-
-
 
 
 @api_view(['GET'])

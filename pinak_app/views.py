@@ -3449,7 +3449,32 @@ def language_data(request):
 
 
 
+api_view(['GET', 'POST'])
+def insert_document_date(request):
+    pass
 
+
+
+api_view(['DELETE'])
+def delete_document_date(request):
+    dd_id = request.GET.get('dd_id')
+    if not dd_id:
+        return Response({
+            "status": "error",
+            "message": "dd_id is required"
+        }, status=400)
+    try:
+        document_date_data = get_object_or_404(Document_Dates, dd_id=dd_id)
+        document_date_data.delete()
+        return Response({
+            "status": "success",
+            "message": "Document Date deleted successfully"
+        })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"Failed to delete Document Date: {str(e)}"
+        }, status=500)
 
 
 

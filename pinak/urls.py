@@ -138,8 +138,9 @@ urlpatterns = [
     path('show_documents/', views.show_documents, name='show_documents'),
     path('insert_update_documents/', views.insert_update_documents, name='insert_update_documents'),
     
-
-    path('show_documents/', views.show_documents, name='show_documents'),
+    
+    path('insert_document_date/', views.insert_document_date, name='insert_document_date'),
+    path('delete_document_date/', views.delete_document_date, name='delete_document_date'),
 
 
     path('show_bank_cash/', views.show_bank_cash, name='show_bank_cash'),

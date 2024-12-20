@@ -1664,6 +1664,16 @@ def show_machine_maintenance(request):
     if request.GET.get('machine_id'):
         machine_maintenance = machine_maintenance.filter(machine_machine_id__machine_id = request.GET.get('machine_id'))
 
+    if request.GET.get('project_id'):
+        machine_maintenance = machine_maintenance.filter(project_id__project_id = request.GET.get('project_id'))
+
+        total_amount = machine_maintenance.aggregate(total_amount=Sum('machine_maintenance_amount'))['total_amount']
+        print(total_amount)
+    else:
+        total_amount = machine_maintenance.aggregate(total_amount=Sum('machine_maintenance_amount'))['total_amount']
+
+
+
     machine_maintenance = machine_maintenance.values(
         'machine_maintenance_id',
         'machine_machine_id__machine_name',
@@ -1693,19 +1703,14 @@ def show_machine_maintenance(request):
         "persons_data": maintenance_persons_data,
         "driver_persons_data": driver_persons_data,
         "projects_data": projects_data,
-        "data": machine_maintenance
+        "data": machine_maintenance,
+        "total_amount": total_amount
     })
 
 
 
 @api_view(['POST', 'GET'])
 def insert_update_machine_maintenance(request):
-    maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
-    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
-    persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
-    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'driver').values('person_id', 'person_name')
-    projects_data = Project.objects.all().values('project_id', 'project_name')
-
     if request.method == 'POST':
         machine_maintenance_id = request.data.get('machine_maintenance_id')
         machine_machine_id = request.data.get('machine_machine_id')
@@ -1746,17 +1751,12 @@ def insert_update_machine_maintenance(request):
                 "machine_maintenance_date": maintenance_obj.machine_maintenance_date,
                 "machine_maintenance_amount_paid": maintenance_obj.machine_maintenance_amount_paid,
                 "machine_maintenance_amount_paid_by": maintenance_obj.machine_maintenance_amount_paid_by,
-                "machine_maintenance_driver_id": maintenance_obj.machine_maintenance_driver_id,
+                "machine_maintenance_driver_id": maintenance_obj.machine_maintenance_driver_id.person_id,
                 "machine_maintenance_person_id": maintenance_obj.machine_maintenance_person_id.person_id,
                 "machine_maintenance_details": maintenance_obj.machine_maintenance_details,
                 "machine_maintenance_types_id": maintenance_obj.machine_maintenance_types_id.maintenance_type_id,
                 "project_id": maintenance_obj.project_id.project_id if maintenance_obj.project_id else None,
-            },
-            'maintenance_types_data': maintenance_types_data,
-            "machines_data": machines_data,
-            "persons_data": persons_data,
-            "projects_data": projects_data,
-            "driver_persons_data": driver_persons_data
+            }
         })
 
     if request.method == 'POST':
@@ -1805,11 +1805,7 @@ def insert_update_machine_maintenance(request):
                 "machine_maintenance_details": machine_maintenance.machine_maintenance_details,
                 "machine_maintenance_types_id": machine_maintenance.machine_maintenance_types_id.maintenance_type_id,
                 "project_id": machine_maintenance.project_id.project_id if machine_maintenance.project_id else None,
-            },
-            'maintenance_types_data': maintenance_types_data,
-            "machines_data": machines_data,
-            "persons_data": persons_data,
-            "projects_data": projects_data,
+            }
         })
     else:
         return Response({

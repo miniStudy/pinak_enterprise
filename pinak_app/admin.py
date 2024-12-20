@@ -11,4 +11,5 @@ admin.site.register(Maintenance_Types)
 admin.site.register(Documents)
 admin.site.register(Document_Types)
 admin.site.register(language)
+admin.site.register(Settingsss)
 

@@ -294,7 +294,7 @@ class Project(models.Model):
 
 class Project_Machine_Data(models.Model):
     project_machine_data_id = models.BigAutoField(primary_key=True)
-    project_machine_date = models.DateField()
+    project_machine_date = models.DateField(auto_now_add=True, null=True, blank=True)
     machine_project_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_machine_data_work_number = models.CharField(max_length=155)
@@ -345,7 +345,7 @@ class Machine_Maintenance(models.Model):
     machine_maintenance_id = models.BigAutoField(primary_key=True)
     machine_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
     machine_maintenance_amount = models.CharField(max_length=155)
-    machine_maintenance_date = models.DateField()
+    machine_maintenance_date = models.DateField(auto_now_add=True, null=True, blank=True)
     machine_maintenance_amount_paid_by = models.CharField(choices=paid_options, max_length=55)
     machine_maintenance_amount_paid = models.BooleanField(default=0)
     machine_maintenance_types_id = models.ForeignKey(Maintenance_Types, on_delete=models.CASCADE)
@@ -414,7 +414,7 @@ class Material(models.Model):
 
 class Project_Day_Details(models.Model):
     project_day_detail_id = models.BigAutoField(primary_key=True)
-    proejct_day_detail_date = models.DateField()
+    proejct_day_detail_date = models.DateField(auto_now_add=True, null=True, blank=True)
     project_day_detail_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE,null=True,blank=True)
     project_day_detail_work_type = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_day_detail_total_tyres = models.CharField(max_length=55, null=True, blank=True)

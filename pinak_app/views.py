@@ -1690,7 +1690,8 @@ def show_machine_maintenance(request):
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
-    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'driver').values('person_id', 'person_name')
+    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Driver').values('person_id', 'person_name')
+    repair_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Repair').values('person_id', 'person_name')
     projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
@@ -1700,6 +1701,7 @@ def show_machine_maintenance(request):
         "machines_data": machines_data,
         "persons_data": maintenance_persons_data,
         "driver_persons_data": driver_persons_data,
+        "repair_persons_data": repair_persons_data,
         "projects_data": projects_data,
         "data": machine_maintenance,
         "total_amount": total_amount
@@ -2331,6 +2333,7 @@ def show_project_day_details(request):
         'project_day_detail_machine_id__machine_name',
         'project_day_detail_machine_id__machine_number_plate',
         'project_day_detail_work_type__work_type_name',
+        'project_day_detail_total_tyres',
         'project_day_detail_work_no',
         'project_day_detail_price',
         'project_day_detail_total_price',
@@ -2368,6 +2371,7 @@ def insert_update_project_day_detail(request):
                     "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id,
                     "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
                     "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
+                    "project_day_detail_total_tyres": project_day_detail.project_day_detail_total_tyres,
                     "project_day_detail_price": project_day_detail.project_day_detail_price,
                     "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
                     "project_day_detail_details": project_day_detail.project_day_detail_details,
@@ -2386,6 +2390,7 @@ def insert_update_project_day_detail(request):
         project_day_detail_machine_id = request.data.get('project_day_detail_machine_id')
         project_day_detail_work_type = request.data.get('project_day_detail_work_type')
         project_day_detail_work_no = int(request.data.get('project_day_detail_work_no'))
+        project_day_detail_total_tyres = int(request.data.get('project_day_detail_total_tyres'))
         project_day_detail_price = int(request.data.get('project_day_detail_price'))
         project_day_detail_details = request.data.get('project_day_detail_details', '')
         project_id = request.data.get('project_id')
@@ -2407,6 +2412,7 @@ def insert_update_project_day_detail(request):
             project_day_detail.project_day_detail_price = project_day_detail_price
             project_day_detail.project_day_detail_total_price = project_day_detail_work_no * project_day_detail_price
             project_day_detail.project_day_detail_details = project_day_detail_details
+            project_day_detail.project_day_detail_total_tyres = project_day_detail_total_tyres
             project_day_detail.project_id = project_instance
 
             project_day_detail.save()
@@ -2420,6 +2426,7 @@ def insert_update_project_day_detail(request):
                 project_day_detail_price=project_day_detail_price,
                 project_day_detail_total_price=project_day_detail_work_no * project_day_detail_price,
                 project_day_detail_details=project_day_detail_details,
+                project_day_detail_total_tyres=project_day_detail_total_tyres,
                 project_id = project_instance
             )
             message = "Project day detail created successfully"
@@ -2436,6 +2443,7 @@ def insert_update_project_day_detail(request):
                 "project_day_detail_price": project_day_detail.project_day_detail_price,
                 "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
                 "project_day_detail_details": project_day_detail.project_day_detail_details,
+                "project_day_detail_total_tyres": project_day_detail.project_day_detail_total_tyres,
             },
             'machines_data': machines_data,
             'work_types_data': work_types_data,
@@ -2708,24 +2716,25 @@ def show_project_machine(request):
         'project_id__project_name',
     )
 
-    machines_data = Machines.objects.all().values('machine_id', 'machine_name','machine_number_plate')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
 
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
-    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'driver').values('person_id', 'person_name')
+ 
+    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Driver').values('person_id', 'person_name')
+    repair_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Repair').values('person_id', 'person_name')
     projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
         'status': 'success',
         'title': 'Project Machine',
-        'machines_data': machines_data,
         'work_types_data': work_types_data,
         "maintenance_types_data": maintenance_types_data,
         "machines_data": machines_data,
         "persons_data": maintenance_persons_data,
         "driver_persons_data": driver_persons_data,
+        "repair_persons_data": repair_persons_data,
         "projects_data": projects_data,
         'data': project_machines_data,
         'total_amount': total_amount,
@@ -2768,6 +2777,7 @@ def insert_update_project_machine(request):
         project_machine_id = request.data.get('project_machine_data_id')
         project_machine_date = request.data.get('project_machine_date')
         machine_project_id = request.data.get('machine_project_id')
+        print("--------", machine_project_id)
         work_type_id = request.data.get('work_type_id')
         project_machine_data_work_number = int(request.data.get('project_machine_data_work_number'))
         project_machine_data_work_price = int(request.data.get('project_machine_data_work_price'))

@@ -2392,7 +2392,7 @@ def insert_update_project_day_detail(request):
         project_day_detail_machine_id = request.data.get('project_day_detail_machine_id')
         project_day_detail_work_type = request.data.get('project_day_detail_work_type')
         project_day_detail_work_no = int(request.data.get('project_day_detail_work_no'))
-        project_day_detail_total_tyres = int(request.data.get('project_day_detail_total_tyres'))
+        project_day_detail_total_tyres = request.data.get('project_day_detail_total_tyres')
         project_day_detail_price = int(request.data.get('project_day_detail_price'))
         project_day_detail_details = request.data.get('project_day_detail_details', '')
         project_id = request.data.get('project_id')
@@ -2779,7 +2779,6 @@ def insert_update_project_machine(request):
         project_machine_id = request.data.get('project_machine_data_id')
         project_machine_date = request.data.get('project_machine_date')
         machine_project_id = request.data.get('machine_project_id')
-        print("--------", machine_project_id)
         work_type_id = request.data.get('work_type_id')
         project_machine_data_work_number = int(request.data.get('project_machine_data_work_number'))
         project_machine_data_work_price = int(request.data.get('project_machine_data_work_price'))
@@ -2787,6 +2786,7 @@ def insert_update_project_machine(request):
         project_machine_data_work_details = request.data.get('project_machine_data_work_details')
         project_machine_data_more_details = request.data.get('project_machine_data_more_details')
         project_id = request.data.get('project_id')
+        print("-----", project_id)
 
         machine_instance = get_object_or_404(Machines, pk=machine_project_id)
         work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
@@ -2910,9 +2910,8 @@ def show_project_person(request):
         'project_person_price',
         'project_person_total_price',
         'project_person_paid_by',
-        'project_person_payment_details','project_person_more_details'
         'project_person_payment_details',
-        'project_person_more_details'
+        'project_person_more_details',
     )
 
     persons_data = Person.objects.all().values('person_id', 'person_name')

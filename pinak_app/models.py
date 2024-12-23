@@ -432,7 +432,7 @@ class Project_Day_Details(models.Model):
 
 class Project_Material_Data(models.Model):
     project_material_id = models.BigAutoField(primary_key=True)
-    project_material_date = models.DateField()
+    project_material_date = models.DateField(auto_now_add=True, null=True, blank=True)
     project_material_material_id = models.ForeignKey(Material, on_delete=models.CASCADE)
     project_material_material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
     project_material_work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
@@ -474,7 +474,7 @@ class Project_Expense(models.Model):
     project_expense_id = models.BigAutoField(primary_key=True)
     project_expense_name = models.CharField(max_length=155)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
-    project_expense_date = models.DateField()
+    project_expense_date = models.DateField(auto_now_add=True, null=True, blank=True)
     project_expense_amount = models.CharField(max_length=55)
     project_payment_mode = models.CharField(choices=payment_options_field, max_length=155)
     bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE,null=True,blank=True)

@@ -1550,7 +1550,7 @@ def show_salary(request):
     # money_amount_numeric=Cast('money_amount', FloatField())
     # ).aggregate(total_amount=Sum('money_amount_numeric'))['total_amount']
 
-
+    worktypes = Work_Types.objects.all().values('work_type_id','work_type_name')
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
 
     return Response({
@@ -1559,7 +1559,8 @@ def show_salary(request):
         "persons_data": persons_data,
         'money_data': money_transaction_data,
         # "total_money_amount": total_money_amount,
-        "data": salary_details
+        "data": salary_details,
+        "worktypes":worktypes,
     })
 
 
@@ -1570,12 +1571,21 @@ def insert_update_salary(request):
     if request.method == 'POST':
         salary_id = request.data.get('salary_id')
         salary_date = request.data.get('salary_date')
+        person_id = request.data.get('person_id')
+        work_type = request.data.get('work_type')
         salary_amount = request.data.get('salary_amount')
         salary_working_days = request.data.get('salary_working_days')
-        salary_details = request.data.get('salary_details')
-        person_id = request.data.get('person_id')
-
         person_instance = Person.objects.get(person_id=person_id)
+        if work_type=='Fixed_Salary':
+            per_salary = int(person_instance.person_salary)
+            salary_amount = int(float((per_salary/30)) * float(salary_working_days))
+        else:
+            salary_amount = int(float(salary_working_days)*float(salary_amount))
+        
+        salary_details = request.data.get('salary_details')
+        
+
+        
 
         if salary_id:
             salary = Salary.objects.get(salary_id=salary_id)
@@ -1906,24 +1916,39 @@ def insert_update_project(request):
         project_agent_id = request.data.get('project_agent_id')
         project_agent_type = request.data.get('project_agent_type')
         project_agent_percentage = request.data.get('project_agent_percentage')
+        print('=========',project_agent_percentage)
         project_agent_fixed_amount = request.data.get('project_agent_fixed_amount')
+
+        project_investor = request.data.get('project_investor')
+        project_investor_id = request.data.get('project_investor_id')
+        project_investor_type = request.data.get('project_investor_type')
+        project_investor_percentage = request.data.get('project_investor_percentage')
+        project_investor_fixed_amount = request.data.get('project_investor_fixed_amount')
 
         if project_agent_type == 'Percentage':
             project_final_amount = (((int(project_agent_percentage)/100) * int(project_amount)) + int(project_amount))
-       
-
         elif project_agent_type == 'Fixed':
             project_final_amount = (int(project_agent_fixed_amount) + int(project_amount))
-
-
         else:
             project_final_amount = project_amount
-
 
         if project_agent_id:
             agent_instance = Person.objects.get(person_id = project_agent_id)
         else:
             agent_instance = None
+
+        
+        if project_investor_type == 'Percentage':
+            project_final_amount = (((int(project_investor_percentage)/100) * int(project_final_amount)) + int(project_final_amount))
+        elif project_investor_type == 'Fixed':
+            project_final_amount = (int(project_investor_fixed_amount) + int(project_final_amount))
+        else:
+            project_final_amount = project_final_amount
+
+        if project_investor_id:
+            investor_instance = Person.objects.get(person_id = project_investor_id)
+        else:
+            investor_instance = None
     
     if request.GET.get('getdata_id'):
         project_obj = Project.objects.get(project_id = request.GET.get('getdata_id'))
@@ -1949,6 +1974,11 @@ def insert_update_project(request):
             'project_agent_type': project_obj.project_agent_type,
             "project_agent_percentage": project_obj.project_agent_percentage,
             "project_agent_fixed_amount": project_obj.project_agent_fixed_amount,
+            'project_investor': project_obj.project_investor,
+            'project_investor_id': project_obj.project_investor_id.person_id if project_obj.project_investor else None,
+            'project_investor_type': project_obj.project_investor_type,
+            "project_investor_percentage": project_obj.project_investor_percentage,
+            "project_investor_fixed_amount": project_obj.project_investor_fixed_amount,
         },
         'project_types_data': project_types_data
         })
@@ -1973,6 +2003,11 @@ def insert_update_project(request):
             project.project_agent_type = project_agent_type
             project.project_agent_percentage = project_agent_percentage
             project.project_agent_fixed_amount = project_agent_fixed_amount
+            project.project_investor = project_investor
+            project.project_investor_id = investor_instance
+            project.project_investor_type = project_agent_type
+            project.project_investor_percentage = project_agent_percentage
+            project.project_investor_fixed_amount = project_investor_fixed_amount
             project.project_final_amount = project_final_amount
 
             project.save()
@@ -1996,8 +2031,12 @@ def insert_update_project(request):
                 project_agent_type = project_agent_type,
                 project_agent_percentage = project_agent_percentage,
                 project_agent_fixed_amount = project_agent_fixed_amount,
+                project_investor = project_investor,
+                project_investor_id = investor_instance,
+                project_investor_type = project_investor_type,
+                project_investor_percentage = project_investor_percentage,
+                project_investor_fixed_amount = project_investor_fixed_amount,
                 project_final_amount = project_final_amount,
-
 
             )
             message = "Project created successfully."
@@ -2343,6 +2382,23 @@ def show_project_day_details(request):
 
     machine_data = Machines.objects.all().values('machine_id', 'machine_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
+
+
+    short_day_detail_data = []
+    for xx in work_types_data:
+        pddd = Project_Day_Details.objects.filter(project_id__project_id = request.GET.get('project_id'), project_day_detail_work_type__work_type_id = xx['work_type_id'])
+        if pddd:
+            xdataa = []
+            for y in pddd:
+                xdataa.append({'work_type':y.project_day_detail_work_type.work_type_name,'work_no':y.project_day_detail_work_no,'tyre':y.project_day_detail_total_tyres})
+            short_day_detail_data.append({'data':xdataa})
+
+            
+
+    
+        
+        
+        
 
     return Response({
         'status': 'success',

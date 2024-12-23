@@ -284,6 +284,13 @@ class Project(models.Model):
     project_agent_type = models.CharField(choices=agent_type, max_length=155, null=True, blank=True)
     project_agent_percentage = models.CharField(max_length=155, null=True, blank=True)
     project_agent_fixed_amount = models.CharField(max_length=155, null=True, blank=True)
+
+    project_investor = models.BooleanField(default=0)
+    project_investor_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name='investor_name')
+    project_investor_type = models.CharField(max_length=155, null=True, blank=True)
+    project_investor_percentage = models.CharField(max_length=155, null=True, blank=True)
+    project_investor_fixed_amount = models.CharField(max_length=155, null=True, blank=True)
+
     project_final_amount = models.CharField(max_length=155, null=True, blank=True)
 
     def __str__(self):

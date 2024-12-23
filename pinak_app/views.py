@@ -1112,6 +1112,7 @@ def insert_update_machine(request):
         
         machine_buy_price = request.data.get('machine_buy_price')
         machine_rented_work_type = request.data.get('machine_rented_work_type')
+        print('=================',machine_rented_work_type)
         if machine_rented_work_type:
             machine_rented_work_type = Work_Types.objects.get(work_type_id = machine_rented_work_type)
             machine_rented_work_price = request.data.get('machine_rented_work_price')
@@ -1156,7 +1157,7 @@ def insert_update_machine(request):
                 "machine_rented_work_price":machine_obj.machine_rented_work_price,
                 "machine_rented_work_type":machine_obj.machine_rented_work_type.work_type_id if machine_obj.machine_rented_work_type else None,
                 "machine_rented_work_type_name":machine_obj.machine_rented_work_type.work_type_name if machine_obj.machine_rented_work_type else None,
-                "machine_km" : machine_km,
+                "machine_km" : machine_obj.machine_km,
             },
         })
 
@@ -1165,7 +1166,7 @@ def insert_update_machine(request):
             machine = Machines.objects.get(machine_id=machine_id)
             machine.machine_name = machine_name
             machine.machine_number_plate = machine_number_plate
-            machine.machine_register_date = machine_register_date
+            machine.machine_register_date = machine_register_date if machine_register_date else None
             machine.machine_own = machine_own
             machine.machine_condition = machine_condition
             machine.machine_working = machine_working
@@ -1186,7 +1187,7 @@ def insert_update_machine(request):
             machine = Machines.objects.create(
                 machine_name=machine_name,
                 machine_number_plate=machine_number_plate,
-                machine_register_date=machine_register_date,
+                machine_register_date=machine_register_date if machine_register_date else None,
                 machine_own=machine_own,
                 machine_condition=machine_condition,
                 machine_working=machine_working,
@@ -1194,9 +1195,9 @@ def insert_update_machine(request):
                 machine_details=machine_details,
                 machine_owner_id = machine_owner_id,
                 machine_buy_price=machine_buy_price,
-                machine_buy_date=machine_buy_date,
+                machine_buy_date=machine_buy_date if machine_buy_date else None,
                 machine_sold_price=machine_sold_price,
-                machine_sold_out_date=machine_sold_out_date,
+                machine_sold_out_date=machine_sold_out_date if machine_sold_out_date else None,
                 machine_other_details=machine_other_details,
                 machine_rented_work_price = machine_rented_work_price,
                 machine_rented_work_type = machine_rented_work_type,

@@ -231,7 +231,7 @@ class Machines(models.Model):
     machine_id = models.BigAutoField(primary_key=True)
     machine_name = models.CharField(max_length=155)
     machine_number_plate = models.CharField(max_length=55)
-    machine_register_date = models.DateField()
+    machine_register_date = models.DateField(auto_now_add=True,null=True,blank=True)
     machine_own = models.CharField(choices=own_options, max_length=55)
     machine_condition = models.CharField(choices=condition_options, max_length=55, null=True, blank=True)
     machine_working = models.BooleanField(default=1)

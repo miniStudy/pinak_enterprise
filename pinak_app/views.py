@@ -1095,7 +1095,6 @@ def show_machines(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_machine(request):
-    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
     if request.method == 'POST':
         machine_id = request.data.get('machine_id')
         machine_name = request.data.get('machine_name')
@@ -1202,7 +1201,7 @@ def insert_update_machine(request):
                 machine_sold_price=machine_sold_price,
                 machine_sold_out_date=machine_sold_out_date,
                 machine_other_details=machine_other_details,
-                machine_rented_work_price = machine_rented_work_price,
+                machine_rented_work_price = machine_rented_work_price if machine_rented_work_price else None,
                 machine_rented_work_type = machine_rented_work_type
             )
             message = "Machine details created successfully."
@@ -1227,7 +1226,7 @@ def insert_update_machine(request):
                 "machine_sold_price": machine.machine_sold_price,
                 "machine_sold_out_date": machine.machine_sold_out_date,
                 "machine_other_details": machine.machine_other_details,
-                "machine_rented_work_price": machine.machine_rented_work_price,
+                "machine_rented_work_price": machine.machine_rented_work_price if machine.machine_rented_work_price else None,
                 "machine_rented_work_type":machine.machine_rented_work_type.work_type_id if machine.machine_rented_work_type else None,
             },
         })
@@ -1871,6 +1870,7 @@ def show_projects(request):
         "agent_persons": agent_persons,
     })
 
+
 @api_view(['POST', 'GET'])
 def insert_update_project(request):
     project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
@@ -1889,7 +1889,7 @@ def insert_update_project(request):
         else:
            project_end_date = None
 
-        project_amount = int(request.data.get('project_amount'))
+        project_amount = request.data.get('project_amount')
         project_location = request.data.get('project_location')
         project_owner = request.data.get('project_owner_name')
         project_owner_instance = Person.objects.get(person_id = project_owner)
@@ -1908,11 +1908,11 @@ def insert_update_project(request):
         project_agent_fixed_amount = request.data.get('project_agent_fixed_amount')
 
         if project_agent_type == 'Percentage':
-            project_final_amount = (((int(project_agent_percentage)/100) * project_amount) + project_amount)
+            project_final_amount = (((int(project_agent_percentage)/100) * int(project_amount)) + int(project_amount))
        
 
         elif project_agent_type == 'Fixed':
-            project_final_amount = (int(project_agent_fixed_amount) + project_amount)
+            project_final_amount = (int(project_agent_fixed_amount) + int(project_amount))
 
 
         else:
@@ -2392,7 +2392,10 @@ def insert_update_project_day_detail(request):
         project_day_detail_details = request.data.get('project_day_detail_details', '')
         project_id = request.data.get('project_id')
 
-        machine_instance = get_object_or_404(Machines, pk=project_day_detail_machine_id)
+        if project_day_detail_machine_id:
+            machine_instance = get_object_or_404(Machines, pk=project_day_detail_machine_id)
+        project_day_detail_machine_id = None
+
         work_type_instance = get_object_or_404(Work_Types, pk=project_day_detail_work_type)
         project_instance = get_object_or_404(Project, pk=project_id)
 
@@ -2429,7 +2432,7 @@ def insert_update_project_day_detail(request):
             "data": {
                 "project_day_detail_id": project_day_detail.project_day_detail_id,
                 "proejct_day_detail_date": project_day_detail.proejct_day_detail_date,
-                "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id,
+                "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id if project_day_detail.project_day_detail_machine_id else None,
                 "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
                 "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
                 "project_day_detail_price": project_day_detail.project_day_detail_price,

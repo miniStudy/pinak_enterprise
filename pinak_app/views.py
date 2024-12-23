@@ -2333,6 +2333,7 @@ def show_project_day_details(request):
         'project_day_detail_machine_id__machine_name',
         'project_day_detail_machine_id__machine_number_plate',
         'project_day_detail_work_type__work_type_name',
+        'project_day_detail_total_tyres',
         'project_day_detail_work_no',
         'project_day_detail_price',
         'project_day_detail_total_price',
@@ -2370,6 +2371,7 @@ def insert_update_project_day_detail(request):
                     "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id,
                     "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
                     "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
+                    "project_day_detail_total_tyres": project_day_detail.project_day_detail_total_tyres,
                     "project_day_detail_price": project_day_detail.project_day_detail_price,
                     "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
                     "project_day_detail_details": project_day_detail.project_day_detail_details,
@@ -2388,6 +2390,7 @@ def insert_update_project_day_detail(request):
         project_day_detail_machine_id = request.data.get('project_day_detail_machine_id')
         project_day_detail_work_type = request.data.get('project_day_detail_work_type')
         project_day_detail_work_no = int(request.data.get('project_day_detail_work_no'))
+        project_day_detail_total_tyres = int(request.data.get('project_day_detail_total_tyres'))
         project_day_detail_price = int(request.data.get('project_day_detail_price'))
         project_day_detail_details = request.data.get('project_day_detail_details', '')
         project_id = request.data.get('project_id')
@@ -2409,6 +2412,7 @@ def insert_update_project_day_detail(request):
             project_day_detail.project_day_detail_price = project_day_detail_price
             project_day_detail.project_day_detail_total_price = project_day_detail_work_no * project_day_detail_price
             project_day_detail.project_day_detail_details = project_day_detail_details
+            project_day_detail.project_day_detail_total_tyres = project_day_detail_total_tyres
             project_day_detail.project_id = project_instance
 
             project_day_detail.save()
@@ -2422,6 +2426,7 @@ def insert_update_project_day_detail(request):
                 project_day_detail_price=project_day_detail_price,
                 project_day_detail_total_price=project_day_detail_work_no * project_day_detail_price,
                 project_day_detail_details=project_day_detail_details,
+                project_day_detail_total_tyres=project_day_detail_total_tyres,
                 project_id = project_instance
             )
             message = "Project day detail created successfully"
@@ -2438,6 +2443,7 @@ def insert_update_project_day_detail(request):
                 "project_day_detail_price": project_day_detail.project_day_detail_price,
                 "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
                 "project_day_detail_details": project_day_detail.project_day_detail_details,
+                "project_day_detail_total_tyres": project_day_detail.project_day_detail_total_tyres,
             },
             'machines_data': machines_data,
             'work_types_data': work_types_data,

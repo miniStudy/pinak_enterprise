@@ -240,12 +240,12 @@ class Machines(models.Model):
     machine_owner_id = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True)
     machine_rented_work_type = models.ForeignKey(Work_Types, models.CASCADE, null=True,blank=True)
     machine_rented_work_price = models.CharField(max_length=150, null=True,blank=True)
+    machine_km = models.CharField(max_length=100,null=True,blank=True)
     machine_buy_price = models.CharField(max_length=155, null=True, blank=True)
     machine_buy_date = models.DateField(null=True, blank=True)
     machine_sold_price = models.CharField(max_length=155, null=True, blank=True)
     machine_sold_out_date = models.DateField(null=True, blank=True)
     machine_other_details = models.TextField(null=True, blank=True)
-    
 
     def __str__(self):
         return f'{self.machine_name} {self.machine_number_plate}'

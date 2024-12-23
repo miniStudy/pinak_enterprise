@@ -2330,6 +2330,7 @@ def show_project_day_details(request):
         'project_day_detail_id',
         'proejct_day_detail_date',
         'project_day_detail_machine_id__machine_name',
+        'project_day_detail_machine_id__machine_number_plate',
         'project_day_detail_work_type__work_type_name',
         'project_day_detail_work_no',
         'project_day_detail_price',
@@ -2680,6 +2681,7 @@ def show_project_machine(request):
         'project_machine_data_id',
         'project_machine_date',
         'machine_project_id__machine_name',
+        'machine_project_id__machine_number_plate',
         'work_type_id__work_type_name',
         'project_machine_data_work_number',
         'project_machine_data_work_price',
@@ -2889,11 +2891,13 @@ def show_project_person(request):
         'project_person_date',
         'work_type_id__work_type_name',
         'project_machine_data_id__machine_project_id__machine_name',
+        'project_machine_data_id__machine_project_id__machine_number_plate',
         'project_person_work_num',
         'project_person_price',
         'project_person_total_price',
         'project_person_paid_by',
-        +'project_person_payment_details',+       'project_person_more_details'
+        'project_person_payment_details',
+        'project_person_more_details'
     )
 
     persons_data = Person.objects.all().values('person_id', 'person_name')
@@ -3071,6 +3075,7 @@ def show_reports(request):
 def show_project_expense(request):
     project_expense_data = Project_Expense.objects.all()
     if request.GET.get('project_id'):
+        print("------------", request.GET.get('project_id'))
         project_expense_data = project_expense_data.filter(project_id__project_id = request.GET.get('project_id'))
 
         total_amount = project_expense_data.aggregate(

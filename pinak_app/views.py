@@ -1117,6 +1117,7 @@ def insert_update_machine(request):
             machine_rented_work_price = request.data.get('machine_rented_work_price')
         else:
             machine_rented_work_type = None
+            machine_rented_work_price = None
         machine_buy_date = request.data.get('machine_buy_date')
         machine_sold_price = request.data.get('machine_sold_price')
         machine_sold_out_date = request.data.get('machine_sold_out_date')
@@ -1210,7 +1211,7 @@ def insert_update_machine(request):
             "message": message,
             "data": {
                 "machine_id": machine.machine_id,
-                "machine_name": machine.machine_name,
+                "machine_name": '{} - {}'.format(machine.machine_name,machine_number_plate),
                 "machine_number_plate": machine.machine_number_plate,
                 "machine_register_date": machine.machine_register_date,
                 "machine_own": machine.machine_own,
@@ -1226,7 +1227,7 @@ def insert_update_machine(request):
                 "machine_sold_out_date": machine.machine_sold_out_date,
                 "machine_other_details": machine.machine_other_details,
                 "machine_rented_work_price": machine.machine_rented_work_price if machine.machine_rented_work_price else None,
-                "machine_rented_work_type":machine.machine_rented_work_type.work_type_id,
+                "machine_rented_work_type":machine.machine_rented_work_type.work_type_id if machine.machine_rented_work_type else None,
             },
         })
     else:
@@ -2705,7 +2706,7 @@ def show_project_machine(request):
         'project_id__project_name',
     )
 
-    machines_data = Machines.objects.all().values('machine_id', 'machine_name')
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name','machine_number_plate')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
 
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
@@ -2895,6 +2896,7 @@ def show_project_person(request):
         'project_person_price',
         'project_person_total_price',
         'project_person_paid_by',
+        'project_person_payment_details','project_person_more_details'
         'project_person_payment_details',
         'project_person_more_details'
     )

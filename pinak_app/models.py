@@ -415,7 +415,7 @@ class Material(models.Model):
 class Project_Day_Details(models.Model):
     project_day_detail_id = models.BigAutoField(primary_key=True)
     proejct_day_detail_date = models.DateField()
-    project_day_detail_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
+    project_day_detail_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE,null=True,blank=True)
     project_day_detail_work_type = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_day_detail_work_no = models.CharField(max_length=155)
     project_day_detail_price = models.CharField(max_length=155)

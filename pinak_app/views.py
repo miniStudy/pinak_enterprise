@@ -1109,15 +1109,18 @@ def insert_update_machine(request):
         machine_owner_id = request.data.get('machine_owner_id')
         if machine_own == 'Company':
             machine_owner_id = 1
-
+        
         machine_buy_price = request.data.get('machine_buy_price')
         machine_rented_work_type = request.data.get('machine_rented_work_type')
         if machine_rented_work_type:
             machine_rented_work_type = Work_Types.objects.get(work_type_id = machine_rented_work_type)
             machine_rented_work_price = request.data.get('machine_rented_work_price')
+            machine_km = request.data.get('machine_km')
         else:
             machine_rented_work_type = None
             machine_rented_work_price = None
+            machine_km = None
+
         machine_buy_date = request.data.get('machine_buy_date')
         machine_sold_price = request.data.get('machine_sold_price')
         machine_sold_out_date = request.data.get('machine_sold_out_date')
@@ -1127,14 +1130,6 @@ def insert_update_machine(request):
         if machine_owner_id:
             machine_owner_id = Person.objects.get(person_id = machine_owner_id)
 
-        if machine_buy_date:
-            pass
-        else:
-            machine_buy_date = None
-        if machine_sold_out_date:
-            pass
-        else:
-            machine_sold_out_date = None
 
     if request.GET.get('getdata_id'):
         machine_obj = Machines.objects.get(machine_id=request.GET.get('getdata_id'))
@@ -1154,13 +1149,14 @@ def insert_update_machine(request):
                 "machine_details": machine_obj.machine_details,
                 "machine_owner_id": machine_obj.machine_owner_id.person_id,
                 "machine_buy_price": machine_obj.machine_buy_price,
-                "machine_buy_date": machine_obj.machine_buy_date,
+                "machine_buy_date": machine_obj.machine_buy_date if machine_obj.machine_buy_date else None,
                 "machine_sold_price": machine_obj.machine_sold_price,
-                "machine_sold_out_date": machine_obj.machine_sold_out_date,
+                "machine_sold_out_date": machine_obj.machine_sold_out_date if machine_obj.machine_sold_out_date else None,
                 "machine_other_details": machine_obj.machine_other_details,
                 "machine_rented_work_price":machine_obj.machine_rented_work_price,
-                "machine_rented_work_type":machine_obj.machine_rented_work_type.work_type_id,
-                "machine_rented_work_type_name":machine_obj.machine_rented_work_type.work_type_name,
+                "machine_rented_work_type":machine_obj.machine_rented_work_type.work_type_id if machine_obj.machine_rented_work_type else None,
+                "machine_rented_work_type_name":machine_obj.machine_rented_work_type.work_type_name if machine_obj.machine_rented_work_type else None,
+                "machine_km" : machine_km,
             },
         })
 
@@ -1177,12 +1173,13 @@ def insert_update_machine(request):
             machine.machine_details = machine_details
             machine.machine_owner_id = machine_owner_id
             machine.machine_buy_price = machine_buy_price
-            machine.machine_buy_date = machine_buy_date
+            machine.machine_buy_date = machine_buy_date if machine_buy_date else None
             machine.machine_sold_price = machine_sold_price
-            machine.machine_sold_out_date = machine_sold_out_date
+            machine.machine_sold_out_date = machine_sold_out_date if machine_sold_out_date else None
             machine.machine_other_details = machine_other_details
             machine.machine_rented_work_price = machine_rented_work_price
-            machine_rented_work_type = machine_rented_work_type
+            machine.machine_rented_work_type = machine_rented_work_type
+            machine.machine_km = machine_km
             machine.save()
             message = "Machine details updated successfully."
         else:
@@ -1201,8 +1198,9 @@ def insert_update_machine(request):
                 machine_sold_price=machine_sold_price,
                 machine_sold_out_date=machine_sold_out_date,
                 machine_other_details=machine_other_details,
-                machine_rented_work_price = machine_rented_work_price if machine_rented_work_price else None,
-                machine_rented_work_type = machine_rented_work_type
+                machine_rented_work_price = machine_rented_work_price,
+                machine_rented_work_type = machine_rented_work_type,
+                machine_km = machine_km
             )
             message = "Machine details created successfully."
 

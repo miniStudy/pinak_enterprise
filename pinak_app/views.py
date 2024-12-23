@@ -1095,7 +1095,6 @@ def show_machines(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_machine(request):
-    machine_types_data = Machine_Types.objects.all().values('machine_type_id', 'machine_type_name')
     if request.method == 'POST':
         machine_id = request.data.get('machine_id')
         machine_name = request.data.get('machine_name')
@@ -1201,7 +1200,7 @@ def insert_update_machine(request):
                 machine_sold_price=machine_sold_price,
                 machine_sold_out_date=machine_sold_out_date,
                 machine_other_details=machine_other_details,
-                machine_rented_work_price = machine_rented_work_price,
+                machine_rented_work_price = machine_rented_work_price if machine_rented_work_price else None,
                 machine_rented_work_type = machine_rented_work_type
             )
             message = "Machine details created successfully."
@@ -1226,7 +1225,7 @@ def insert_update_machine(request):
                 "machine_sold_price": machine.machine_sold_price,
                 "machine_sold_out_date": machine.machine_sold_out_date,
                 "machine_other_details": machine.machine_other_details,
-                "machine_rented_work_price": machine.machine_rented_work_price,
+                "machine_rented_work_price": machine.machine_rented_work_price if machine.machine_rented_work_price else None,
                 "machine_rented_work_type":machine.machine_rented_work_type.work_type_id,
             },
         })

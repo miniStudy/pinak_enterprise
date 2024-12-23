@@ -318,9 +318,9 @@ class Project_Person_Data(models.Model):
         Office = 'Office', 'Office'
     project_person_id = models.BigAutoField(primary_key=True)
     person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
-    project_person_date = models.DateField()
+    project_person_date = models.DateField(auto_now_add=True, null=True, blank=True)
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
-    project_machine_data_id = models.ForeignKey(Project_Machine_Data, on_delete=models.CASCADE)
+    project_machine_data_id = models.ForeignKey(Project_Machine_Data, on_delete=models.CASCADE, null=True, blank=True)
     project_person_work_num = models.CharField(max_length=55)
     project_person_price = models.CharField(max_length=155)
     project_person_total_price = models.CharField(max_length=155)

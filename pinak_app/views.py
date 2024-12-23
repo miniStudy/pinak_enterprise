@@ -896,8 +896,6 @@ def show_bank_details(request):
         else:
             credit_debit['credit_debit'] = 'Credit'
             bank_credit_total += int(credit_debit['money_amount'])
-    print("de", bank_debit_total)
-    print("ce", bank_credit_total)
 
     persons = Person.objects.all().values(
         'person_id',
@@ -1330,7 +1328,7 @@ def show_money_debit_credit(request):
     )
 
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
-    banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
+    banks_data = Bank_Details.objects.filter(bank_open_closed=True).values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name')  
     projects_data = Project.objects.all().values('project_id', 'project_name')
@@ -2948,7 +2946,7 @@ def insert_update_project_person(request):
                     "person_id": project_person.person_id.person_id,
                     "project_person_date": project_person.project_person_date,
                     "work_type_id": project_person.work_type_id.work_type_id,
-                    "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id,
+                    "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id if project_person.project_machine_data_id else None,
                     "project_person_work_num": project_person.project_person_work_num,
                     "project_person_price": project_person.project_person_price,
                     "project_person_total_price": project_person.project_person_total_price,
@@ -2971,6 +2969,10 @@ def insert_update_project_person(request):
         project_person_date = request.data.get('project_person_date')
         work_type_id = request.data.get('work_type_id')
         project_machine_data_id = request.data.get('project_machine_data_id')
+        if project_machine_data_id:
+            machine_instance = get_object_or_404(Project_Machine_Data, pk=project_machine_data_id)
+        else:
+            machine_instance = None
         project_person_work_num = int(request.data.get('project_person_work_num'))
         project_person_price = int(request.data.get('project_person_price'))
         project_person_total_price = project_person_work_num * project_person_price
@@ -2981,7 +2983,7 @@ def insert_update_project_person(request):
 
         person_instance = get_object_or_404(Person, pk=person_id)
         work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
-        machine_instance = get_object_or_404(Project_Machine_Data, pk=project_machine_data_id)
+        
         project_instance = get_object_or_404(Project, pk=project_id)
 
         if project_person_id:
@@ -3024,7 +3026,7 @@ def insert_update_project_person(request):
                 "person_id": project_person.person_id.person_id,
                 "project_person_date": project_person.project_person_date,
                 "work_type_id": project_person.work_type_id.work_type_id,
-                "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id,
+                "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id if project_person.project_machine_data_id else None,
                 "project_person_work_num": project_person.project_person_work_num,
                 "project_person_price": project_person.project_person_price,
                 "project_person_total_price": project_person.project_person_total_price,
@@ -3088,7 +3090,6 @@ def show_reports(request):
 def show_project_expense(request):
     project_expense_data = Project_Expense.objects.all()
     if request.GET.get('project_id'):
-        print("------------", request.GET.get('project_id'))
         project_expense_data = project_expense_data.filter(project_id__project_id = request.GET.get('project_id'))
 
         total_amount = project_expense_data.aggregate(
@@ -3111,7 +3112,8 @@ def show_project_expense(request):
     )
 
     projects_data = Project.objects.all().values('project_id', 'project_name')
-    banks_data = Bank_Details.objects.all().values('bank_id', 'bank_name')
+    banks_data = Bank_Details.objects.filter(bank_open_closed=True).values('bank_id', 'bank_name')
+
 
     return Response({
         'status': 'success',
@@ -3316,7 +3318,7 @@ def show_bank_cash(request):
         'details'
     )
     
-    bank_details_data = Bank_Details.objects.filter(person_id__person_name = 'Pinak Enterprise').values(
+    bank_details_data = Bank_Details.objects.filter(person_id__person_name = 'Pinak Enterprise', bank_open_closed = True).values(
         'bank_id',
         'bank_name'
     )

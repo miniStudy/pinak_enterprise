@@ -513,7 +513,7 @@ class bank_cash(models.Model):
     credit_debit = models.CharField(max_length=100)
     amount = models.CharField(max_length=200)
     bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True, null=True, blank=True)
     details = models.TextField(null=True,blank=True)
 
     def __str__(self):

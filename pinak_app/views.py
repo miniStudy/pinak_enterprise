@@ -884,7 +884,7 @@ def show_bank_details(request):
 
     company_person_name = [persons.person_id.person_name for persons in Bank_Details.objects.filter(company_bank_account = True)]
 
-    credit_debit_data = Money_Debit_Credit.objects.filter(money_payment_mode = 'BANK').values('sender_person_id__person_name', 'receiver_person_id__person_name', 'money_amount', 'pay_type_id__pay_type_name', 'money_payment_mode', 'money_date', 'sender_bank_id__bank_name', 'receiver_bank_id__bank_name', 'money_payment_details')
+    credit_debit_data = Money_Debit_Credit.objects.filter(money_payment_mode = 'BANK').values('sender_person_id__person_name','sender_person_id__person_contact_number', 'sender_person_id__person_contact_number', 'receiver_person_id__person_name', 'money_amount', 'pay_type_id__pay_type_name', 'money_payment_mode', 'money_date', 'sender_bank_id__bank_name', 'receiver_bank_id__bank_name', 'money_payment_details')
 
     bank_credit_total = 0
     bank_debit_total = 0
@@ -897,9 +897,10 @@ def show_bank_details(request):
             credit_debit['credit_debit'] = 'Credit'
             bank_credit_total += int(credit_debit['money_amount'])
 
-    persons = Person.objects.all().values(
+    persons = Person.objects.filter(person_status = True).values(
         'person_id',
-        'person_name'
+        'person_name',
+        'person_contact_number',
     )
 
 
@@ -1286,7 +1287,9 @@ def show_money_debit_credit(request):
     money_debit_credit_data = money_debit_credit_data.values(
         'money_id',
         'sender_person_id__person_name',
+        'sender_person_id__person_contact_number',
         'receiver_person_id__person_name',
+        'receiver_person_id__person_contact_number',
         'pay_type_id__pay_type_name',
         'money_payment_mode',
         'money_amount',
@@ -1296,13 +1299,16 @@ def show_money_debit_credit(request):
         'receiver_bank_id__bank_name',
         'money_payment_details',
         'machine_id__machine_name',
+        'machine_id__machine_number_plate',
         'project_id__project_name',
     )
 
     money_credit_data = money_debit_credit_data.filter(sender_person_id__person_name = 'pinak enterprise').values(
         'money_id',
         'sender_person_id__person_name',
+        'sender_person_id__person_contact_number',
         'receiver_person_id__person_name',
+        'receiver_person_id__person_contact_number',
         'pay_type_id__pay_type_name',
         'money_amount',
         'money_payment_mode',
@@ -1316,7 +1322,9 @@ def show_money_debit_credit(request):
     money_debit_data =  money_debit_credit_data.filter(receiver_person_id__person_name = 'pinak enterprise').values(
         'money_id',
         'sender_person_id__person_name',
+        'sender_person_id__person_contact_number',
         'receiver_person_id__person_name',
+        'receiver_person_id__person_contact_number',
         'pay_type_id__pay_type_name',
         'money_amount',
         'money_payment_mode',
@@ -1330,7 +1338,7 @@ def show_money_debit_credit(request):
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     banks_data = Bank_Details.objects.filter(bank_open_closed=True).values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
-    machines_data = Machines.objects.all().values('machine_id', 'machine_name')  
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')  
     projects_data = Project.objects.all().values('project_id', 'project_name')
     return Response({
         "status": "success",
@@ -1589,6 +1597,7 @@ def insert_update_salary(request):
             salary = Salary.objects.get(salary_id=salary_id)
             salary.salary_date = salary_date
             salary.salary_amount = salary_amount
+            salary.work_type = work_type
             salary.salary_working_days = salary_working_days
             salary.salary_details = salary_details
             salary.person_id = person_instance
@@ -1673,9 +1682,7 @@ def show_machine_maintenance(request):
 
     if request.GET.get('project_id'):
         machine_maintenance = machine_maintenance.filter(project_id__project_id = request.GET.get('project_id'))
-
         total_amount = machine_maintenance.aggregate(total_amount=Sum('machine_maintenance_amount'))['total_amount']
-        print(total_amount)
     else:
         total_amount = machine_maintenance.aggregate(total_amount=Sum('machine_maintenance_amount'))['total_amount']
 
@@ -1691,16 +1698,18 @@ def show_machine_maintenance(request):
         'machine_maintenance_amount_paid',
         'machine_maintenance_amount_paid_by',
         'machine_maintenance_driver_id__person_name',
+        'machine_maintenance_driver_id__person_contact_number',
         'machine_maintenance_person_id__person_name',
+        'machine_maintenance_person_id__person_contact_number',
         'machine_maintenance_details',
         'machine_maintenance_types_id__maintenance_type_name',
         'project_id__project_name',
     )
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
-    maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
-    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Driver').values('person_id', 'person_name')
-    repair_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Repair').values('person_id', 'person_name')
+    maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name', 'person_contact_number')
+    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Driver').values('person_id', 'person_name', 'person_contact_number')
+    repair_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Repair').values('person_id', 'person_name', 'person_contact_number')
     projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
@@ -1773,7 +1782,6 @@ def insert_update_machine_maintenance(request):
             machine_maintenance = Machine_Maintenance.objects.get(machine_maintenance_id=machine_maintenance_id)
             machine_maintenance.machine_machine_id = machine_instance
             machine_maintenance.machine_maintenance_amount = machine_maintenance_amount
-            machine_maintenance.machine_maintenance_date = machine_maintenance_date
             machine_maintenance.machine_maintenance_amount_paid = machine_maintenance_amount_paid
             machine_maintenance.machine_maintenance_amount_paid_by = machine_maintenance_amount_paid_by
             machine_maintenance.machine_maintenance_driver_id = driver_instance
@@ -2378,7 +2386,7 @@ def show_project_day_details(request):
         'project_day_detail_details'
     )
 
-    machine_data = Machines.objects.all().values('machine_id', 'machine_name')
+    machine_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
 
 
@@ -2968,6 +2976,7 @@ def show_project_person(request):
     project_person_data = project_person_data.values(
         'project_person_id',
         'person_id__person_name',
+        'person_id__person_contact_number',
         'project_person_date',
         'work_type_id__work_type_name',
         'project_machine_data_id__machine_project_id__machine_name',
@@ -2980,9 +2989,9 @@ def show_project_person(request):
         'project_person_more_details',
     )
 
-    persons_data = Person.objects.all().values('person_id', 'person_name')
+    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-    project_machine_data = Project_Machine_Data.objects.all().values('project_machine_data_id', 'machine_project_id__machine_name')
+    project_machine_data = Project_Machine_Data.objects.all().values('project_machine_data_id', 'machine_project_id__machine_name', 'machine_project_id__machine_number_plate')
 
     return Response({
         'status': 'success',
@@ -3412,7 +3421,6 @@ def insert_update_bank_cash(request):
         credit_debit = request.data.get('credit_debit')
         amount = request.data.get('amount')
         bank_id = request.data.get('bank_id')
-        date = request.data.get('date')
         details = request.data.get('details')
 
         if bank_id:
@@ -3435,7 +3443,6 @@ def insert_update_bank_cash(request):
                 credit_debit=credit_debit,
                 amount=amount,
                 bank_id=bank_instance,
-                date=date,
                 details=details
             )
             message = "Bank cash details created successfully."

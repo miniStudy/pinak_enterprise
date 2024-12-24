@@ -148,6 +148,11 @@ urlpatterns = [
     path('delete_bank_cash/', views.delete_bank_cash, name='delete_bank_cash'),
 
     path('show_daily_report/', views.show_daily_report, name='show_daily_report'),
+
+
+    path('show_diary/', views.show_diary, name='show_diary'),
+    path('insert_update_diary/', views.insert_update_diary, name='insert_update_diary'),
+    path('delete_diary/', views.delete_diary, name='delete_diary'),
     
 
     

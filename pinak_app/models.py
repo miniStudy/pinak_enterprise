@@ -547,6 +547,17 @@ class Settingsss(models.Model):
         db_table = 'Settingsss'
 
 
+class diary(models.Model):
+    diary_id = models.BigAutoField(primary_key=True)
+    diary_text = models.TextField()
+
+    def __str__(self):
+        return f'{self.diary_text}'
+
+    class Meta:
+        db_table = 'diary'
+
+
 
 
 #Add Expiry Date for Document

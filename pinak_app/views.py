@@ -2385,11 +2385,23 @@ def show_project_day_details(request):
     short_day_detail_data = []
     for xx in work_types_data:
         pddd = Project_Day_Details.objects.filter(project_id__project_id = request.GET.get('project_id'), project_day_detail_work_type__work_type_id = xx['work_type_id'])
+        total_on_10_tyre = 0
+        total_on_12_tyre = 0
+
         if pddd:
             xdataa = []
             for y in pddd:
                 xdataa.append({'work_type':y.project_day_detail_work_type.work_type_name,'work_no':y.project_day_detail_work_no,'tyre':y.project_day_detail_total_tyres})
-            short_day_detail_data.append({'data':xdataa})
+                if y.project_day_detail_total_tyres == '10-Tyres':
+                    total_on_10_tyre = total_on_10_tyre + int(y.project_day_detail_work_no)
+
+                if y.project_day_detail_total_tyres == '12-Tyres':
+                    total_on_12_tyre = total_on_12_tyre + int(y.project_day_detail_work_no)
+                
+
+            short_day_detail_data.append({'data':xdataa,'tyre_10_total':total_on_10_tyre,'tyre_12_total':total_on_12_tyre,'work_type_id':xx['work_type_id'],'work_type_name':xx['work_type_name']})
+
+    print(short_day_detail_data)
 
             
 
@@ -2405,6 +2417,7 @@ def show_project_day_details(request):
         'work_types_data': work_types_data,
         'data': project_day_details_data,
         'total_amount': total_amount,
+        'short_day_detail_data':short_day_detail_data,
     })
 
 
@@ -3582,6 +3595,77 @@ def show_daily_report(request):
     })
 
 
+@api_view(['GET'])
+def show_diary(request):
+    diary_data = diary.objects.all().values('diary_id','diary_text')
+
+    return Response({
+        'status': 'success',
+        'title': 'Diary',
+        'data': diary_data,
+    })
+
+
+
+@api_view(['POST', 'GET'])
+def insert_update_diary(request):
+    diary_text = request.data.get('diary_text')
+    diary_id = request.data.get('diary_id')
+
+    if request.GET.get('getdata_id'):
+        diary_obj = diary.objects.get(diary_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            'diary_id': diary_obj.diary_id,
+            'diary_text': diary_obj.diary_text,
+        }
+        })
+    if request.method == 'POST':
+        if diary_id:
+            diary_obj = diary.objects.get(diary_id=diary_id)
+            diary_obj.diary_text = diary_text
+            diary_obj.save()
+            message = "Diary updated successfully."
+        else:
+            diary_obj = diary.objects.create(
+                diary_text=diary_text
+            )
+            message = "Data created successfully."
+
+        return Response({
+            "status": "success",
+            "message": message,
+        })
+    else:
+        return Response({
+            "status": "False"
+        })
+
+
+@api_view(['DELETE'])
+def delete_diary(request):
+    diary_id = request.GET.get('diary_id')
+
+    if not diary_id:
+        return Response({
+            "status": "error",
+            "message": "Diary is required."
+        }, status=400)
+
+    try:
+        diary_obj = diary.objects.get(diary_id=diary_id)
+        diary_obj.delete()
+        return Response({
+            "status": "success",
+            "message": "Diary deleted successfully."
+        })
+    except diary_obj.DoesNotExist:
+        return Response({
+            "status": "error",
+            "message": "Diary not found."
+        }, status=404)
 
     
 

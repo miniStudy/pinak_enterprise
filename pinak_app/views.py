@@ -3575,9 +3575,10 @@ def delete_document_date(request):
 from datetime import date
 @api_view(['GET'])
 def show_daily_report(request):
+    unique_project_names = Project_Day_Details.objects.values_list('project_id__project_name', flat=True).distinct()
+
     if request.GET.get('report_date'):
         today_date = request.GET.get('report_date')
-        print("---", today_date)
     else:
         today_date = date.today()
 
@@ -3591,6 +3592,88 @@ def show_daily_report(request):
     y = Money_Debit_Credit.objects.filter(money_date = today_date, sender_person_id__person_name = 'Pinak Enterprise').values('sender_person_id__person_name' , 'receiver_person_id__person_name', 'pay_type_id__pay_type_name', 'money_amount').aggregate(total_amount=Sum('money_amount'))
     total_debit_amount = y['total_amount'] or 0
 
+    project_day_detail_data = Project_Day_Details.objects.filter(proejct_day_detail_date = today_date).values(
+        'project_day_detail_id',
+        'project_id__project_name',
+        'proejct_day_detail_date',
+        'project_day_detail_machine_id__machine_name',
+        'project_day_detail_machine_id__machine_number_plate',
+        'project_day_detail_work_type__work_type_name',
+        'project_day_detail_total_tyres',
+        'project_day_detail_work_no',
+        'project_day_detail_price',
+        'project_day_detail_total_price',
+        'project_day_detail_details'
+    )
+
+    z = Project_Day_Details.objects.filter(proejct_day_detail_date = today_date).values(
+        'project_day_detail_id',
+        'project_id__project_name',
+        'proejct_day_detail_date',
+        'project_day_detail_machine_id__machine_name',
+        'project_day_detail_machine_id__machine_number_plate',
+        'project_day_detail_work_type__work_type_name',
+        'project_day_detail_total_tyres',
+        'project_day_detail_work_no',
+        'project_day_detail_price',
+        'project_day_detail_total_price',
+        'project_day_detail_details'
+    ).aggregate(project_day_total_amount=Sum('project_day_detail_total_price'))
+    total_project_day_detail_amount = z['project_day_total_amount'] or 0
+
+    project_expense_data = Project_Expense.objects.filter(project_expense_date = today_date).values(
+        'project_expense_id',
+        'project_expense_name',
+        'project_id__project_name',
+        'project_expense_date',
+        'project_expense_amount',
+        'project_payment_mode',
+        'bank_id__bank_name',
+        'project_expense_desc',
+    )
+
+    materials_data = Material.objects.filter(material_buy_date = today_date).values(
+        'material_id',
+        'material_type_id__material_type_id',
+        'material_type_id__material_type_name',
+        'material_owner__person_id',
+        'material_owner__person_name',
+        'material_status',
+        'material_buy_date',
+        'material_buy_location',
+        'material_work_type__work_type_id',
+        'material_work_type__work_type_name',
+        'material_work_no',
+        'material_price',
+        'material_total_price',
+        'material_is_agent',
+        'material_agent_name',
+        'material_agent_contact',
+        'material_agent_price_choice',
+        'material_agent_percentage',
+        'material_agent_amount',
+        'material_final_amount',
+        'material_details'
+    )
+
+    machine_maintenance_data = Machine_Maintenance.objects.filter(machine_maintenance_date = today_date).values(
+        'machine_maintenance_id',
+        'machine_machine_id__machine_name',
+        'machine_machine_id__machine_number_plate',
+        'machine_machine_id__machine_types_id__machine_type_name',
+        'machine_maintenance_amount',
+        'machine_maintenance_date',
+        'machine_maintenance_amount_paid',
+        'machine_maintenance_amount_paid_by',
+        'machine_maintenance_driver_id__person_name',
+        'machine_maintenance_driver_id__person_contact_number',
+        'machine_maintenance_person_id__person_name',
+        'machine_maintenance_person_id__person_contact_number',
+        'machine_maintenance_details',
+        'machine_maintenance_types_id__maintenance_type_name',
+        'project_id__project_name',
+    )
+
 
     return Response({
         'status': 'success',
@@ -3598,7 +3681,93 @@ def show_daily_report(request):
         'dailywise_credit_report': dailywise_credit_report,
         'total_credit_amount': total_credit_amount,
         'dailywise_debit_report': dailywise_debit_report,
-        'total_debit_amount': total_debit_amount
+        'project_day_detail_data': project_day_detail_data,
+        'total_project_day_detail_amount': total_project_day_detail_amount,
+        'project_expense_data': project_expense_data,
+        'unique_project_names': unique_project_names,
+        'materials_data': materials_data,
+        'machine_maintenance_data': machine_maintenance_data,
+        'total_debit_amount': total_debit_amount,
+    })
+
+@api_view(['GET'])
+def show_material_report(request):
+    materials_data = Material.objects.all().values(
+        'material_id',
+        'material_type_id__material_type_id',
+        'material_type_id__material_type_name',
+        'material_owner__person_id',
+        'material_owner__person_name',
+        'material_status',
+        'material_buy_date',
+        'material_buy_location',
+        'material_work_type__work_type_id',
+        'material_work_type__work_type_name',
+        'material_work_no',
+        'material_price',
+        'material_total_price',
+        'material_is_agent',
+        'material_agent_name',
+        'material_agent_contact',
+        'material_agent_price_choice',
+        'material_agent_percentage',
+        'material_agent_amount',
+        'material_final_amount',
+        'material_details'
+    )
+
+    total_material_amount = Material.objects.all().values(
+        'material_id',
+        'material_type_id__material_type_id',
+        'material_type_id__material_type_name',
+        'material_owner__person_id',
+        'material_owner__person_name',
+        'material_status',
+        'material_buy_date',
+        'material_buy_location',
+        'material_work_type__work_type_id',
+        'material_work_type__work_type_name',
+        'material_work_no',
+        'material_price',
+        'material_total_price',
+        'material_is_agent',
+        'material_agent_name',
+        'material_agent_contact',
+        'material_agent_price_choice',
+        'material_agent_percentage',
+        'material_agent_amount',
+        'material_final_amount',
+        'material_details'
+    ).aggregate(total_amount=Sum('material_total_price'))
+    total_material_amount = total_material_amount['total_amount'] or 0
+
+    materials = Material.objects.values(
+        'material_work_type__work_type_name'
+    ).annotate(
+        total_price=Sum('material_price')
+    )
+
+    work_type_data = []
+    for material in materials:
+        work_type_name = material['material_work_type__work_type_name']
+        individual_prices = list(
+            Material.objects.filter(
+                material_work_type__work_type_name=work_type_name
+            ).values_list('material_price', flat=True)
+        )
+        
+        work_type_data.append({
+            'work_type_name': work_type_name,
+            'individual_prices': individual_prices,
+            'total_price': material['total_price']
+        })
+    
+    return Response({
+        'status': 'success',
+        'title': 'Material Reports',
+        'materials_data': materials_data,
+        'total_material_amount': total_material_amount,
+        'work_type_data': work_type_data,
     })
 
 

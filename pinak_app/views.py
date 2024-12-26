@@ -3772,6 +3772,45 @@ def show_material_report(request):
 
 
 @api_view(['GET'])
+def show_person_report(request):
+    person_types_data = Person_Type.objects.all()
+    salary_data = Salary.objects.all()
+    persons_data = Person.objects.all()
+    project_person_data = Project_Person_Data.objects.all()
+    if request.GET.get('person_type_name'):
+        person_type_name = request.GET.get('person_type_name')
+        if person_type_name == 'Employee':
+            persons_data = persons_data.filter(person_type_id__person_type_name = person_type_name)      
+    person_types_data = person_types_data.values('person_type_id', 'person_type_name')
+
+    if request.GET.get('person_id'):
+        person_id = request.GET.get('person_id')
+        persons_data = persons_data.filter(person_id = person_id)
+        salary_data = salary_data.filter(person_id__person_id = person_id)
+        project_person_data = project_person_data.filter(person_id__person_id = person_id)
+
+    if request.GET.get('project_id'):
+        project_id = request.GET.get('project_id')
+        project_person_data = project_person_data.filter(project_id__project_id = project_id)
+
+    salary_data = salary_data.values('salary_id', 'person_id__person_name', 'person_id__person_contact_number', 'salary_date', 'salary_amount', 'salary_working_days')
+    project_person_data = project_person_data.values('person_id__person_name', 'work_type_id__work_type_name', 'project_person_work_num', 'project_person_price', 'project_person_total_price', )
+    persons_data = persons_data.values('person_id', 'person_name', 'person_contact_number')
+
+    projects_data = Project.objects.all().values('project_id', 'project_name')
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
+
+    return Response({
+        'status': 'success',
+        'title': 'Person Report',
+        'persons_data': persons_data,
+        'person_types_data': person_types_data,
+        'projects_data': projects_data,
+        'machines_data': machines_data,
+        'salary_data': salary_data,
+    })
+
+@api_view(['GET'])
 def show_diary(request):
     diary_data = diary.objects.all().values('diary_id','diary_text')
 

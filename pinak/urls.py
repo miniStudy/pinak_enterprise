@@ -149,6 +149,7 @@ urlpatterns = [
 
     path('show_daily_report/', views.show_daily_report, name='show_daily_report'),
     path('show_material_report/', views.show_material_report, name='show_material_report'),
+    path('show_person_report/', views.show_person_report, name='show_person_report'),
 
 
     path('show_diary/', views.show_diary, name='show_diary'),

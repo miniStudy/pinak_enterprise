@@ -487,7 +487,9 @@ class Documents(models.Model):
     document_file = models.FileField(upload_to='uploads/')
     document_type_id = models.ForeignKey(Document_Types, on_delete=models.CASCADE)
     person_id = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True)
-
+    machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
+    project_id = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    
     def __str__(self):
         return f'{self.document_type_id.document_type_name} {self.document_name}'
 

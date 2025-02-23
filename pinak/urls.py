@@ -105,6 +105,10 @@ urlpatterns = [
     path('insert_update_material/', views.insert_update_material, name='insert_update_material'),
     path('delete_material/', views.delete_material, name='delete_material'),
 
+    path('material_owner_list/',views.material_owner_list_create, name="material_owner_list_create"),
+    path('material_owner_update/',views.material_owner_update_delete, name="material_owner_update_delete"),
+
+
 
     path('show_project_day_details/', views.show_project_day_details, name='show_project_day_details'),
     path('insert_update_project_day_detail/', views.insert_update_project_day_detail, name='insert_update_project_day_detail'),
@@ -154,7 +158,18 @@ urlpatterns = [
     path('show_diary/', views.show_diary, name='show_diary'),
     path('insert_update_diary/', views.insert_update_diary, name='insert_update_diary'),
     path('delete_diary/', views.delete_diary, name='delete_diary'),
+
+    path('show_machine_rent/',views.show_machine_rent, name='show_machine_rent'),
+    path('insert_update_machine_rent/',views.insert_update_machine_rent, name='insert_update_machine_rent'),
+    path('delete_machine_rent/', views.delete_machine_rent,name='delete_machine_rent'),
     
+    path('show_bill/',views.show_bill, name='show_bill'),
+    path('overall_report/',views.overall_report, name='overall_report'),
+    path('machine_report/',views.machine_report, name='machine_report'),
+    path('person_report/',views.person_report, name='person_report'),
+    path('person_bhaththu_report/',views.person_bhaththu_report, name='person_bhaththu_report'),
+    path('rokad_cash_calculation/',views.rokad_cash_calculation, name="rokad_cash_calculation"),
+
 
     
 

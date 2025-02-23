@@ -82,17 +82,27 @@ WSGI_APPLICATION = 'pinak.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'pinak_enterprise',
+#         'USER': 'miniStudy',
+#         'PASSWORD': '71554913@TmP@',
+#         'HOST': '93.127.167.143',
+#         'PORT': '3306',
+#         'CONN_MAX_AGE': 6000,
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pinak_enterprise',
-        'USER': 'miniStudy',
-        'PASSWORD': '71554913@TmP@',
-        'HOST': '93.127.167.143',
-        'PORT': '3306',
-        'CONN_MAX_AGE': 6000,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",  # Use BASE_DIR for proper path resolution
     }
 }
+
+
+
 
 
 
@@ -147,6 +157,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React frontend
     "http://127.0.0.1:3000",  # React frontend
+    "https://pinakenterprise.matipro.in",
+    "http://pinakenterprise.matipro.in",
 ]
 CORS_ALLOW_METHODS = [
     "GET",

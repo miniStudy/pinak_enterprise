@@ -9,13 +9,11 @@ class User(models.Model):
     user_password = models.CharField(max_length=55)
     user_otp = models.CharField(max_length=6, null=True, blank=True)
 
-
     def __str__(self):
         return self.user_email
 
     class Meta:
         db_table = 'User'
-
 
 class Notification(models.Model):
     notification_id = models.BigAutoField(primary_key=True)
@@ -55,7 +53,8 @@ class Company_Details(models.Model):
     company_address = models.TextField()
     company_logo = models.ImageField(upload_to='uploads/', null=True, blank=True)
     company_logo_icon = models.ImageField(upload_to='uploads/', null=True, blank=True)
-
+    company_sharuaati_shilak = models.FloatField(default=0.0,null=True,blank=True)
+    
     def __str__(self):
         return self.company_owner_name
 
@@ -100,7 +99,6 @@ class Project_Types(models.Model):
 class Work_Types(models.Model):
     work_type_id = models.BigAutoField(primary_key=True)
     work_type_name = models.CharField(max_length=155)
-    work_type_details = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.work_type_name}'
@@ -175,7 +173,8 @@ class Person(models.Model):
     person_type_id = models.ForeignKey(Person_Type, on_delete=models.CASCADE, null=True, blank=True)
     person_types_for_project = models.CharField(choices=project_person_options, max_length=155, null=True, blank=True)
     person_salary = models.CharField(max_length=150, null=True, blank=True)
-    
+    person_khatu = models.FloatField(default=0)
+
     def __str__(self):
         return f'{self.person_type_id.person_type_name} {self.person_name}'
 
@@ -190,10 +189,11 @@ class Bank_Details(models.Model):
     bank_account_number = models.CharField(max_length=100)
     bank_ifsc_code = models.CharField(max_length=55)
     bank_account_holder = models.CharField(max_length=155, null=True, blank=True)  
-    bank_initial_amount = models.CharField(max_length=155, null=True, blank=True)
+    bank_initial_amount = models.FloatField(max_length=155, null=True, blank=True)
     bank_open_closed = models.BooleanField(default=1)
     person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
     company_bank_account = models.BooleanField(default=0)
+    bank_current_amount = models.FloatField(null=True,blank=True)
 
     def __str__(self):
         return self.bank_name
@@ -238,9 +238,6 @@ class Machines(models.Model):
     machine_types_id = models.ForeignKey(Machine_Types, on_delete=models.CASCADE)
     machine_details = models.TextField(null=True, blank=True)
     machine_owner_id = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True)
-    machine_rented_work_type = models.ForeignKey(Work_Types, models.CASCADE, null=True,blank=True)
-    machine_rented_work_price = models.CharField(max_length=150, null=True,blank=True)
-    machine_km = models.CharField(max_length=100,null=True,blank=True)
     machine_buy_price = models.CharField(max_length=155, null=True, blank=True)
     machine_buy_date = models.DateField(null=True, blank=True)
     machine_sold_price = models.CharField(max_length=155, null=True, blank=True)
@@ -278,18 +275,23 @@ class Project(models.Model):
     project_sgst = models.CharField(max_length=55, null=True, blank=True)
     project_tax = models.CharField(max_length=55, null=True, blank=True)
     project_discount = models.CharField(max_length=55, null=True, blank=True)
-
+    project_grahak_amount = models.FloatField(null=True,blank=True)
     project_agent = models.BooleanField(default=0)
     project_agent_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name='agent_name')
     project_agent_type = models.CharField(choices=agent_type, max_length=155, null=True, blank=True)
     project_agent_percentage = models.CharField(max_length=155, null=True, blank=True)
     project_agent_fixed_amount = models.CharField(max_length=155, null=True, blank=True)
+    
+
 
     project_investor = models.BooleanField(default=0)
     project_investor_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name='investor_name')
-    project_investor_type = models.CharField(max_length=155, null=True, blank=True)
     project_investor_percentage = models.CharField(max_length=155, null=True, blank=True)
-    project_investor_fixed_amount = models.CharField(max_length=155, null=True, blank=True)
+    project_investor_amount = models.FloatField(max_length=155, null=True, blank=True)
+
+    project_padatar_rakam = models.FloatField(null=True,blank=True)
+    project_dalali_rakam = models.FloatField(null=True,blank=True)
+    project_investor_rakam = models.FloatField(null=True,blank=True)
 
     project_final_amount = models.CharField(max_length=155, null=True, blank=True)
 
@@ -329,12 +331,14 @@ class Project_Person_Data(models.Model):
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_machine_data_id = models.ForeignKey(Project_Machine_Data, on_delete=models.CASCADE, null=True, blank=True)
     project_person_work_num = models.CharField(max_length=55)
-    project_person_price = models.CharField(max_length=155)
-    project_person_total_price = models.CharField(max_length=155)
+    project_person_price = models.FloatField()
+    project_person_total_price = models.FloatField()
     project_person_paid_by = models.CharField(choices=paid_by_options, max_length=155)
     project_person_payment_details = models.TextField(null=True, blank=True)
     project_person_more_details = models.TextField(null=True, blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
+    bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE,null=True,blank=True)
+    person_payment_mode = models.CharField(max_length=155, null=True,blank=True)
 
     def __str__(self):
         return f'{self.project_person_id}'
@@ -345,13 +349,14 @@ class Project_Person_Data(models.Model):
 
 class Machine_Maintenance(models.Model):
     class paid_options(models.TextChoices):
-        Company_Owner = 'Company_Owner', 'Company_Owner'
+        Project_Owner = 'Project_Owner', 'Project_Owner'
         Office = 'Office', 'Office'
         Pinak = 'Pinak', 'Pinak'
+        machine_owner = 'machine_owner','machine_owner'
 
     machine_maintenance_id = models.BigAutoField(primary_key=True)
-    machine_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
-    machine_maintenance_amount = models.CharField(max_length=155)
+    machine_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE,null=True, blank=True)
+    machine_maintenance_amount = models.FloatField(max_length=155)
     machine_maintenance_date = models.DateField(auto_now_add=True, null=True, blank=True)
     machine_maintenance_amount_paid_by = models.CharField(choices=paid_options, max_length=55)
     machine_maintenance_amount_paid = models.BooleanField(default=0)
@@ -377,7 +382,7 @@ class Money_Debit_Credit(models.Model):
     receiver_person_id = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='receiver_person_id')
     pay_type_id = models.ForeignKey(Pay_Types, on_delete=models.CASCADE)
     money_payment_mode = models.CharField(choices=payment_options, max_length=155)
-    money_amount = models.CharField(max_length=155)
+    money_amount = models.FloatField()
     money_date = models.DateField()
     sender_bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE, related_name='sender_bank_id', null=True, blank=True)
     money_sender_cheque_no = models.CharField(max_length=155, null=True, blank=True)
@@ -392,24 +397,41 @@ class Money_Debit_Credit(models.Model):
         db_table = 'Money_Debit_Credit'
 
 
+class Material_Owner_data(models.Model):
+    Material_Owner_id = models.BigAutoField(primary_key=True)
+    material_owner_person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    Material_Owner_status = models.BooleanField(default=1)
+    Material_Owner_location = models.TextField(null=True, blank=True)
+    Material_Owner_details = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.material_owner_person_id.person_name}'
+
+    class Meta:
+        db_table = 'Material_Owner_data'
+
+
+
+
 class Material(models.Model):
     material_id = models.BigAutoField(primary_key=True)
     material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
     material_owner = models.ForeignKey(Person, on_delete=models.CASCADE)
-    material_status = models.BooleanField(default=1)
+    material_status = models.BooleanField(default=1,null=True,blank=True)
     material_buy_date = models.DateField(null=True,blank=True)
     material_buy_location = models.TextField(null=True, blank=True)
     material_work_type = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
-    material_work_no = models.CharField(max_length=100)
-    material_price = models.CharField(max_length=250)
-    material_total_price = models.CharField(max_length=250)
+    material_work_no = models.FloatField(max_length=100,null=True,blank=True)
+    material_price = models.FloatField(max_length=250,blank=True,null=True)
+    material_total_price = models.FloatField(max_length=250,null=True,blank=True)
     material_is_agent = models.BooleanField(default=0)
-    material_agent_name = models.CharField(max_length=100)
-    material_agent_contact = models.CharField(max_length=100)
-    material_agent_price_choice = models.CharField(max_length=50)
-    material_agent_percentage = models.CharField(max_length=10)
-    material_agent_amount = models.CharField(max_length=200)
-    material_final_amount = models.CharField(max_length=200)
+    material_agent_person = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True,related_name='material_agent_person')
+    material_agent_name = models.CharField(max_length=100,null=True,blank=True)
+    material_agent_contact = models.CharField(max_length=100,null=True,blank=True)
+    material_agent_price_choice = models.CharField(max_length=50,null=True,blank=True)
+    material_agent_percentage = models.CharField(max_length=10,null=True,blank=True)
+    material_agent_amount = models.FloatField(max_length=200,null=True,blank=True)
+    material_final_amount = models.FloatField(max_length=200,null=True,blank=True)
     material_details = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -427,7 +449,7 @@ class Project_Day_Details(models.Model):
     project_day_detail_total_tyres = models.CharField(max_length=55, null=True, blank=True)
     project_day_detail_work_no = models.CharField(max_length=155)
     project_day_detail_price = models.CharField(max_length=155)
-    project_day_detail_total_price = models.CharField(max_length=155)
+    project_day_detail_total_price = models.FloatField(max_length=155)
     project_day_detail_details = models.TextField(null=True, blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE,null=True,blank=True)
     def __str__(self):
@@ -440,7 +462,7 @@ class Project_Day_Details(models.Model):
 class Project_Material_Data(models.Model):
     project_material_id = models.BigAutoField(primary_key=True)
     project_material_date = models.DateField(auto_now_add=True, null=True, blank=True)
-    project_material_material_id = models.ForeignKey(Material, on_delete=models.CASCADE)
+    project_material_material_id = models.ForeignKey(Material_Owner_data, on_delete=models.CASCADE)
     project_material_material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
     project_material_work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_material_work_no = models.CharField(max_length=155)
@@ -482,7 +504,7 @@ class Project_Expense(models.Model):
     project_expense_name = models.CharField(max_length=155)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE)
     project_expense_date = models.DateField(auto_now_add=True, null=True, blank=True)
-    project_expense_amount = models.CharField(max_length=55)
+    project_expense_amount = models.FloatField()
     project_payment_mode = models.CharField(choices=payment_options_field, max_length=155)
     bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE,null=True,blank=True)
     project_expense_desc = models.TextField()
@@ -511,7 +533,7 @@ class Document_Dates(models.Model):
 class bank_cash(models.Model):
     bank_cash_id = models.BigAutoField(primary_key=True)
     credit_debit = models.CharField(max_length=100)
-    amount = models.CharField(max_length=200)
+    amount = models.IntegerField()
     bank_id = models.ForeignKey(Bank_Details, on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=True, null=True, blank=True)
     details = models.TextField(null=True,blank=True)
@@ -557,6 +579,36 @@ class diary(models.Model):
     class Meta:
         db_table = 'diary'
 
+class machine_rent(models.Model):
+    machine_rent_id = models.BigAutoField(primary_key=True)
+    machine_rent_machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE)
+    machine_rented_work_type = models.ForeignKey(Work_Types, models.CASCADE, null=True,blank=True)
+    machine_rented_work_price = models.CharField(max_length=150, null=True,blank=True)
+    machine_km = models.CharField(max_length=100,null=True,blank=True)
+    rent_start_date = models.DateField(auto_now_add=True,null=True,blank=True)
+    rent_end_date = models.DateField(null=True,blank=True)
+    rent_amount = models.FloatField(null=True,blank=True)
+        
+    def __str__(self):
+        return f'{self.machine_rent_machine_id.machine_name}'
+
+    class Meta:
+        db_table = 'machine_rent'
+
+
+
+class Bill(models.Model):
+    bill_id = models.BigAutoField(primary_key=True)
+    invoice_number = models.CharField(max_length=100,null=True,blank=True)
+    is_tax = models.BooleanField(default=0)
+    Project_id = models.ForeignKey(Project,null=True,blank=True,on_delete=models.CASCADE)
+    invoice_date = models.DateField(auto_now_add=True,null=True,blank=True)
+
+    def __str__(self):
+        return f'{self.invoice_number}'
+
+    class Meta:
+        db_table = 'Bill'
 
 
 

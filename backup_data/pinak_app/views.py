@@ -98,8 +98,8 @@ def user_login(request):
 
 @api_view(['GET'])
 def show_comapny_details(request):
-    comapny_details_data = Company_Details.objects.last()
-    comapny_details_data = {'company_contact_number': comapny_details_data.company_contact_number, 'company_owner_name': comapny_details_data.company_owner_name, 'company_owner_contact': comapny_details_data.company_owner_contact, 'company_address': comapny_details_data.company_address, 'company_logo': comapny_details_data.company_logo.url, 'company_logo_icon': comapny_details_data.company_logo_icon.url}
+    comapny_details_data = Company_Details.objects.first()
+    comapny_details_data = {'company_contact_number': comapny_details_data.company_contact_number, 'company_owner_name': comapny_details_data.company_owner_name, 'company_owner_contact': comapny_details_data.company_owner_contact, 'company_address': comapny_details_data.company_address,'company_sharuaati_shilak':comapny_details_data.company_sharuaati_shilak}
     
     return Response({
         "status": "success",
@@ -112,6 +112,7 @@ def insert_update_comapny_detail(request):
     company_contact_number = request.data.get('company_contact_number')
     company_owner_name = request.data.get('company_owner_name')
     company_owner_contact = request.data.get('company_owner_contact')
+    company_sharuaati_shilak = request.data.get('company_sharuaati_shilak')
     company_address = request.data.get('company_address')
     company_logo = request.FILES.get('company_logo')
     company_logo_icon = request.FILES.get('company_logo_icon')
@@ -123,7 +124,8 @@ def insert_update_comapny_detail(request):
             "company_owner_contact": company_owner_contact,
             "company_address": company_address,
             "company_logo": company_logo,
-            "company_logo_icon": company_logo_icon
+            "company_logo_icon": company_logo_icon,
+            "company_sharuaati_shilak":company_sharuaati_shilak
         }
     )
     
@@ -135,6 +137,7 @@ def insert_update_comapny_detail(request):
             "company_owner_name": company_details.company_owner_name,
             "company_owner_contact": company_details.company_owner_contact,
             "company_address": company_details.company_address,
+            "company_sharuaati_shilak":company_details.company_sharuaati_shilak,
             "company_logo": company_details.company_logo.url if company_details.company_logo else None,
             "company_logo_icon": company_details.company_logo_icon.url if company_details.company_logo_icon else None
         }
@@ -366,7 +369,6 @@ def show_work_types(request):
     work_types = Work_Types.objects.all().values(
         'work_type_id',
         'work_type_name',
-        'work_type_details'
     )
     return Response({
         "status": "success",
@@ -386,8 +388,7 @@ def insert_update_work_type(request):
         "message": 'Data Fetched Successfully',
         "data": {
             'work_type_id': work_type_obj.work_type_id,
-            'work_type_name': work_type_obj.work_type_name,
-            'work_type_details': work_type_obj.work_type_details,    
+            'work_type_name': work_type_obj.work_type_name,    
         }
         })
     
@@ -395,25 +396,18 @@ def insert_update_work_type(request):
         if work_type_id:
             work_type = Work_Types.objects.get(work_type_id=work_type_id)
             work_type.work_type_name = work_type_name
-            work_type.work_type_details = work_type_details
             work_type.save()
             message = "Work type updated successfully."
             
         else:
             work_type = Work_Types.objects.create(
                 work_type_name=work_type_name,
-                work_type_details=work_type_details
             )
             message = "Work type created successfully."
 
         return Response({
             "status": "success",
             "message": message,
-            "data": {
-                "work_type_id": work_type.work_type_id,
-                "work_type_name": work_type.work_type_name,
-                "work_type_details": work_type.work_type_details
-            }
         })
     else:
         return Response({
@@ -2223,7 +2217,10 @@ def insert_update_material(request):
         material_total_price = material_price * material_work_no
 
     
-        material_agent_amount = request.data.get('material_agent_amount')
+        material_agent_amount = request.data.get('material_agent_amount',0)
+        if material_agent_amount == '':
+            material_agent_amount = 0
+
         if material_is_agent:
             if material_agent_price_choice == "Fixed_Amount":
                 material_agent_amount = int(material_agent_amount)
@@ -2443,48 +2440,50 @@ def single_project_data(request):
 
         day_detail_total_amt = Project_Day_Details.objects.filter(project_id__project_id = project.project_id).aggregate(
             total_amount=Sum('project_day_detail_total_price')
-        )['total_amount']
+        )['total_amount'] or 0
         day_detail_total_amt = day_detail_total_amt if day_detail_total_amt else 0
 
         project_material_total_amount = Project_Material_Data.objects.filter(project_id__project_id = project.project_id).aggregate(
             total_amount=Sum('project_material_total_amount')
-        )['total_amount']
+        )['total_amount'] or 0
         project_material_total_amount = project_material_total_amount if project_material_total_amount else 0
 
         project_expense_total_amount = Project_Expense.objects.filter(project_id__project_id = project.project_id).aggregate(
             total_amount=Sum('project_expense_amount')
-        )['total_amount']
+        )['total_amount'] or 0
         project_expense_total_amount = project_expense_total_amount if project_expense_total_amount else 0
 
 
         project_machine_total_amount = Project_Machine_Data.objects.filter(project_id__project_id = project.project_id).aggregate(
             total_amount=Sum('project_machine_data_total_amount')
-        )['total_amount']
+        )['total_amount'] or 0
         project_machine_total_amount = project_machine_total_amount if project_machine_total_amount else 0
 
 
         project_machine_maintenance_total_amount = Machine_Maintenance.objects.filter(project_id__project_id = project.project_id).aggregate(
             total_amount=Sum('machine_maintenance_amount')
-        )['total_amount']
+        )['total_amount'] or 0
         project_machine_maintenance_total_amount = project_machine_maintenance_total_amount if project_machine_maintenance_total_amount else 0
 
         project_person_total_amount = Project_Person_Data.objects.filter(project_id__project_id = project.project_id).aggregate(
             total_amount=Sum('project_person_total_price')
-        )['total_amount']
+        )['total_amount'] or 0
         project_person_total_amount = project_person_total_amount if project_person_total_amount else 0
 
 
         grahak_paid_amount_for_project = Money_Debit_Credit.objects.filter(project_id__project_id = project.project_id, receiver_person_id__person_id=1).aggregate(
             total_amount=Sum('money_amount')
-        )['total_amount']
+        )['total_amount'] or 0
         print(grahak_paid_amount_for_project)
         grahak_paid_amount_for_project = grahak_paid_amount_for_project if grahak_paid_amount_for_project else 0
 
 
         dalali_amt = 0
+        print("day_detail_total_amt",day_detail_total_amt)
+        print("project.project_agent_percentage",project.project_agent_percentage)
         if project.project_agent:
             if project.project_agent_type == 'Percentage':
-                dalali_amt = (project.project_agent_percentage*100)/int(day_detail_total_amt)
+                dalali_amt = (float(project.project_agent_percentage)*int(day_detail_total_amt))/100
             else:
                 dalali_amt= int(project.project_agent_fixed_amount)
 
@@ -2582,19 +2581,29 @@ def show_project_day_details(request):
         pddd = Project_Day_Details.objects.filter(project_id__project_id = request.GET.get('project_id'), project_day_detail_work_type__work_type_id = xx['work_type_id'])
         total_on_10_tyre = 0
         total_on_12_tyre = 0
+        total_on_10_tyre_amount = 0
+        total_on_12_tyre_amount = 0
+        total_on_any_tyre = 0
+        total_on_any_tyre_amount = 0
+
 
         if pddd:
             xdataa = []
             for y in pddd:
                 xdataa.append({'work_type':y.project_day_detail_work_type.work_type_name,'work_no':y.project_day_detail_work_no,'tyre':y.project_day_detail_total_tyres})
                 if y.project_day_detail_total_tyres == '10-Tyres':
-                    total_on_10_tyre = total_on_10_tyre + int(y.project_day_detail_work_no)
+                    total_on_10_tyre = total_on_10_tyre + float(y.project_day_detail_work_no)
+                    total_on_10_tyre_amount = total_on_10_tyre_amount+float(y.project_day_detail_total_price)
 
                 if y.project_day_detail_total_tyres == '12-Tyres':
-                    total_on_12_tyre = total_on_12_tyre + int(y.project_day_detail_work_no)
+                    total_on_12_tyre = total_on_12_tyre + float(y.project_day_detail_work_no)
+                    total_on_12_tyre_amount = total_on_12_tyre_amount+float(y.project_day_detail_total_price)
                 
+                if y.project_day_detail_total_tyres == 'અન્ય':
+                    total_on_any_tyre = total_on_any_tyre + float(y.project_day_detail_work_no)
+                    total_on_any_tyre_amount = total_on_any_tyre_amount+float(y.project_day_detail_total_price) 
 
-            short_day_detail_data.append({'data':xdataa,'tyre_10_total':total_on_10_tyre,'tyre_12_total':total_on_12_tyre,'work_type_id':xx['work_type_id'],'work_type_name':xx['work_type_name']})
+            short_day_detail_data.append({'data':xdataa,'tyre_10_total':total_on_10_tyre,'tyre_12_total':total_on_12_tyre,'work_type_id':xx['work_type_id'],'work_type_name':xx['work_type_name'],'tyre_10_total_amount':total_on_10_tyre_amount,'tyre_12_total_amount':total_on_12_tyre_amount,'total_on_any_tyre':total_on_any_tyre,'tyre_any_total_amount':total_on_any_tyre_amount})
 
     print(short_day_detail_data)
 
@@ -2624,7 +2633,7 @@ def insert_update_project_day_detail(request):
                 "data": {
                     "project_day_detail_id": project_day_detail.project_day_detail_id,
                     "proejct_day_detail_date": project_day_detail.proejct_day_detail_date,
-                    "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id,
+                    "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id if project_day_detail.project_day_detail_machine_id else None,
                     "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
                     "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
                     "project_day_detail_total_tyres": project_day_detail.project_day_detail_total_tyres,
@@ -2651,17 +2660,23 @@ def insert_update_project_day_detail(request):
         project_day_detail_machine_id = request.data.get('project_day_detail_machine_id')
         print(project_day_detail_machine_id)
         project_day_detail_work_type = request.data.get('project_day_detail_work_type')
-        project_day_detail_work_no = int(request.data.get('project_day_detail_work_no'))
+        project_day_detail_work_no = float(request.data.get('project_day_detail_work_no'))
         project_day_detail_total_tyres = request.data.get('project_day_detail_total_tyres')
-        project_day_detail_price = int(request.data.get('project_day_detail_price'))
+        project_day_detail_price = float(request.data.get('project_day_detail_price'))
         project_day_detail_details = request.data.get('project_day_detail_details', '')
         project_id = proj_id
         print('working==================================================')
         if project_day_detail_machine_id:
             machine_instance = get_object_or_404(Machines, pk=project_day_detail_machine_id)
             print(machine_instance)
+        else: 
+            machine_instance = None
 
         work_type_instance = get_object_or_404(Work_Types, pk=project_day_detail_work_type)
+        if work_type_instance.work_type_name == 'કલાક':
+            totalprice = round((int(project_day_detail_work_no)*project_day_detail_price)+(((project_day_detail_work_no - int(project_day_detail_work_no))/0.60)*project_day_detail_price))
+        else:
+            totalprice = project_day_detail_price*project_day_detail_work_no
         print(project_id)
         project_instance = get_object_or_404(Project, pk=project_id)
 
@@ -2673,7 +2688,7 @@ def insert_update_project_day_detail(request):
             project_day_detail.project_day_detail_work_type = work_type_instance
             project_day_detail.project_day_detail_work_no = project_day_detail_work_no
             project_day_detail.project_day_detail_price = project_day_detail_price
-            project_day_detail.project_day_detail_total_price = project_day_detail_work_no * project_day_detail_price
+            project_day_detail.project_day_detail_total_price = totalprice
             project_day_detail.project_day_detail_details = project_day_detail_details
             project_day_detail.project_day_detail_total_tyres = project_day_detail_total_tyres
             project_day_detail.project_id = project_instance
@@ -2687,7 +2702,7 @@ def insert_update_project_day_detail(request):
                 project_day_detail_work_type=work_type_instance,
                 project_day_detail_work_no=project_day_detail_work_no,
                 project_day_detail_price=project_day_detail_price,
-                project_day_detail_total_price=project_day_detail_work_no * project_day_detail_price,
+                project_day_detail_total_price=totalprice,
                 project_day_detail_details=project_day_detail_details,
                 project_day_detail_total_tyres=project_day_detail_total_tyres,
                 project_id = project_instance
@@ -2706,17 +2721,6 @@ def insert_update_project_day_detail(request):
         return Response({
             "status": "success",
             "message": message,
-            "data": {
-                "project_day_detail_id": project_day_detail.project_day_detail_id,
-                "proejct_day_detail_date": project_day_detail.proejct_day_detail_date,
-                "project_day_detail_machine_id": project_day_detail.project_day_detail_machine_id.machine_id if project_day_detail.project_day_detail_machine_id else None,
-                "project_day_detail_work_type": project_day_detail.project_day_detail_work_type.work_type_id,
-                "project_day_detail_work_no": project_day_detail.project_day_detail_work_no,
-                "project_day_detail_price": project_day_detail.project_day_detail_price,
-                "project_day_detail_total_price": project_day_detail.project_day_detail_total_price,
-                "project_day_detail_details": project_day_detail.project_day_detail_details,
-                "project_day_detail_total_tyres": project_day_detail.project_day_detail_total_tyres,
-            },
             'machines_data': machines_data,
             'work_types_data': work_types_data,
         })
@@ -2770,8 +2774,8 @@ def show_project_material(request):
     project_material_data = project_material_data.values(
         'project_material_id',
         'project_material_date',
-        'project_material_material_id__material_owner__person_id',
-        'project_material_material_id__material_owner__person_name',
+        'project_material_material_id__material_owner_person_id__person_id',
+        'project_material_material_id__material_owner_person_id__person_name',
         'project_material_material_type_id__material_type_name',
         'project_material_work_type_id__work_type_name',
         'project_material_work_no',
@@ -2780,7 +2784,7 @@ def show_project_material(request):
         'person_material_information'
     )
 
-    materials_data = Material.objects.all().values('material_id', 'material_owner__person_name')
+    materials_data = Material_Owner_data.objects.all().values('Material_Owner_id', 'material_owner_person_id__person_name')
     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
     persons_data = Person.objects.all().values('person_id', 'person_name')
@@ -2799,7 +2803,7 @@ def show_project_material(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_project_material(request):
-    materials_data = Material.objects.all().values('material_id', 'material_owner__person_name')
+    materials_data = Material_Owner_data.objects.all().values('Material_Owner_id', 'material_owner_person_id__person_name')
     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
     persons_data = Person.objects.all().values('person_id', 'person_name')
@@ -2814,7 +2818,7 @@ def insert_update_project_material(request):
                 "data": {
                     "project_material_id": project_material.project_material_id,
                     "project_material_date": project_material.project_material_date,
-                    "project_material_material_id": project_material.project_material_material_id.material_id,
+                    "project_material_material_id": project_material.project_material_material_id.Material_Owner_id,
                     "project_material_material_type_id": project_material.project_material_material_type_id.material_type_id,
                     "project_material_work_type_id": project_material.project_material_work_type_id.work_type_id,
                     "project_material_work_no": project_material.project_material_work_no,
@@ -2851,7 +2855,7 @@ def insert_update_project_material(request):
         project_material_total_amount = project_material_work_no*project_material_price
         person_material_information = request.data.get('person_material_information')
         project_id = proj_id
-        material_instance = get_object_or_404(Material, pk=project_material_material_id)
+        material_instance = get_object_or_404(Material_Owner_data, pk=project_material_material_id)
 
         material_type_instance = get_object_or_404(Material_Types, pk=project_material_material_type_id)
         work_type_instance = get_object_or_404(Work_Types, pk=project_material_work_type_id)
@@ -2889,17 +2893,7 @@ def insert_update_project_material(request):
         return Response({
             "status": "success",
             "message": message,
-            "data": {
-                "project_material_id": project_material.project_material_id,
-                "project_material_date": project_material.project_material_date,
-                "project_material_material_id": project_material.project_material_material_id.material_id,
-                "project_material_material_type_id": project_material.project_material_material_type_id.material_type_id,
-                "project_material_work_type_id": project_material.project_material_work_type_id.work_type_id,
-                "project_material_work_no": project_material.project_material_work_no,
-                "project_material_price": project_material.project_material_price,
-                "project_material_total_amount": project_material.project_material_total_amount,
-                "person_material_information": project_material.person_material_information,
-            },
+           
             'materials_data': materials_data,
             'material_types_data': material_types_data,
             'work_types_data': work_types_data,
@@ -3002,8 +2996,8 @@ def show_project_machine(request):
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
  
-    driver_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Driver').values('person_id', 'person_name')
-    repair_persons_data = Person.objects.filter(person_type_id__person_type_name = 'Repair').values('person_id', 'person_name')
+    driver_persons_data = Person.objects.all().values('person_id', 'person_name')
+    repair_persons_data = Person.objects.all().values('person_id', 'person_name')
     projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
@@ -3499,23 +3493,13 @@ def insert_update_project_expense(request):
                 bank_id=bank_instance,
                 project_expense_desc=project_expense_desc
             )
-            bank_instance.bank_current_amount = bank_instance.bank_current_amount - project_expense_amount
-            bank_instance.save()
+            
             message = "Project expense data created successfully"
 
         return Response({
             "status": "success",
             "message": message,
-            "data": {
-                "project_expense_id": project_expense.project_expense_id,
-                "project_expense_name": project_expense.project_expense_name,
-                "project_id": project_expense.project_id.project_id,
-                "project_expense_date": project_expense.project_expense_date,
-                "project_expense_amount": project_expense.project_expense_amount,
-                "project_payment_mode": project_expense.project_payment_mode,
-                "bank_id": project_expense.bank_id.bank_id if project_expense.bank_id else None,
-                "project_expense_desc": project_expense.project_expense_desc,
-            }
+           
         })
 
     return Response({
@@ -3527,7 +3511,6 @@ def insert_update_project_expense(request):
 @api_view(['GET'])
 def delete_project_expense(request):
     project_expense_id = request.GET.get('project_expense_id')
-
     if not project_expense_id:
         return Response({
             "status": "error",
@@ -3537,10 +3520,6 @@ def delete_project_expense(request):
     try:
         project_expense = get_object_or_404(Project_Expense, project_expense_id=project_expense_id)
         print(project_expense)
-        bank_instance = Bank_Details.objects.get(bank_id=project_expense.bank_id.bank_id)
-        print(bank_instance)
-        bank_instance.bank_current_amount = float(bank_instance.bank_current_amount) + float(project_expense.project_expense_amount)
-        bank_instance.save()
         project_expense.delete()
 
         return Response({
@@ -3955,86 +3934,135 @@ def show_daily_report(request):
         'total_debit_amount': total_debit_amount,
     })
 
+# @api_view(['GET'])
+# def show_material_report(request):
+#     materials_data = Material.objects.all().values(
+#         'material_id',
+#         'material_type_id__material_type_id',
+#         'material_type_id__material_type_name',
+#         'material_owner__person_id',
+#         'material_owner__person_name',
+#         'material_status',
+#         'material_buy_date',
+#         'material_buy_location',
+#         'material_work_type__work_type_id',
+#         'material_work_type__work_type_name',
+#         'material_work_no',
+#         'material_price',
+#         'material_total_price',
+#         'material_is_agent',
+#         'material_agent_name',
+#         'material_agent_contact',
+#         'material_agent_price_choice',
+#         'material_agent_percentage',
+#         'material_agent_amount',
+#         'material_final_amount',
+#         'material_details'
+#     )
+
+#     total_material_amount = Material.objects.all().values(
+#         'material_id',
+#         'material_type_id__material_type_id',
+#         'material_type_id__material_type_name',
+#         'material_owner__person_id',
+#         'material_owner__person_name',
+#         'material_status',
+#         'material_buy_date',
+#         'material_buy_location',
+#         'material_work_type__work_type_id',
+#         'material_work_type__work_type_name',
+#         'material_work_no',
+#         'material_price',
+#         'material_total_price',
+#         'material_is_agent',
+#         'material_agent_name',
+#         'material_agent_contact',
+#         'material_agent_price_choice',
+#         'material_agent_percentage',
+#         'material_agent_amount',
+#         'material_final_amount',
+#         'material_details'
+#     ).aggregate(total_amount=Sum('material_total_price'))
+#     total_material_amount = total_material_amount['total_amount'] or 0
+
+#     materials = Material.objects.values(
+#         'material_work_type__work_type_name'
+#     ).annotate(
+#         total_price=Sum('material_price')
+#     )
+
+#     work_type_data = []
+#     for material in materials:
+#         work_type_name = material['material_work_type__work_type_name']
+#         individual_prices = list(
+#             Material.objects.filter(
+#                 material_work_type__work_type_name=work_type_name
+#             ).values_list('material_price', flat=True)
+#         )
+        
+#         work_type_data.append({
+#             'work_type_name': work_type_name,
+#             'individual_prices': individual_prices,
+#             'total_price': material['total_price']
+#         })
+    
+#     return Response({
+#         'status': 'success',
+#         'title': 'Material Reports',
+#         'materials_data': materials_data,
+#         'total_material_amount': total_material_amount,
+#         'work_type_data': work_type_data,
+#     })
+
+
+
+
 @api_view(['GET'])
 def show_material_report(request):
-    materials_data = Material.objects.all().values(
-        'material_id',
-        'material_type_id__material_type_id',
-        'material_type_id__material_type_name',
-        'material_owner__person_id',
-        'material_owner__person_name',
-        'material_status',
-        'material_buy_date',
-        'material_buy_location',
-        'material_work_type__work_type_id',
-        'material_work_type__work_type_name',
-        'material_work_no',
-        'material_price',
-        'material_total_price',
-        'material_is_agent',
-        'material_agent_name',
-        'material_agent_contact',
-        'material_agent_price_choice',
-        'material_agent_percentage',
-        'material_agent_amount',
-        'material_final_amount',
-        'material_details'
-    )
+    material_owner_data = Material_Owner_data.objects.all()
 
-    total_material_amount = Material.objects.all().values(
-        'material_id',
-        'material_type_id__material_type_id',
-        'material_type_id__material_type_name',
-        'material_owner__person_id',
-        'material_owner__person_name',
-        'material_status',
-        'material_buy_date',
-        'material_buy_location',
-        'material_work_type__work_type_id',
-        'material_work_type__work_type_name',
-        'material_work_no',
-        'material_price',
-        'material_total_price',
-        'material_is_agent',
-        'material_agent_name',
-        'material_agent_contact',
-        'material_agent_price_choice',
-        'material_agent_percentage',
-        'material_agent_amount',
-        'material_final_amount',
-        'material_details'
-    ).aggregate(total_amount=Sum('material_total_price'))
-    total_material_amount = total_material_amount['total_amount'] or 0
 
-    materials = Material.objects.values(
-        'material_work_type__work_type_name'
-    ).annotate(
-        total_price=Sum('material_price')
-    )
 
-    work_type_data = []
-    for material in materials:
-        work_type_name = material['material_work_type__work_type_name']
-        individual_prices = list(
-            Material.objects.filter(
-                material_work_type__work_type_name=work_type_name
-            ).values_list('material_price', flat=True)
-        )
-        
-        work_type_data.append({
-            'work_type_name': work_type_name,
-            'individual_prices': individual_prices,
-            'total_price': material['total_price']
-        })
-    
+
+
+@api_view(['GET'])
+def show_person_report(request):
+    person_types_data = Person_Type.objects.all()
+    salary_data = Salary.objects.all()
+    persons_data = Person.objects.all()
+    project_person_data = Project_Person_Data.objects.all()
+    if request.GET.get('person_type_name'):
+        person_type_name = request.GET.get('person_type_name')
+        if person_type_name == 'Employee':
+            persons_data = persons_data.filter(person_type_id__person_type_name = person_type_name)      
+    person_types_data = person_types_data.values('person_type_id', 'person_type_name')
+
+    if request.GET.get('person_id'):
+        person_id = request.GET.get('person_id')
+        persons_data = persons_data.filter(person_id = person_id)
+        salary_data = salary_data.filter(person_id__person_id = person_id)
+        project_person_data = project_person_data.filter(person_id__person_id = person_id)
+
+    if request.GET.get('project_id'):
+        project_id = request.GET.get('project_id')
+        project_person_data = project_person_data.filter(project_id__project_id = project_id)
+
+    salary_data = salary_data.values('salary_id', 'person_id__person_name', 'person_id__person_contact_number', 'salary_date', 'salary_amount', 'salary_working_days')
+    project_person_data = project_person_data.values('person_id__person_name', 'work_type_id__work_type_name', 'project_person_work_num', 'project_person_price', 'project_person_total_price', )
+    persons_data = persons_data.values('person_id', 'person_name', 'person_contact_number')
+
+    projects_data = Project.objects.all().values('project_id', 'project_name')
+    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
+
     return Response({
         'status': 'success',
-        'title': 'Material Reports',
-        'materials_data': materials_data,
-        'total_material_amount': total_material_amount,
-        'work_type_data': work_type_data,
+        'title': 'Person Report',
+        'persons_data': persons_data,
+        'person_types_data': person_types_data,
+        'projects_data': projects_data,
+        'machines_data': machines_data,
+        'salary_data': salary_data,
     })
-
 
 @api_view(['GET'])
 def show_diary(request):
@@ -4607,7 +4635,9 @@ def person_bhaththu_report(request):
 from django.db.models import Q, Sum
 @api_view(['GET'])
 def rokad_cash_calculation(request):
-    initial_rokad = 0
+    
+    initial_rokad = Company_Details.objects.first().company_sharuaati_shilak
+    print(initial_rokad)
     total_maintenance_amount = Machine_Maintenance.objects.filter(Q(machine_maintenance_amount_paid = True) | Q(machine_maintenance_amount_paid_by = 'Pinak') | Q(machine_maintenance_amount_paid_by = 'Company_Owner')).aggregate(
                 total_amount=Sum('machine_maintenance_amount')
                 )['total_amount'] or 0

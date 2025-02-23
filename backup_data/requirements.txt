@@ -7,3 +7,11 @@ pillow==11.0.0
 sqlparse==0.5.2
 typing_extensions==4.12.2
 tzdata==2024.2
+
+
+
+# changes in views.py
+# changes in company details react side
+# changes in models.py
+# changes in migration file 0002,0003
+# ચેંજીસ ઇન person Report react

@@ -53,7 +53,8 @@ class Company_Details(models.Model):
     company_address = models.TextField()
     company_logo = models.ImageField(upload_to='uploads/', null=True, blank=True)
     company_logo_icon = models.ImageField(upload_to='uploads/', null=True, blank=True)
-
+    company_sharuaati_shilak = models.FloatField(default=0.0,null=True,blank=True)
+    
     def __str__(self):
         return self.company_owner_name
 
@@ -98,7 +99,6 @@ class Project_Types(models.Model):
 class Work_Types(models.Model):
     work_type_id = models.BigAutoField(primary_key=True)
     work_type_name = models.CharField(max_length=155)
-    work_type_details = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'{self.work_type_name}'
@@ -462,7 +462,7 @@ class Project_Day_Details(models.Model):
 class Project_Material_Data(models.Model):
     project_material_id = models.BigAutoField(primary_key=True)
     project_material_date = models.DateField(auto_now_add=True, null=True, blank=True)
-    project_material_material_id = models.ForeignKey(Material, on_delete=models.CASCADE)
+    project_material_material_id = models.ForeignKey(Material_Owner_data, on_delete=models.CASCADE)
     project_material_material_type_id = models.ForeignKey(Material_Types, on_delete=models.CASCADE)
     project_material_work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_material_work_no = models.CharField(max_length=155)

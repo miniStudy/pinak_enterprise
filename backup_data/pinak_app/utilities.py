@@ -73,10 +73,12 @@ def single_project_functionality(project_id):
     dalali_amt = 0
     if project.project_agent:
         if project.project_agent_type == 'Percentage':
-            dalali_amt = (project.project_agent_percentage*100)/int(day_detail_total_amt)
+            dalali_amt = (float(project.project_agent_percentage)*int(day_detail_total_amt))/100
+
         else:
             dalali_amt= int(project.project_agent_fixed_amount)
 
+    print(dalali_amt)
 
     mudirokan_amt = 0
     mudirokankar_bhag_amount = 0
@@ -160,7 +162,7 @@ def currentbank_amount(request,bank_id):
     
 
 def rokad_amount(request):
-    initial_amount = 0
+    initial_amount = Company_Details.objects.first().company_sharuaati_shilak
     print('initialamount',initial_amount)    
     credit_in_bank = bank_cash.objects.filter(credit_debit='Credit').aggregate(total=Sum('amount'))['total'] or 0  
     print(credit_in_bank)    
@@ -174,8 +176,8 @@ def rokad_amount(request):
     print('projectperson_cash_pay',projectperson_rokad_pay)
     projectExpense_rokad_pay = Project_Expense.objects.filter(project_payment_mode='Cash').aggregate(total=Sum('project_expense_amount'))['total'] or 0
     print('projectExpense_cash_pay',projectExpense_rokad_pay)
-    avak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH',receiver_person_id__person_id=1).aggregate(total=Sum('money_amount'))['total'] or 0
-    javak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH', sender_person_id__person_id=1).aggregate(total=Sum('money_amount'))['total'] or 0
+    avak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH',receiver_person_id__person_id=1).exclude(pay_type_id__pay_type_name='વ્યક્તિ ડિસ્કાઉન્ટ').aggregate(total=Sum('money_amount'))['total'] or 0
+    javak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH', sender_person_id__person_id=1).exclude(pay_type_id__pay_type_name='વ્યક્તિ ડિસ્કાઉન્ટ').aggregate(total=Sum('money_amount'))['total'] or 0
     avak_javak_rokad = avak_in_rokad - javak_in_rokad
     print('avak_javak_cash_pay',avak_javak_rokad)
     current_rokad_Amount = initial_amount - bnak_transfer - projectperson_rokad_pay - projectExpense_rokad_pay + avak_javak_rokad

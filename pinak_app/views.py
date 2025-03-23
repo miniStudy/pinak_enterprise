@@ -4145,11 +4145,11 @@ def show_material_report(request):
 
 @api_view(['GET'])
 def show_person_report(request):
-    persons_data = Person.objects.all()
+    persons_data = Person.objects.get(person_id=17)
     context = {}
-    data = []
-    for x in persons_data:
-        data.append({'person_data':{'person_name':x.person_name,'person_id':x.person_id},'person_details_data':person_report_data(x.person_id)})
+    data = {}
+    
+    data.update({'person_data':{'person_name':persons_data.person_name,'person_id':persons_data.person_id},'person_details_data':person_report_data(persons_data.person_id)})
     context.update({'data':data})
     return Response(context)
 

@@ -4835,3 +4835,4 @@ def rokad_cash_calculation(request):
 def bank_credit_report(request):
     bank_id = request.GET.get('bank_id')
     data = bank_credit_report_data(int(bank_id))
+    return Response({'data':data,'message':'success'})

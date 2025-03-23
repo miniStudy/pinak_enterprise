@@ -176,6 +176,8 @@ urlpatterns = [
     path('person_bhaththu_report/',views.person_bhaththu_report, name='person_bhaththu_report'),
     path('rokad_cash_calculation/',views.rokad_cash_calculation, name="rokad_cash_calculation"),
 
+    path('bank_credit_report/',views.bank_credit_report, name='bank_credit_report'),
+
 
     
 

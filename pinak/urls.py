@@ -178,6 +178,7 @@ urlpatterns = [
 
     path('bank_credit_report/',views.bank_credit_report, name='bank_credit_report'),
     path('bank_debit_report/',views.bank_debit_report, name='bank_debit_report'),
+    path('persons_list/',views.persons_list, name='persons_list'),
 
 
     

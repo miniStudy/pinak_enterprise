@@ -4844,3 +4844,8 @@ def bank_debit_report(request):
     bank_id = request.GET.get('bank_id')
     data = bank_debit_report_data(int(bank_id))
     return Response({'data':data,'message':'success'})
+
+@api_view(['GET'])
+def persons_list(request):
+    data = Person.objects.all().values('person_name','person_contact_number','person_id')
+    return Response({'data':data,'message':'Success'})

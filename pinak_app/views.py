@@ -724,7 +724,7 @@ def delete_pay_type(request):
 
 @api_view(['GET'])
 def show_persons(request):
-    persons = Person.objects.all()
+    persons = Person.objects.exclude(person_status=0)
     if request.GET.get('person_id'):
         person_id = request.GET.get('person_id')
         persons = persons.filter(person_id = person_id)
@@ -767,7 +767,7 @@ def show_persons(request):
         'person_type_name'
     )     
 
-    allPersons = Person.objects.all().values('person_id','person_name')
+    allPersons = Person.objects.exclude(person_status=0).values('person_id','person_name')
     
     return Response({
         "status": "success",
@@ -998,7 +998,7 @@ def show_bank_details(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_bank_detail(request):
-    persons = Person.objects.all().values(
+    persons = Person.objects.exclude(person_status=0).values(
         'person_id',
         'person_name'
     )
@@ -1150,7 +1150,7 @@ def show_machines(request):
         'machine_type_name'
     )
 
-    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')
     machine_rented_work_type = Work_Types.objects.all().values('work_type_name','work_type_id')
     return Response({
         "status": "success",
@@ -1384,7 +1384,7 @@ def show_money_debit_credit(request):
         'project_id__project_name',
     )
 
-    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')
     banks_data = Bank_Details.objects.filter(bank_open_closed=True).values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     OfficeKharchtypesData = Office_kharch_Types.objects.all().values('office_kharch_type_id', 'office_kharch_type_name')
@@ -1408,7 +1408,7 @@ def show_money_debit_credit(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_money_debit_credit(request):
-    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name') 
     projects_data = Project.objects.all().values('project_id', 'project_name')
@@ -1632,7 +1632,7 @@ def show_salary(request):
     ).annotate(total_money_amount_personwise=Sum('money_amount'))
 
     worktypes = Work_Types.objects.all().values('work_type_id','work_type_name')
-    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')
 
     return Response({
         "status": "success",
@@ -1647,7 +1647,7 @@ def show_salary(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_salary(request):
-    persons_data = Person.objects.all().values('person_id', 'person_name')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
 
     if request.method == 'POST':
         salary_id = request.data.get('salary_id')
@@ -1804,9 +1804,9 @@ def show_machine_maintenance(request):
     )
     maintenance_types_data = Maintenance_Types.objects.all().values('maintenance_type_id', 'maintenance_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
-    maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name', 'person_contact_number')
-    driver_persons_data = Person.objects.filter().values('person_id', 'person_name', 'person_contact_number')
-    repair_persons_data = Person.objects.filter().values('person_id', 'person_name', 'person_contact_number')   
+    maintenance_persons_data = Person.objects.exclude(person_status=0).filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name', 'person_contact_number')
+    driver_persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')
+    repair_persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')   
     projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
@@ -1967,8 +1967,8 @@ def show_projects(request):
         'project_types_id__project_type_name',
     )
     project_types_data = Project_Types.objects.all().values('project_type_id', 'project_type_name')
-    persons_data = Person.objects.all().values('person_name','person_contact_number','person_id')
-    agent_persons = Person.objects.all().values('person_name','person_contact_number','person_id')
+    persons_data = Person.objects.exclude(person_status=0).values('person_name','person_contact_number','person_id')
+    agent_persons = Person.objects.exclude(person_status=0).values('person_name','person_contact_number','person_id')
 
     return Response({
         "status": "success",
@@ -2213,7 +2213,7 @@ def show_materials(request):
     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
     project_types_data = Project.objects.all().values('project_id', 'project_name')
-    perons = Person.objects.all().values('person_id','person_name','person_contact_number')
+    perons = Person.objects.exclude(person_status=0).values('person_id','person_name','person_contact_number')
     return Response({
         "status": "success",
         "title": "Materials",
@@ -2418,7 +2418,7 @@ def material_owner_list_create(request):
             'material_owner_person_id__person_id',
             'material_owner_person_id__person_name'  # Get related person name
         )
-        persons_data = Person.objects.all().values('person_id','person_name','person_contact_number')
+        persons_data = Person.objects.exclude(person_status=0).values('person_id','person_name','person_contact_number')
         return Response({'data':material_owners,'persons_data':persons_data})
     
     if request.method == 'POST':
@@ -2852,7 +2852,7 @@ def show_project_material(request):
     materials_data = Material_Owner_data.objects.all().values('Material_Owner_id', 'material_owner_person_id__person_name')
     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-    persons_data = Person.objects.all().values('person_id', 'person_name')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
 
     return Response({
         'status': 'success',
@@ -2871,7 +2871,7 @@ def insert_update_project_material(request):
     materials_data = Material_Owner_data.objects.all().values('Material_Owner_id', 'material_owner_person_id__person_name')
     material_types_data = Material_Types.objects.all().values('material_type_id', 'material_type_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-    persons_data = Person.objects.all().values('person_id', 'person_name')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
     
     if request.method == 'GET':
         project_material_id = request.GET.get('getdata_id')
@@ -3062,8 +3062,8 @@ def show_project_machine(request):
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
     maintenance_persons_data = Person.objects.filter(person_type_id__person_type_name = 'maintenance').values('person_id', 'person_name')
  
-    driver_persons_data = Person.objects.all().values('person_id', 'person_name')
-    repair_persons_data = Person.objects.all().values('person_id', 'person_name')
+    driver_persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
+    repair_persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
     projects_data = Project.objects.all().values('project_id', 'project_name')
 
     return Response({
@@ -3259,7 +3259,7 @@ def show_project_person(request):
         'person_payment_mode',
     )
 
-    persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name', 'person_contact_number')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
     project_machine_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
 
@@ -3279,7 +3279,7 @@ def show_project_person(request):
 
 @api_view(['POST', 'GET'])
 def insert_update_project_person(request):
-    persons_data = Person.objects.all().values('person_id', 'person_name')
+    persons_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
     project_machine_data = Machines.objects.all().values('machine_id', 'machine_name')
 
@@ -3592,41 +3592,98 @@ from rest_framework import status
 @api_view(['GET', 'POST'])
 def show_documents(request):
     domain = request.get_host()
-    data = Documents.objects.all().values('document_name','document_id','document_date','document_unique_code','document_file')
+    data = Documents.objects.all().values('document_name','document_id','document_date','document_unique_code','document_file', 'person_id__person_name', 'machine_id__machine_name', 'project_id__project_name')
     for document in data:
         document['document_file_url'] = domain + settings.MEDIA_URL + str(document['document_file'])
         document['data'] = 'hello'
 
     document_types = Document_Types.objects.all().values('document_type_name','document_type_id')
+    person_data = Person.objects.exclude(person_status=0).values('person_id', 'person_name')
+    machine_data = Machines.objects.all().values('machine_id', 'machine_name')
+    project_data = Project.objects.all().values('project_id', 'project_name')
+
+
     return Response({
         'status':True,
         'message': 'Documents Fetched Successfully',
         'data':data,
-        'document_types':document_types
+        'document_types':document_types,
+        'person_data': person_data,
+        'machine_data': machine_data,
+        'project_data': project_data
+
     })
 
-# GET, PUT, DELETE a single document
-@api_view(['GET','POST', 'PUT', 'DELETE'])
-def insert_update_documents(request):
-    product_data = request.data
-    form = DocumentsSerializer(data = product_data)
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def insert_update_documents(request, document_id=None):
+    if request.method == 'GET':
+        # Fetch all documents
+        documents = Documents.objects.all()
+        serializer = DocumentsSerializer(documents, many=True)
+        return Response({
+            'status': True,
+            'message': 'Documents fetched successfully',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 
-    if form.is_valid():
+    elif request.method == 'POST':
+        # Insert a new document
+        form = DocumentsSerializer(data=request.data)
+        if form.is_valid():
             form.save()
             return Response({
                 'status': True,
-                'message': 'Product has been added successfully'
-            })
-    else:
-            error_messages = []
-            for field, errors in form.errors.items():
-                for error in errors:
-                    error_messages.append(f"{field}: {error}")
-
+                'message': 'Document has been added successfully'
+            }, status=status.HTTP_201_CREATED)
+        else:
             return Response({
-                'status':False,
-                'message': " ".join(error_messages)
-            })
+                'status': False,
+                'message': form.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'PUT' and document_id:
+        # Update an existing document
+        try:
+            document = Documents.objects.get(document_id=document_id)
+        except Documents.DoesNotExist:
+            return Response({
+                'status': False,
+                'message': 'Document not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        form = DocumentsSerializer(instance=document, data=request.data, partial=True)
+        if form.is_valid():
+            form.save()
+            return Response({
+                'status': True,
+                'message': 'Document updated successfully'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'status': False,
+                'message': form.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE' and document_id:
+        # Delete a document
+        try:
+            document = Documents.objects.get(document_id=document_id)
+        except Documents.DoesNotExist:
+            return Response({
+                'status': False,
+                'message': 'Document not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        document.delete()
+        return Response({
+            'status': True,
+            'message': 'Document deleted successfully'
+        }, status=status.HTTP_200_OK)
+
+    return Response({
+        'status': False,
+        'message': 'Invalid request method'
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET','DELETE'])
@@ -4086,8 +4143,6 @@ def show_material_report(request):
 
     return Response(context)
 
-
-
 @api_view(['GET'])
 def show_person_report(request):
     persons_data = Person.objects.all()
@@ -4097,6 +4152,7 @@ def show_person_report(request):
         data.append({'person_data':{'person_name':x.person_name,'person_id':x.person_id},'person_details_data':person_report_data(x.person_id)})
     context.update({'data':data})
     return Response(context)
+
 
 @api_view(['GET'])
 def show_diary(request):
@@ -4497,7 +4553,7 @@ def machine_report(request):
 @api_view(['GET'])
 def person_report(request):
     # Fetch all persons
-    all_persons = Person.objects.all()
+    all_persons = Person.objects.exclude(person_status=0)
     
     person_detailed_data = []
 
@@ -4588,7 +4644,7 @@ def person_bhaththu_report(request):
     end_date = request.GET.get('end_date')
     # Fetch all persons
     personindaydetail = Project_Person_Data.objects.values_list('person_id__person_id',flat=True)
-    all_persons = Person.objects.filter(person_id__in = personindaydetail)
+    all_persons = Person.objects.exclude(person_status=0).filter(person_id__in = personindaydetail)
     
     person_detailed_data = []
 

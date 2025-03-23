@@ -51,6 +51,11 @@ urlpatterns = [
     path('insert_update_work_type/', views.insert_update_work_type, name='insert_update_work_type'),
     path('delete_work_type/', views.delete_work_type, name='delete_work_type'),
 
+# ================================
+    path('show_office_kharch_types/', views.show_office_kharch_types, name='show_office_kharch_types'),
+    path('insert_update_office_kharch_types/', views.insert_update_office_kharch_types, name='insert_update_office_kharch_types'),
+    path('delete_office_kharch_types/', views.delete_office_kharch_types, name='delete_office_kharch_types'),
+
 
     path('show_material_types/', views.show_material_types, name='show_material_types'),
     path('insert_update_material_type/', views.insert_update_material_type, name='insert_update_material_type'),

@@ -282,7 +282,69 @@ def delete_machine_type(request):
             "status": "Error",
             "message": "Something went wrong",
         })
+# =========================================================================
 
+@api_view(['GET'])
+def show_office_kharch_types(request):
+    office_kharch_types_data = Office_kharch_Types.objects.all().values('office_kharch_type_id', 'office_kharch_type_name')
+    return Response({
+        "status": "success",
+        "data": office_kharch_types_data
+    })
+
+@api_view(['POST','GET'])
+def insert_update_office_kharch_types(request):
+    office_kharch_type_id = request.data.get('office_kharch_type_id')
+    office_kharch_type_name = request.data.get('office_kharch_type_name')
+    message = ''
+    if request.GET.get('getdata_id'):
+        office_kharch_type_obj = Office_kharch_Types.objects.get(office_kharch_type_id=request.GET.get('getdata_id'))
+        return Response({
+        "status": "success",
+        "message": 'Data Fetched Successfully',
+        "data": {
+            "office_kharch_type_id": office_kharch_type_obj.office_kharch_type_id,
+            "office_kharch_type_name": office_kharch_type_obj.office_kharch_type_name,  
+        }
+        })
+
+    if request.method == 'POST':
+        if office_kharch_type_id:
+            office_kharch_type_obj = Office_kharch_Types.objects.get(office_kharch_type_id=office_kharch_type_id)
+            office_kharch_type_obj.office_kharch_type_name = office_kharch_type_name
+            office_kharch_type_obj.save()
+            message = "office_kharch updated successfully."
+        
+        else:
+            office_kharch_type_obj = Office_kharch_Types.objects.create(
+                office_kharch_type_name=office_kharch_type_name
+            )
+            message = "office_kharch created successfully."
+
+    return Response({
+        "status": "success",
+        "message": message,
+    })
+
+@api_view(['DELETE'])
+def delete_office_kharch_types(request):
+    if request.GET.get('office_kharch_type_id'):
+        office_kharch_type_id = request.GET.get('office_kharch_type_id')
+        office_kharch_type_obj = Office_kharch_Types.objects.get(office_kharch_type_id=office_kharch_type_id)
+        office_kharch_type_obj.delete()
+
+        return Response({
+            "status": "success",
+            "message": "office_kharch_type deleted successfully."
+        })
+    else:
+        return Response({
+            "status": "Error",
+            "message": "Something went wrong",
+        })
+
+
+# =========================================================================
 
 @api_view(['GET'])
 def show_project_types(request):
@@ -1290,7 +1352,7 @@ def show_money_debit_credit(request):
         'project_id__project_name',
     )
 
-    money_credit_data = money_debit_credit_data.filter(sender_person_id__person_name = 'pinak enterprise').values(
+    money_credit_data = money_debit_credit_data.filter(sender_person_id__person_name = 'Pinak Enterprise').values(
         'money_id',
         'sender_person_id__person_name',
         'sender_person_id__person_contact_number',
@@ -1306,7 +1368,7 @@ def show_money_debit_credit(request):
         'project_id__project_name',
     )
 
-    money_debit_data =  money_debit_credit_data.filter(receiver_person_id__person_name = 'pinak enterprise').values(
+    money_debit_data =  money_debit_credit_data.filter(receiver_person_id__person_name = 'Pinak Enterprise').values(
         'money_id',
         'sender_person_id__person_name',
         'sender_person_id__person_contact_number',
@@ -1325,8 +1387,10 @@ def show_money_debit_credit(request):
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     banks_data = Bank_Details.objects.filter(bank_open_closed=True).values('bank_id', 'bank_name', 'bank_account_number', 'person_id', 'person_id__person_name')
     pay_types_data = Pay_Types.objects.all().values('pay_type_id', 'pay_type_name')
+    OfficeKharchtypesData = Office_kharch_Types.objects.all().values('office_kharch_type_id', 'office_kharch_type_name')
     machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')  
     projects_data = Project.objects.all().values('project_id', 'project_name')
+    OfficeKharchtypesData
     return Response({
         "status": "success",
         "title": "Money Transactions",
@@ -1337,6 +1401,7 @@ def show_money_debit_credit(request):
         "projects_data": projects_data,
         "data": money_debit_credit_data,
         "money_credit_data": money_credit_data,
+        "OfficeKharchtypesData":OfficeKharchtypesData,
         "money_debit_data": money_debit_data,
     })  
 
@@ -2592,16 +2657,16 @@ def show_project_day_details(request):
             for y in pddd:
                 xdataa.append({'work_type':y.project_day_detail_work_type.work_type_name,'work_no':y.project_day_detail_work_no,'tyre':y.project_day_detail_total_tyres})
                 if y.project_day_detail_total_tyres == '10-Tyres':
-                    total_on_10_tyre = total_on_10_tyre + float(y.project_day_detail_work_no)
-                    total_on_10_tyre_amount = total_on_10_tyre_amount+float(y.project_day_detail_total_price)
+                    total_on_10_tyre = round(total_on_10_tyre + float(y.project_day_detail_work_no),2)
+                    total_on_10_tyre_amount = round(total_on_10_tyre_amount+float(y.project_day_detail_total_price),2)
 
                 if y.project_day_detail_total_tyres == '12-Tyres':
-                    total_on_12_tyre = total_on_12_tyre + float(y.project_day_detail_work_no)
-                    total_on_12_tyre_amount = total_on_12_tyre_amount+float(y.project_day_detail_total_price)
+                    total_on_12_tyre = round(total_on_12_tyre + float(y.project_day_detail_work_no),2)
+                    total_on_12_tyre_amount = round(total_on_12_tyre_amount+float(y.project_day_detail_total_price),2)
                 
                 if y.project_day_detail_total_tyres == 'અન્ય':
-                    total_on_any_tyre = total_on_any_tyre + float(y.project_day_detail_work_no)
-                    total_on_any_tyre_amount = total_on_any_tyre_amount+float(y.project_day_detail_total_price) 
+                    total_on_any_tyre = round(total_on_any_tyre + float(y.project_day_detail_work_no),2)
+                    total_on_any_tyre_amount = round(total_on_any_tyre_amount+float(y.project_day_detail_total_price),2) 
 
             short_day_detail_data.append({'data':xdataa,'tyre_10_total':total_on_10_tyre,'tyre_12_total':total_on_12_tyre,'work_type_id':xx['work_type_id'],'work_type_name':xx['work_type_name'],'tyre_10_total_amount':total_on_10_tyre_amount,'tyre_12_total_amount':total_on_12_tyre_amount,'total_on_any_tyre':total_on_any_tyre,'tyre_any_total_amount':total_on_any_tyre_amount})
 
@@ -2972,6 +3037,7 @@ def show_project_machine(request):
         'project_machine_data_total_amount',
         'project_machine_data_work_details',
         'project_machine_data_more_details',
+        'project_machine_data_km',
     )
 
     machine_maintenance_data = machine_maintenance_data.values(
@@ -3038,6 +3104,7 @@ def insert_update_project_machine(request):
                     "project_machine_data_total_amount": project_machine.project_machine_data_total_amount,
                     "project_machine_data_work_details": project_machine.project_machine_data_work_details,
                     "project_machine_data_more_details": project_machine.project_machine_data_more_details,
+                    "project_machine_data_km":project_machine.project_machine_data_km,
                 },
                 'machines_data': machines_data,
                 'work_types_data': work_types_data,
@@ -3056,9 +3123,10 @@ def insert_update_project_machine(request):
         project_machine_date = request.data.get('project_machine_date')
         machine_project_id = request.data.get('machine_project_id')
         work_type_id = request.data.get('work_type_id')
-        project_machine_data_work_number = int(request.data.get('project_machine_data_work_number'))
+        project_machine_data_work_number = float(request.data.get('project_machine_data_work_number'))
+        project_machine_data_km = float(request.data.get('project_machine_data_km')) or 0
         project_machine_data_work_price = int(request.data.get('project_machine_data_work_price'))
-        project_machine_data_total_amount = project_machine_data_work_price * project_machine_data_work_number
+        
         project_machine_data_work_details = request.data.get('project_machine_data_work_details')
         project_machine_data_more_details = request.data.get('project_machine_data_more_details')
         project_id = proj_id
@@ -3066,6 +3134,10 @@ def insert_update_project_machine(request):
 
         machine_instance = get_object_or_404(Machines, pk=machine_project_id)
         work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
+        if work_type_instance.work_type_name == 'કલાક':
+            project_machine_data_total_amount = round((int(project_machine_data_work_number)*project_machine_data_work_price)+(((project_machine_data_work_number - int(project_machine_data_work_number))/0.60)*project_machine_data_work_price))
+        else:
+            project_machine_data_total_amount = project_machine_data_work_price*project_machine_data_work_number
         project_instance = get_object_or_404(Project, pk=project_id)
 
         if project_machine_id:
@@ -3078,6 +3150,7 @@ def insert_update_project_machine(request):
             project_machine.project_machine_data_total_amount = project_machine_data_total_amount
             project_machine.project_machine_data_work_details = project_machine_data_work_details
             project_machine.project_machine_data_more_details = project_machine_data_more_details
+            project_machine.project_machine_data_km = project_machine_data_km
             project_machine.project_id = project_instance
             project_machine.save()
             message = "Project machine data updated successfully"
@@ -3091,6 +3164,7 @@ def insert_update_project_machine(request):
                 project_machine_data_total_amount=project_machine_data_total_amount,
                 project_machine_data_work_details=project_machine_data_work_details,
                 project_machine_data_more_details=project_machine_data_more_details,
+                project_machine_data_km = project_machine_data_km,
                 project_id = project_instance
             )
             message = "Project machine data created successfully"
@@ -3098,17 +3172,6 @@ def insert_update_project_machine(request):
         return Response({
             "status": "success",
             "message": message,
-            "data": {
-                "project_machine_data_id": project_machine.project_machine_data_id,
-                "project_machine_date": project_machine.project_machine_date,
-                "machine_project_id": project_machine.machine_project_id.machine_id,
-                "work_type_id": project_machine.work_type_id.work_type_id,
-                "project_machine_data_work_number": project_machine.project_machine_data_work_number,
-                "project_machine_data_work_price": project_machine.project_machine_data_work_price,
-                "project_machine_data_total_amount": project_machine.project_machine_data_total_amount,
-                "project_machine_data_work_details": project_machine.project_machine_data_work_details,
-                "project_machine_data_more_details": project_machine.project_machine_data_more_details,
-            },
             'machines_data': machines_data,
             'work_types_data': work_types_data,
         })
@@ -3183,8 +3246,8 @@ def show_project_person(request):
         'person_id__person_contact_number',
         'project_person_date',
         'work_type_id__work_type_name',
-        'project_machine_data_id__machine_project_id__machine_name',
-        'project_machine_data_id__machine_project_id__machine_number_plate',
+        'project_machine_data_id__machine_name',
+        'project_machine_data_id__machine_number_plate',
         'project_person_work_num',
         'project_person_price',
         'project_person_total_price',
@@ -3198,7 +3261,7 @@ def show_project_person(request):
 
     persons_data = Person.objects.all().values('person_id', 'person_name', 'person_contact_number')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-    project_machine_data = Project_Machine_Data.objects.all().values('project_machine_data_id', 'machine_project_id__machine_name', 'machine_project_id__machine_number_plate')
+    project_machine_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
 
     return Response({
         'status': 'success',
@@ -3218,7 +3281,7 @@ def show_project_person(request):
 def insert_update_project_person(request):
     persons_data = Person.objects.all().values('person_id', 'person_name')
     work_types_data = Work_Types.objects.all().values('work_type_id', 'work_type_name')
-    project_machine_data = Project_Machine_Data.objects.all().values('project_machine_data_id', 'machine_project_id__machine_name')
+    project_machine_data = Machines.objects.all().values('machine_id', 'machine_name')
 
     if request.method == 'GET':
         project_person_id = request.GET.get('getdata_id')
@@ -3229,10 +3292,10 @@ def insert_update_project_person(request):
                 "message": "Project person data fetched successfully",
                 "data": {
                     "project_person_id": project_person.project_person_id,
-                    "person_id": project_person.person_id.person_id,
+                    "person_id": project_person.person_id.person_id if project_person.person_id else None,
                     "project_person_date": project_person.project_person_date,
                     "work_type_id": project_person.work_type_id.work_type_id,
-                    "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id if project_person.project_machine_data_id else None,
+                    "project_machine_data_id": project_person.project_machine_data_id.machine_id if project_person.project_machine_data_id else None,
                     "project_person_work_num": project_person.project_person_work_num,
                     "project_person_price": project_person.project_person_price,
                     "project_person_total_price": project_person.project_person_total_price,
@@ -3263,7 +3326,7 @@ def insert_update_project_person(request):
         work_type_id = request.data.get('work_type_id')
         project_machine_data_id = request.data.get('project_machine_data_id')
         if project_machine_data_id:
-            machine_instance = get_object_or_404(Project_Machine_Data, pk=project_machine_data_id)
+            machine_instance = get_object_or_404(Machines, pk=project_machine_data_id)
         else:
             machine_instance = None
         project_person_work_num = int(request.data.get('project_person_work_num'))
@@ -3276,7 +3339,7 @@ def insert_update_project_person(request):
 
         bank_instance = Bank_Details.objects.get(bank_id = request.data.get('bank_id')) if request.data.get('bank_id') else None
         person_payment_mode = request.data.get('person_payment_mode')
-        person_instance = get_object_or_404(Person, pk=person_id)
+        person_instance = get_object_or_404(Person, pk=person_id) if person_id else None
         work_type_instance = get_object_or_404(Work_Types, pk=work_type_id)
         
         project_instance = get_object_or_404(Project, pk=project_id)
@@ -3320,19 +3383,6 @@ def insert_update_project_person(request):
         return Response({
             "status": "success",
             "message": message,
-            "data": {
-                "project_person_id": project_person.project_person_id,
-                "person_id": project_person.person_id.person_id,
-                "project_person_date": project_person.project_person_date,
-                "work_type_id": project_person.work_type_id.work_type_id,
-                "project_machine_data_id": project_person.project_machine_data_id.project_machine_data_id if project_person.project_machine_data_id else None,
-                "project_person_work_num": project_person.project_person_work_num,
-                "project_person_price": project_person.project_person_price,
-                "project_person_total_price": project_person.project_person_total_price,
-                "project_person_paid_by": project_person.project_person_paid_by,
-                "project_person_payment_details": project_person.project_person_payment_details,
-                "project_person_more_details": project_person.project_person_more_details,
-            },
             'persons_data': persons_data,
             'work_types_data': work_types_data,
             'project_machine_data': project_machine_data,
@@ -4020,49 +4070,33 @@ def show_daily_report(request):
 @api_view(['GET'])
 def show_material_report(request):
     material_owner_data = Material_Owner_data.objects.all()
+    context={}
+    for x in material_owner_data:
+        total_material_avak = Project_Material_Data.objects.filter(project_material_material_id=x).aggregate(total=Sum('project_material_total_amount'))['total'] or 0
+        padatar_rakam = Material.objects.filter(material_owner=x.material_owner_person_id).aggregate(total=Sum('material_final_amount'))['total'] or 0
+        material_agent_amount = Material.objects.filter(material_owner=x.material_owner_person_id,material_is_agent=1).aggregate(total=Sum('material_agent_amount'))['total'] or 0 
+        profit_loss = total_material_avak - padatar_rakam - material_agent_amount
+        projectwiseData = []
+        for proj in Project.objects.all():
+            Project_par_fera = Project_Material_Data.objects.filter(project_material_material_id=x,project_id = proj).values('project_material_work_no','project_material_price','project_material_total_amount','person_material_information')
+            counter = Project_Material_Data.objects.filter(project_material_material_id=x,project_id = proj).count()
+            data = {'Project_par_fera':Project_par_fera,'project_name':proj.project_name,'rows':counter}
+            projectwiseData.append(data)
+        context.update({'Material Owner Name':x.material_owner_person_id.person_name,'location':x.Material_Owner_location,'total_aavak':total_material_avak,'padatar_rakam':padatar_rakam,'dalali_rakam':material_agent_amount,'profit_loss':profit_loss,'projectwiseData':projectwiseData})
 
-
+    return Response(context)
 
 
 
 @api_view(['GET'])
 def show_person_report(request):
-    person_types_data = Person_Type.objects.all()
-    salary_data = Salary.objects.all()
     persons_data = Person.objects.all()
-    project_person_data = Project_Person_Data.objects.all()
-    if request.GET.get('person_type_name'):
-        person_type_name = request.GET.get('person_type_name')
-        if person_type_name == 'Employee':
-            persons_data = persons_data.filter(person_type_id__person_type_name = person_type_name)      
-    person_types_data = person_types_data.values('person_type_id', 'person_type_name')
-
-    if request.GET.get('person_id'):
-        person_id = request.GET.get('person_id')
-        persons_data = persons_data.filter(person_id = person_id)
-        salary_data = salary_data.filter(person_id__person_id = person_id)
-        project_person_data = project_person_data.filter(person_id__person_id = person_id)
-
-    if request.GET.get('project_id'):
-        project_id = request.GET.get('project_id')
-        project_person_data = project_person_data.filter(project_id__project_id = project_id)
-
-    salary_data = salary_data.values('salary_id', 'person_id__person_name', 'person_id__person_contact_number', 'salary_date', 'salary_amount', 'salary_working_days')
-    project_person_data = project_person_data.values('person_id__person_name', 'work_type_id__work_type_name', 'project_person_work_num', 'project_person_price', 'project_person_total_price', )
-    persons_data = persons_data.values('person_id', 'person_name', 'person_contact_number')
-
-    projects_data = Project.objects.all().values('project_id', 'project_name')
-    machines_data = Machines.objects.all().values('machine_id', 'machine_name', 'machine_number_plate')
-
-    return Response({
-        'status': 'success',
-        'title': 'Person Report',
-        'persons_data': persons_data,
-        'person_types_data': person_types_data,
-        'projects_data': projects_data,
-        'machines_data': machines_data,
-        'salary_data': salary_data,
-    })
+    context = {}
+    data = []
+    for x in persons_data:
+        data.append({'person_data':{'person_name':x.person_name,'person_id':x.person_id},'person_details_data':person_report_data(x.person_id)})
+    context.update({'data':data})
+    return Response(context)
 
 @api_view(['GET'])
 def show_diary(request):

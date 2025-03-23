@@ -139,6 +139,15 @@ class Pay_Types(models.Model):
     class Meta:
         db_table = 'Pay_Types'
 
+class Office_kharch_Types(models.Model):
+    office_kharch_type_id = models.BigAutoField(primary_key=True)
+    office_kharch_type_name = models.CharField(max_length=155)
+
+    def __str__(self):
+        return f'{self.office_kharch_type_name}'
+
+    class Meta:
+        db_table = 'Office_kharch_Types'
 
 class Document_Types(models.Model):
     document_type_id = models.BigAutoField(primary_key=True)
@@ -308,6 +317,7 @@ class Project_Machine_Data(models.Model):
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
     project_machine_data_work_number = models.CharField(max_length=155)
     project_machine_data_work_price = models.CharField(max_length=155)
+    project_machine_data_km = models.FloatField(null=True,blank=True)
     project_machine_data_total_amount = models.CharField(max_length=155)
     project_machine_data_work_details = models.TextField(null=True, blank=True)
     project_machine_data_more_details = models.TextField(null=True, blank=True)
@@ -326,10 +336,10 @@ class Project_Person_Data(models.Model):
         Pinak = 'Pinak', 'Pinak'
         Office = 'Office', 'Office'
     project_person_id = models.BigAutoField(primary_key=True)
-    person_id = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person_id = models.ForeignKey(Person, on_delete=models.CASCADE, null=True,blank=True)
     project_person_date = models.DateField(auto_now_add=True, null=True, blank=True)
     work_type_id = models.ForeignKey(Work_Types, on_delete=models.CASCADE)
-    project_machine_data_id = models.ForeignKey(Project_Machine_Data, on_delete=models.CASCADE, null=True, blank=True)
+    project_machine_data_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
     project_person_work_num = models.CharField(max_length=55)
     project_person_price = models.FloatField()
     project_person_total_price = models.FloatField()
@@ -489,7 +499,7 @@ class Documents(models.Model):
     person_id = models.ForeignKey(Person, on_delete=models.CASCADE,null=True,blank=True)
     machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
-    
+
     def __str__(self):
         return f'{self.document_type_id.document_type_name} {self.document_name}'
 

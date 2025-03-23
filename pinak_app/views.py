@@ -4145,7 +4145,8 @@ def show_material_report(request):
 
 @api_view(['GET'])
 def show_person_report(request):
-    persons_data = Person.objects.get(person_id=17)
+    person_id = request.GET.get('person_id')
+    persons_data = Person.objects.get(person_id=int(person_id))
     context = {}
     data = {}
     

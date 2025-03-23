@@ -4542,9 +4542,16 @@ def machine_report(request):
             
             project_info = {'project_name':y.project_name,'project_amount':y.project_amount,'project_location':y.project_location,'project_owner_name':y.project_owner_name.person_name}
             project_machine_data = Project_Machine_Data.objects.filter(machine_project_id = machine_obj,project_id = y).values('project_machine_date','work_type_id__work_type_name','project_machine_data_work_number','project_machine_data_work_price','project_machine_data_total_amount','project_machine_data_work_details')
-            projectwisedata.append({'project_info':project_info,'project_machine_data':project_machine_data})
-        machine_detailed_data.update({'machine_info':machine_info,'projectwisedata':projectwisedata})
-    
+            project_machine_data_total = Project_Machine_Data.objects.filter(machine_project_id = machine_obj,project_id = y).aggregate(total=Sum('project_machine_data_total_amount'))['total'] or 0
+            machine_maramat_data = Machine_Maintenance.objects.filter(project_id = y,machine_machine_id=machine_obj).values('machine_maintenance_amount','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id','machine_maintenance_driver_id__person_name','machine_maintenance_driver_id__person_id')
+            machine_maramat_data_total = Machine_Maintenance.objects.filter(project_id = y,machine_machine_id=machine_obj).aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
+            projectwisedata.append({'project_info':project_info,'project_machine_data':project_machine_data,'maintenance_data':machine_maramat_data,'project_machine_data_total':project_machine_data_total,'machine_maramat_data_total':machine_maramat_data_total})
+        
+        other_maintenance_data = Machine_Maintenance.objects.filter(machine_machine_id=machine_obj).values('machine_maintenance_amount','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id','machine_maintenance_driver_id__person_name','machine_maintenance_driver_id__person_id')
+        other_maintenance_data_total = Machine_Maintenance.objects.filter(machine_machine_id=machine_obj).aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
+        machine_total_deasel_amount = Machine_Maintenance.objects.filter(machine_maintenance_types_id__maintenance_type_name='ડીઝલ').aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
+        machine_detailed_data.update({'machine_info':machine_info,'projectwisedata':projectwisedata,'other_maintenance_data':other_maintenance_data,'other_maintenance_data_total':other_maintenance_data_total,'machine_total_deasel_amount':machine_total_deasel_amount})
+
     return Response({
         'data':machine_detailed_data,
         'message':'Success'

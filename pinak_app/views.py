@@ -4849,3 +4849,9 @@ def bank_debit_report(request):
 def persons_list(request):
     data = Person.objects.all().values('person_name','person_contact_number','person_id')
     return Response({'data':data,'message':'Success'})
+
+
+@api_view(['GET'])
+def machines_list(request):
+    data = Machines.objects.all().values('machine_name','machine_id','machine_number_plate')
+    return Response({'data':data,'message':'Success'})

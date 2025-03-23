@@ -291,14 +291,14 @@ def person_report_data(person_id):
     all_data.update({'amount_from_project_day_detail_data':amount_from_project_day_detail_data,'amount_from_project_day_detail_total':amount_from_project_day_detail})
 
     amount_to_discount_project_owner = Project.objects.filter(project_owner_name__person_id = person_id).aggregate(total=Sum('project_discount'))['total'] or 0
-    amount_to_discount_project_owner_data = Project.objects.filter(project_owner_name__person_id = person_id).values('project_discount')
+    amount_to_discount_project_owner_data = Project.objects.filter(project_owner_name__person_id = person_id).values('project_discount','project_name')
     all_data.update({'amount_to_discount_project_owner_data':amount_to_discount_project_owner_data,'amount_to_discount_project_owner_total':amount_to_discount_project_owner})
 
     amount_from_projectperson_project_owner = Project_Person_Data.objects.filter(project_id__project_owner_name__person_id = person_id,project_person_paid_by='Project_Owner').aggregate(total=Sum('project_person_total_price'))['total'] or 0
 
     # bhgidari
     amount_from_bhagidari_in_project = Project.objects.filter(project_investor_id__person_id = person_id).aggregate(total=Sum('project_investor_amount'))['total'] or 0
-    amount_from_bhagidari_in_project_data = Project.objects.filter(project_investor_id__person_id = person_id).values('project_investor_amount')
+    amount_from_bhagidari_in_project_data = Project.objects.filter(project_investor_id__person_id = person_id).values('project_investor_amount','project_name')
     all_data.update({'amount_from_bhagidari_in_project':amount_from_bhagidari_in_project_data,'amount_from_bhagidari_in_project_total':amount_from_bhagidari_in_project})
 
     amount_to_bhagidari_in_project = 0
@@ -307,47 +307,46 @@ def person_report_data(person_id):
     amount_to_dalali_in_project_data = []
     for x in Project.objects.filter(project_investor_id__person_id=person_id):
         amount_to_bhagidari_in_project = amount_to_bhagidari_in_project + int(single_project_functionality(x.project_id)['project_saransh']['mudirokan_amt'])
-        amount_to_bhagidari_in_project_data.append({'mudirokan_amt': int(single_project_functionality(x.project_id)['project_saransh']['mudirokan_amt'])})
+        amount_to_bhagidari_in_project_data.append({'mudirokan_amt': int(single_project_functionality(x.project_id)['project_saransh']['mudirokan_amt']),'project_name':x.project_name})
     all_data.update({'amount_to_bhagidari_in_project_data':amount_to_bhagidari_in_project_data,'amount_to_bhagidari_in_project_total':amount_to_bhagidari_in_project})
 
     for x in Project.objects.filter(project_agent_id__person_id=person_id):    
         amount_to_dalali_in_project = amount_to_dalali_in_project + int(single_project_functionality(x.project_id)['project_saransh']['dalali_amt'])
-        amount_to_dalali_in_project_data.append({'dalali_amt': int(single_project_functionality(x.project_id)['project_saransh']['dalali_amt'])})
+        amount_to_dalali_in_project_data.append({'dalali_amt': int(single_project_functionality(x.project_id)['project_saransh']['dalali_amt']),'project_name':x.project_name})
     all_data.update({'amount_to_dalali_in_project_data':amount_to_dalali_in_project_data,'amount_to_dalali_in_project_total':amount_to_dalali_in_project})
-
 
     # machineOwner
     amount_from_maintenance_machine_owner = Machine_Maintenance.objects.filter(machine_machine_id__machine_owner_id__person_id=person_id,machine_maintenance_amount_paid_by='machine_owner').aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
-    amount_from_maintenance_machine_owner_data = Machine_Maintenance.objects.filter(machine_machine_id__machine_owner_id__person_id=person_id,machine_maintenance_amount_paid_by='machine_owner').values('machine_maintenance_amount')
+    amount_from_maintenance_machine_owner_data = Machine_Maintenance.objects.filter(machine_machine_id__machine_owner_id__person_id=person_id,machine_maintenance_amount_paid_by='machine_owner').values()
     all_data.update({'amount_from_maintenance_machine_owner_data':amount_from_maintenance_machine_owner_data,'amount_from_maintenance_machine_owner_total':amount_from_maintenance_machine_owner})
 
     amount_to_rent_machine_owner = Project_Machine_Data.objects.filter(machine_project_id__machine_own='Rented',machine_project_id__machine_owner_id__person_id=person_id).aggregate(total=Sum('project_machine_data_total_amount'))['total'] or 0
-    amount_to_rent_machine_owner_data = Project_Machine_Data.objects.filter(machine_project_id__machine_own='Rented',machine_project_id__machine_owner_id__person_id=person_id).values('project_machine_data_total_amount')
+    amount_to_rent_machine_owner_data = Project_Machine_Data.objects.filter(machine_project_id__machine_own='Rented',machine_project_id__machine_owner_id__person_id=person_id).values()
     all_data.update({'amount_to_rent_machine_owner_data':amount_to_rent_machine_owner_data,'amount_to_rent_machine_owner_total':amount_to_rent_machine_owner})
 
     amount_from_machine_owner_in_project_person = Project_Person_Data.objects.filter(project_machine_data_id__machine_owner_id__person_id=person_id,project_person_paid_by='machine_owner').aggregate(total=Sum('project_person_total_price'))['total'] or 0
-    amount_from_machine_owner_in_project_person_data = Project_Person_Data.objects.filter(project_machine_data_id__machine_owner_id__person_id=person_id,project_person_paid_by='machine_owner').values('project_person_total_price')
+    amount_from_machine_owner_in_project_person_data = Project_Person_Data.objects.filter(project_machine_data_id__machine_owner_id__person_id=person_id,project_person_paid_by='machine_owner').values()
     all_data.update({'amount_from_machine_owner_in_project_person_data':amount_from_machine_owner_in_project_person_data,'amount_from_machine_owner_in_project_person_total':amount_from_machine_owner_in_project_person})
     #maintenance
 
     amount_to_maintenance_person = Machine_Maintenance.objects.filter(machine_maintenance_person_id__person_id=person_id).exclude(machine_maintenance_amount_paid=1).aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
-    amount_to_maintenance_person_data = Machine_Maintenance.objects.filter(machine_maintenance_person_id__person_id=person_id).exclude(machine_maintenance_amount_paid=1).values('machine_maintenance_amount')
+    amount_to_maintenance_person_data = Machine_Maintenance.objects.filter(machine_maintenance_person_id__person_id=person_id).exclude(machine_maintenance_amount_paid=1).values()
     all_data.update({'amount_to_maintenance_person_data':amount_to_maintenance_person_data,'amount_to_maintenance_person_total':amount_to_maintenance_person})
 
     #driver or Employee
     amount_to_driverEmployee = Salary.objects.filter(person_id__person_id = person_id).aggregate(total=Sum('salary_amount'))['total'] or 0
-    amount_to_driverEmployee_data = Salary.objects.filter(person_id__person_id = person_id).values('salary_amount')
+    amount_to_driverEmployee_data = Salary.objects.filter(person_id__person_id = person_id).values()
     all_data.update({'amount_to_driverEmployee_data':amount_to_driverEmployee_data,'amount_to_driverEmployee_total':amount_to_driverEmployee})
 
     #material
     amount_to_material_person = Material.objects.filter(material_owner__person_id=person_id).aggregate(total=Sum('material_total_price'))['total'] or 0
-    amount_to_material_person_data = Material.objects.filter(material_owner__person_id=person_id).values('material_total_price')
+    amount_to_material_person_data = Material.objects.filter(material_owner__person_id=person_id).values()
     all_data.update({'amount_to_material_person_data':amount_to_material_person_data,'amount_to_material_person_total':amount_to_material_person})
 
     #dalali
     amount_to_dalali_in_project = amount_to_dalali_in_project
     amount_to_dalali_in_material = Material.objects.filter(material_agent_person__person_id=person_id).aggregate(total=Sum('material_agent_amount'))['total'] or 0
-    amount_to_dalali_in_material_data = Material.objects.filter(material_agent_person__person_id=person_id).values('material_agent_amount')
+    amount_to_dalali_in_material_data = Material.objects.filter(material_agent_person__person_id=person_id).values()
     all_data.update({'amount_to_dalali_in_material_data':amount_to_dalali_in_material_data,'amount_to_dalali_in_material_total':amount_to_dalali_in_material})
 
 
@@ -362,18 +361,18 @@ def person_report_data(person_id):
     print('person_chukvel_rakam',person_chukvel_rakam)
     print('levani_baki_rakam',levani_baki_rakam)
 
-
     aapvani_rakam = amount_to_discount_project_owner+amount_to_bhagidari_in_project+amount_to_rent_machine_owner+amount_to_maintenance_person+amount_to_driverEmployee+amount_to_material_person+amount_to_dalali_in_project+amount_to_dalali_in_material
     person_aapididhel_rakam = Money_Debit_Credit.objects.filter(receiver_person_id__person_id=person_id).aggregate(total=Sum('money_amount'))['total'] or 0
     person_aapididhel_rakam_data = Money_Debit_Credit.objects.filter(receiver_person_id__person_id=person_id).values()
     all_data.update({'person_aapididhel_rakam_data':person_aapididhel_rakam_data,'person_aapididhel_rakam_total':person_aapididhel_rakam})
-    
+
     aapvani_baki_rakam = aapvani_rakam - person_aapididhel_rakam
     print('aapvani_rakam',aapvani_rakam)
     print('person_aapididhel_rakam',person_aapididhel_rakam)
     print('aapvani_baki_rakam',aapvani_baki_rakam)
-
+    all_data.update({'levani_baki_rakam':levani_baki_rakam,'aapvani_baki_rakam':aapvani_baki_rakam})
     final_rakam = levani_baki_rakam - aapvani_baki_rakam
+    all_data.update({'final_rakam':final_rakam})
     # if +100 levana
     # if -100 aapvana
     return all_data

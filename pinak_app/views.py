@@ -4531,18 +4531,19 @@ from django.forms.models import model_to_dict
 
 @api_view(['GET'])
 def machine_report(request):
-    all_machines = Machines.objects.all()
+    machine_id = request.GET.get('machine_id')
+    machine_obj = Machines.objects.get(machine_id=machine_id)
     all_projects = Project.objects.all()
-    machine_detailed_data = []
-    for x in all_machines:
-        machine_info={'machine_name':x.machine_name,'machine_number_plate':x.machine_number_plate,'machine_register_date':x.machine_register_date,'machine_own':x.machine_own,'machine_types_name':x.machine_types_id.machine_type_name,'machine_details':x.machine_details,'machine_owner':x.machine_owner_id.person_name+x.machine_owner_id.person_contact_number,'machine_buy_price':x.machine_buy_price,'machine_buy_date':x.machine_buy_date,'machine_other_details':x.machine_other_details}
+    machine_detailed_data = {}
+    if True:
+        machine_info={'machine_id':machine_obj.machine_id,'machine_name':machine_obj.machine_name,'machine_number_plate':machine_obj.machine_number_plate,'machine_register_date':machine_obj.machine_register_date,'machine_own':machine_obj.machine_own,'machine_types_name':machine_obj.machine_types_id.machine_type_name,'machine_details':machine_obj.machine_details,'machine_owner':machine_obj.machine_owner_id.person_name+machine_obj.machine_owner_id.person_contact_number,'machine_buy_price':machine_obj.machine_buy_price,'machine_buy_date':machine_obj.machine_buy_date,'machine_other_details':machine_obj.machine_other_details}
         projectwisedata = []
         for y in all_projects:
             
             project_info = {'project_name':y.project_name,'project_amount':y.project_amount,'project_location':y.project_location,'project_owner_name':y.project_owner_name.person_name}
-            project_machine_data = Project_Machine_Data.objects.filter(machine_project_id = x,project_id = y).values('project_machine_date','work_type_id__work_type_name','project_machine_data_work_number','project_machine_data_work_price','project_machine_data_total_amount','project_machine_data_work_details')
+            project_machine_data = Project_Machine_Data.objects.filter(machine_project_id = machine_obj,project_id = y).values('project_machine_date','work_type_id__work_type_name','project_machine_data_work_number','project_machine_data_work_price','project_machine_data_total_amount','project_machine_data_work_details')
             projectwisedata.append({'project_info':project_info,'project_machine_data':project_machine_data})
-        machine_detailed_data.append({'machine_info':machine_info,'projectwisedata':projectwisedata})
+        machine_detailed_data.update({'machine_info':machine_info,'projectwisedata':projectwisedata})
     
     return Response({
         'data':machine_detailed_data,

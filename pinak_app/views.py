@@ -4536,7 +4536,7 @@ def machine_report(request):
     all_projects = Project.objects.all()
     machine_detailed_data = {}
     if True:
-        machine_info={'machine_id':machine_obj.machine_id,'machine_name':machine_obj.machine_name,'machine_number_plate':machine_obj.machine_number_plate,'machine_register_date':machine_obj.machine_register_date,'machine_own':machine_obj.machine_own,'machine_types_name':machine_obj.machine_types_id.machine_type_name,'machine_details':machine_obj.machine_details,'machine_owner':machine_obj.machine_owner_id.person_name+machine_obj.machine_owner_id.person_contact_number,'machine_buy_price':machine_obj.machine_buy_price,'machine_buy_date':machine_obj.machine_buy_date,'machine_other_details':machine_obj.machine_other_details}
+        machine_info={'machine_id':machine_obj.machine_id,'machine_name':machine_obj.machine_name,'machine_number_plate':machine_obj.machine_number_plate,'machine_register_date':machine_obj.machine_register_date,'machine_own':machine_obj.machine_own,'machine_types_name':machine_obj.machine_types_id.machine_type_name,'machine_details':machine_obj.machine_details,'machine_owner':machine_obj.machine_owner_id.person_name,'Owner_contact':machine_obj.machine_owner_id.person_contact_number,'machine_buy_price':machine_obj.machine_buy_price,'machine_buy_date':machine_obj.machine_buy_date,'machine_other_details':machine_obj.machine_other_details}
         projectwisedata = []
         for y in all_projects:
             
@@ -4831,3 +4831,7 @@ def rokad_cash_calculation(request):
 
 
 
+@api_view(['GET'])
+def bank_credit_report(request):
+    bank_id = request.GET.get('bank_id')
+    data = bank_credit_report_data(int(bank_id))

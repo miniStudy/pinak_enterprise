@@ -378,5 +378,11 @@ def person_report_data(person_id):
     return all_data
 
 
-     
 
+def bank_credit_report_data(bank_id):
+    bank_obj = Bank_Details.objects.get(bank_id=bank_id)
+    bank_datails = {'bank_name':bank_obj.bank_name,'bank_branch':bank_obj.bank_branch,'bank_account_number':bank_obj.bank_account_number,'bank_ifsc_code':bank_obj.bank_ifsc_code,'bank_account_holder':bank_obj.bank_account_holder,'bank_initial_amount':bank_obj.bank_initial_amount,'bank_open_closed':bank_obj.bank_open_closed,'bank_person_name':bank_obj.person_id.person_name}
+    project_person_data_trasactions = Project_Person_Data.objects.filter(bank_id=bank_obj).values('person_id__person_name','person_id__person_contact_number','project_person_date','work_type_id__work_type_name','project_machine_data_id__machine_name','project_machine_data_id__machine_number_plate','project_person_work_num','project_person_price','project_person_total_price','project_person_paid_by','project_person_payment_details','project_id__project_name','project_person_paid_by')
+    money_credit_into_bank = Money_Debit_Credit.objects.filter(receiver_bank_id=bank_obj).values('sender_person_id__person_name','receiver_person_id__person_name','pay_type_id__pay_type_name','money_amount','money_date','money_payment_details','machine_id__machine_name','machine_id__machine_number_plate','project_id__project_name')
+    project_expense_data = Project_Expense.objects.filter(bank_id=bank_obj).values('project_expense_name','project_id__project_name','project_expense_date','project_expense_amount','project_expense_desc')
+    bank_cash_trasfer_data = bank_cash.objects.filter('credit_debit','amount','date','details')

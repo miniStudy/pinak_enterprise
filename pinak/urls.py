@@ -177,6 +177,7 @@ urlpatterns = [
     path('rokad_cash_calculation/',views.rokad_cash_calculation, name="rokad_cash_calculation"),
 
     path('bank_credit_report/',views.bank_credit_report, name='bank_credit_report'),
+    path('bank_debit_report/',views.bank_debit_report, name='bank_debit_report'),
 
 
     

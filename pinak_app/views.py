@@ -1427,6 +1427,12 @@ def insert_update_money_debit_credit(request):
         money_payment_details = request.data.get('money_payment_details')
         machine_id = request.data.get('machine_id')
         project_id = request.data.get('project_id')
+        office_kharch_type_id = request.data.get('office_kharch_type_id')
+        print('office_kharch_type_id:',office_kharch_type_id)
+
+        office_kharch_type_obj = Office_kharch_Types.objects.get(office_kharch_type_id=office_kharch_type_id) if office_kharch_type_id else None
+
+
         if machine_id:
             machine_instance = Machines.objects.get(machine_id=machine_id)
         else:
@@ -1466,6 +1472,7 @@ def insert_update_money_debit_credit(request):
             money_debit_credit.money_payment_details = money_payment_details
             money_debit_credit.machine_id = machine_instance
             money_debit_credit.project_id = project_instance
+            money_debit_credit.office_kharch_id = office_kharch_type_obj
             money_debit_credit.save()
             message = "Money Debit/Credit record updated successfully."
         else:
@@ -1482,6 +1489,8 @@ def insert_update_money_debit_credit(request):
                 money_payment_details=money_payment_details,
                 machine_id=machine_instance,
                 project_id = project_instance,
+                office_kharch_id = office_kharch_type_obj
+
             ) 
             if money_debit_credit.money_payment_mode=='BANK':
                 if sender_person_id==1:
@@ -4980,5 +4989,5 @@ def show_cash_report(request):
 def office_kharch_khatu(request):
     pay_type_id = request.GET.get('pay_type_id')
     data = Money_Debit_Credit.objects.filter(pay_type_id__pay_type_name = 'ઓફીસ ખર્ચ')
-    data = data.values('sender_person_id__person_name','receiver_person_id__person_name','pay_type_id__pay_type_name','money_amount','money_date','money_payment_details','machine_id__machine_name','machine_id__machine_number_plate','project_id__project_name')
+    data = data.values('sender_person_id__person_name','receiver_person_id__person_name','pay_type_id__pay_type_name','money_amount','money_date','money_payment_details','machine_id__machine_name','machine_id__machine_number_plate','project_id__project_name','office_kharch_id__office_kharch_type_name','office_kharch_id__office_kharch_type_id')
     return Response({'data':data})

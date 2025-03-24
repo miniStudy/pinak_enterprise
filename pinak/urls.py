@@ -183,6 +183,7 @@ urlpatterns = [
     path('project_list/',views.project_list, name='project_list'),
     path('show_bill/',views.show_bill, name='show_bill'),
     path('show_cash_report/',views.show_cash_report, name='show_cash_report'),
+    path('office_kharch_khatu/',views.office_kharch_khatu, name='office_kharch_khatu'),
 
 
     

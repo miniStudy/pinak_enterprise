@@ -400,6 +400,8 @@ class Money_Debit_Credit(models.Model):
     money_payment_details = models.TextField(null=True, blank=True)
     machine_id = models.ForeignKey(Machines, on_delete=models.CASCADE, null=True, blank=True)
     project_id = models.ForeignKey(Project, on_delete=models.CASCADE, null=True,blank=True)
+    office_kharch_id = models.ForeignKey(Office_kharch_Types, on_delete=models.CASCADE, null=True,blank=True)
+    
     def __str__(self):
         return f'{self.money_id}'
 

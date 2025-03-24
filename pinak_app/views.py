@@ -4881,7 +4881,7 @@ def maintenance_report(request):
     start_date = request.GET.get('start_date','null')
     end_date = request.GET.get('end_date','null')
     machine_id = request.GET.get('machine_id','null')
-    maintenance_type_id = request.GET.get('maintenance_type_id')
+    maintenance_type_id = request.GET.get('maintenance_type_id','null')
     maintenance_data = Machine_Maintenance.objects.all()
     machine_data = Machines.objects.all().values('machine_name','machine_number_plate','machine_id')
     maintenance_types_list = Maintenance_Types.objects.filter().values()
@@ -4894,10 +4894,10 @@ def maintenance_report(request):
        maintenance_data = maintenance_data.filter(machine_maintenance_date__lt=end_date)
     
     if machine_id != 'null':
-       maintenance_data = maintenance_data.filter(machine_machine_id=machine_id)
+       maintenance_data = maintenance_data.filter(machine_machine_id__machine_id=machine_id)
     
     if maintenance_type_id != 'null':
-       maintenance_data = maintenance_data.filter(machine_maintenance_types_id=maintenance_type_id)
+       maintenance_data = maintenance_data.filter(machine_maintenance_types_id__maintenance_type_id=maintenance_type_id)
 
     for x in machine_data:
         categorical_total = maintenance_data.filter(machine_machine_id__machine_id = x['machine_id']).aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0

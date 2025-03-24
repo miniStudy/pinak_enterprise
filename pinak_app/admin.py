@@ -18,4 +18,5 @@ admin.site.register(Project_Person_Data)
 admin.site.register(Material)
 admin.site.register(User)
 admin.site.register(Person)
+admin.site.register(Office_kharch_Types)
 

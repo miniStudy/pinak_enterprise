@@ -4969,8 +4969,16 @@ def show_bill(request):
     })
 
 
-
 @api_view(['GET'])
 def show_cash_report(request):
     data = rokad_hisab_amount(request)
     return Response({'data':data,'status':True,'message':'success'})
+
+
+
+@api_view(['GET'])
+def office_kharch_khatu(request):
+    pay_type_id = request.GET.get('pay_type_id')
+    data = Money_Debit_Credit.objects.filter(pay_type_id__pay_type_name = 'ઓફીસ ખર્ચ')
+    data = data.values('sender_person_id__person_name','receiver_person_id__person_name','pay_type_id__pay_type_name','money_amount','money_date','money_payment_details','machine_id__machine_name','machine_id__machine_number_plate','project_id__project_name')
+    return Response({'data':data})

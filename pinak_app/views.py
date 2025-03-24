@@ -4859,6 +4859,7 @@ def maintenance_report(request):
     machine_id = request.GET.get('machine_id')
     maintenance_type_id = request.GET.get('maintenance_type_id')
     maintenance_data = Machine_Maintenance.objects.all()
+    maintenance_types_list = Maintenance_Types.objects.filter()
     if start_date:
        maintenance_data = maintenance_data.filter(machine_maintenance_date__gt=start_date)
     
@@ -4872,4 +4873,8 @@ def maintenance_report(request):
        maintenance_data = maintenance_data.filter(machine_maintenance_types_id=maintenance_type_id)
 
     data = maintenance_data.values('machine_maintenance_amount','machine_machine_id__machine_name','machine_machine_id__machine_number_plate','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id')
-    return Response({'data':data,'message':'Success','status':True})
+    maintenance_total = maintenance_data.aggregate(total=Sum('machine_maintenance_amount'))
+    maintenance_categorical_data = []
+    for x in maintenance_types_list:
+        categorical_total = maintenance_data.aggregate(total=Sum('machine_maintenance_amount'))
+    return Response({'data':data,'message':'Success','status':True,'maintenance_total':maintenance_total})

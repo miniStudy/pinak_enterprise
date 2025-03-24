@@ -180,6 +180,7 @@ urlpatterns = [
     path('maintenance_report/',views.maintenance_report, name='maintenance_report'),
     path('persons_list/',views.persons_list, name='persons_list'),
     path('machines_list/',views.machines_list, name='machines_list'),
+    path('project_list/',views.project_list, name='project_list'),
 
 
     

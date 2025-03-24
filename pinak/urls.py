@@ -184,6 +184,7 @@ urlpatterns = [
     path('show_bill/',views.show_bill, name='show_bill'),
     path('show_cash_report/',views.show_cash_report, name='show_cash_report'),
     path('office_kharch_khatu/',views.office_kharch_khatu, name='office_kharch_khatu'),
+    path('office_kharch_types_list/',views.office_kharch_types_list, name='office_kharch_types_list'),
 
 
     

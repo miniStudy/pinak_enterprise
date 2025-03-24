@@ -4995,3 +4995,8 @@ def office_kharch_khatu(request):
     total = data.aggregate(total=Sum('money_amount'))['total']
     data = data.values('sender_person_id__person_name','receiver_person_id__person_name','pay_type_id__pay_type_name','money_amount','money_date','money_payment_details','machine_id__machine_name','machine_id__machine_number_plate','project_id__project_name','office_kharch_id__office_kharch_type_name','office_kharch_id__office_kharch_type_id')
     return Response({'data':data,'total':total})
+
+@api_view(['GET'])
+def office_kharch_types_list(request):
+    data = Office_kharch_Types.objects.all().values()
+    return Response({'data':data})

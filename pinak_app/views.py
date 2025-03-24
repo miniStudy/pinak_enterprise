@@ -3598,13 +3598,13 @@ def show_documents(request):
     machine_id = request.GET.get('machine_id')
     project_id = request.GET.get('project_id')
 
-    if person_id:
+    if person_id!='null':
         data = data.filter(person_id__person_id=person_id)
     
-    if machine_id:
+    if machine_id!='null':
         data = data.filter(machine_id__machine_id=machine_id)
     
-    if project_id:
+    if project_id!='null':
         data = data.filter(project_id__project_id=project_id)
 
     data = data.values('document_name','document_id','document_date','document_unique_code','document_file', 'person_id__person_name', 'machine_id__machine_name', 'project_id__project_name')

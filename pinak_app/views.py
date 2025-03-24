@@ -4987,11 +4987,11 @@ def show_cash_report(request):
 
 @api_view(['GET'])
 def office_kharch_khatu(request):
-    office_kharch_id = request.GET.get('office_kharch_id')
+    office_kharch_id = request.GET.get('office_kharch_id','null')
     data = Money_Debit_Credit.objects.filter(pay_type_id__pay_type_name = 'ઓફીસ ખર્ચ')
     if office_kharch_id != 'null':
         data = data.filter(office_kharch_id__office_kharch_type_id = office_kharch_id)
-        
+
     total = data.aggregate(total=Sum('money_amount'))['total']
     data = data.values('sender_person_id__person_name','receiver_person_id__person_name','pay_type_id__pay_type_name','money_amount','money_date','money_payment_details','machine_id__machine_name','machine_id__machine_number_plate','project_id__project_name','office_kharch_id__office_kharch_type_name','office_kharch_id__office_kharch_type_id')
     return Response({'data':data,'total':total})

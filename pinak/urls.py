@@ -169,7 +169,6 @@ urlpatterns = [
     path('insert_update_machine_rent/',views.insert_update_machine_rent, name='insert_update_machine_rent'),
     path('delete_machine_rent/', views.delete_machine_rent,name='delete_machine_rent'),
     
-    path('show_bill/',views.show_bill, name='show_bill'),
     path('overall_report/',views.overall_report, name='overall_report'),
     path('machine_report/',views.machine_report, name='machine_report'),
     path('person_report/',views.person_report, name='person_report'),
@@ -178,6 +177,7 @@ urlpatterns = [
 
     path('bank_credit_report/',views.bank_credit_report, name='bank_credit_report'),
     path('bank_debit_report/',views.bank_debit_report, name='bank_debit_report'),
+    path('maintenance_report/',views.maintenance_report, name='maintenance_report'),
     path('persons_list/',views.persons_list, name='persons_list'),
     path('machines_list/',views.machines_list, name='machines_list'),
 

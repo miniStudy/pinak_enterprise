@@ -4355,67 +4355,6 @@ def delete_machine_rent(request):
 
 
 
-@api_view(['GET'])
-def show_bill(request):
-
-    project_id = int(request.GET.get('project_id'))
-    print(project_id)
-    bill_data = Bill.objects.filter(Project_id__project_id=project_id).values(
-        'bill_id',
-        'invoice_number',
-        'is_tax',
-        'Project_id__project_id',
-        'Project_id__project_discount',
-        'Project_id__project_cgst',
-        'Project_id__project_sgst',
-        'Project_id__project_tax',
-        'Project_id__project_name',
-        'Project_id__project_location',
-        'Project_id__project_types_id__project_type_name',
-        'Project_id__project_owner_name__person_name',
-        'Project_id__project_owner_name__person_contact_number',
-        'Project_id__project_owner_name__person_address',
-        'Project_id__project_owner_name__person_gst',
-        'invoice_date',
-    )
-    print(bill_data)
-    if bill_data:
-        pass
-    else:
-        return Response({
-            'message':'Bill is not Available'
-        })
-    day_details_data = Project_Day_Details.objects.filter(project_id=project_id)
-
-    project_day_details_data = day_details_data.values(
-        'project_day_detail_id',
-        'proejct_day_detail_date',
-        'project_day_detail_machine_id__machine_name',
-        'project_day_detail_machine_id__machine_number_plate',
-        'project_day_detail_work_type__work_type_name',
-        'project_day_detail_total_tyres',
-        'project_day_detail_work_no',
-        'project_day_detail_price',
-        'project_day_detail_total_price',
-        'project_day_detail_details'
-    )
-
-    total_amount = project_day_details_data.aggregate(
-            total_amount=Sum('project_day_detail_total_price')
-        )['total_amount']
-    
-    discount = bill_data[0]['Project_id__project_discount']
-    print(bill_data[0]['Project_id__project_tax'])
-
-    return Response({
-        "status": "success",
-        "title": "Invoice",
-        'data':bill_data,
-        'project_day_details_data':project_day_details_data,
-        'total_amount':total_amount,
-        'discount':int(discount) if discount else 0,
-
-    })
 
 
 
@@ -4855,3 +4794,82 @@ def persons_list(request):
 def machines_list(request):
     data = Machines.objects.all().values('machine_name','machine_id','machine_number_plate')
     return Response({'data':data,'message':'Success'})
+
+
+@api_view(['GET'])
+def project_list(request):
+    data = Project.objects.all().values('project_id','project_name')
+    return Response({'data':data, 'message':'Success'})
+
+
+
+
+
+
+
+
+
+
+@api_view(['GET'])
+def get_bills(request):
+    bills = Bill.objects.all().values()
+    return Response({"bills": list(bills)})
+
+@api_view(['POST'])
+def create_bill(request):
+    data = request.data
+    bill = Bill.objects.create(
+        invoice_number=data.get('invoice_number'),
+        is_tax=data.get('is_tax', False),
+        Project_id_id=data.get('Project_id'),
+    )
+    return Response({"message": "Bill created successfully", "bill_id": bill.bill_id})
+
+@api_view(['PUT'])
+def update_bill(request, bill_id):
+    try:
+        bill = Bill.objects.get(bill_id=bill_id)
+        data = request.data
+
+        bill.invoice_number = data.get('invoice_number', bill.invoice_number)
+        bill.is_tax = data.get('is_tax', bill.is_tax)
+        bill.Project_id_id = data.get('Project_id', bill.Project_id_id)
+        bill.save()
+
+        return Response({"message": "Bill updated successfully"})
+    except Bill.DoesNotExist:
+        return Response({"error": "Bill not found"}, status=404)
+
+@api_view(['DELETE'])
+def delete_bill(request, bill_id):
+    try:
+        bill = Bill.objects.get(bill_id=bill_id)
+        bill.delete()
+        return Response({"message": "Bill deleted successfully"})
+    except Bill.DoesNotExist:
+        return Response({"error": "Bill not found"}, status=404)
+    
+
+
+
+@api_view(['GET'])
+def maintenance_report(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    machine_id = request.GET.get('machine_id')
+    maintenance_type_id = request.GET.get('maintenance_type_id')
+    maintenance_data = Machine_Maintenance.objects.all()
+    if start_date:
+       maintenance_data = maintenance_data.filter(machine_maintenance_date__gt=start_date)
+    
+    if end_date:
+       maintenance_data = maintenance_data.filter(machine_maintenance_date__lt=end_date)
+    
+    if machine_id:
+       maintenance_data = maintenance_data.filter(machine_machine_id=machine_id)
+    
+    if maintenance_type_id:
+       maintenance_data = maintenance_data.filter(machine_maintenance_types_id=maintenance_type_id)
+
+    data = maintenance_data.values('machine_maintenance_amount','machine_machine_id__machine_name','machine_machine_id__machine_number_plate','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id')
+    return Response({'data':data,'message':'Success','status':True})

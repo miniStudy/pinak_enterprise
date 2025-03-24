@@ -181,6 +181,7 @@ urlpatterns = [
     path('persons_list/',views.persons_list, name='persons_list'),
     path('machines_list/',views.machines_list, name='machines_list'),
     path('project_list/',views.project_list, name='project_list'),
+    path('show_bill/',views.show_bill, name='show_bill'),
 
 
     

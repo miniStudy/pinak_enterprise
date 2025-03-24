@@ -4903,3 +4903,68 @@ def maintenance_report(request):
     
     
     return Response({'data':data,'message':'Success','status':True,'maintenance_total':maintenance_total,'maintenance_categorical_data':maintenance_categorical_data,'machine_wise_maintenance_data':machine_wise_maintenance_data})
+
+
+
+@api_view(['GET'])
+def show_bill(request):
+
+    project_id = int(request.GET.get('project_id'))
+    print(project_id)
+    bill_data = Bill.objects.filter(Project_id__project_id=project_id).values(
+        'bill_id',
+        'invoice_number',
+        'is_tax',
+        'Project_id__project_id',
+        'Project_id__project_discount',
+        'Project_id__project_cgst',
+        'Project_id__project_sgst',
+        'Project_id__project_tax',
+        'Project_id__project_name',
+        'Project_id__project_location',
+        'Project_id__project_types_id__project_type_name',
+        'Project_id__project_owner_name__person_name',
+        'Project_id__project_owner_name__person_contact_number',
+        'Project_id__project_owner_name__person_address',
+        'Project_id__project_owner_name__person_gst',
+        'invoice_date',
+    )
+    print(bill_data)
+    if bill_data:
+        pass
+    else:
+        return Response({
+            'message':'Bill is not Available'
+        })
+    day_details_data = Project_Day_Details.objects.filter(project_id=project_id)
+
+    project_day_details_data = day_details_data.values(
+        'project_day_detail_id',
+        'proejct_day_detail_date',
+        'project_day_detail_machine_id__machine_name',
+        'project_day_detail_machine_id__machine_number_plate',
+        'project_day_detail_work_type__work_type_name',
+        'project_day_detail_total_tyres',
+        'project_day_detail_work_no',
+        'project_day_detail_price',
+        'project_day_detail_total_price',
+        'project_day_detail_details'
+    )
+
+    total_amount = project_day_details_data.aggregate(
+            total_amount=Sum('project_day_detail_total_price')
+        )['total_amount']
+    
+    discount = bill_data[0]['Project_id__project_discount']
+    print(bill_data[0]['Project_id__project_tax'])
+
+    return Response({
+        "status": "success",
+        "title": "Invoice",
+        'data':bill_data,
+        'project_day_details_data':project_day_details_data,
+        'total_amount':total_amount,
+        'discount':int(discount) if discount else 0,
+
+    })
+

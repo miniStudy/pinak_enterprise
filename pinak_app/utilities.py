@@ -453,4 +453,7 @@ def rokad_hisab_amount(request):
 
     return {'initial_amount':initial_amount,'credit_in_bank_data':credit_in_bank_data,'debit_in_bank_data':debit_in_bank_data,'total_maintenance_amount':total_maintenance_amount,'total_maintenance_amount_data':total_maintenance_amount_data,'projectperson_rokad_pay_total':projectperson_rokad_pay,'projectperson_rokad_pay_data':projectperson_rokad_pay_data,'projectExpense_rokad_pay_total':projectExpense_rokad_pay,
             'projectExpense_rokad_pay_data':projectExpense_rokad_pay_data,'total_aavak':avak_in_rokad_total,
-            'avak_in_rokad_data':avak_in_rokad_data,'total_javak ':javak_in_rokad_total,'javak_in_rokad_data':javak_in_rokad_data,'avak_javak_rokad':avak_javak_rokad,'final_Balance':avak_javak_rokad}
+            'avak_in_rokad_data':avak_in_rokad_data,'total_javak':javak_in_rokad_total,'javak_in_rokad_data':javak_in_rokad_data,'avak_javak_rokad':avak_javak_rokad,'final_Balance':avak_javak_rokad}
+
+
+

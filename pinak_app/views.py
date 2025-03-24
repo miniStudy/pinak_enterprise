@@ -3592,7 +3592,22 @@ from rest_framework import status
 @api_view(['GET', 'POST'])
 def show_documents(request):
     domain = request.get_host()
-    data = Documents.objects.all().values('document_name','document_id','document_date','document_unique_code','document_file', 'person_id__person_name', 'machine_id__machine_name', 'project_id__project_name')
+    data = Documents.objects.all()
+
+    person_id = request.GET.get('person_id')
+    machine_id = request.GET.get('machine_id')
+    project_id = request.GET.get('project_id')
+
+    if person_id:
+        data = data.filter(person_id__person_id=person_id)
+    
+    if machine_id:
+        data = data.filter(machine_id__machine_id=machine_id)
+    
+    if project_id:
+        data = data.filter(project_id__project_id=project_id)
+
+    data = data.values('document_name','document_id','document_date','document_unique_code','document_file', 'person_id__person_name', 'machine_id__machine_name', 'project_id__project_name')
     for document in data:
         document['document_file_url'] = domain + settings.MEDIA_URL + str(document['document_file'])
         document['data'] = 'hello'

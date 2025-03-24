@@ -4878,25 +4878,25 @@ def delete_bill(request, bill_id):
 
 @api_view(['GET'])
 def maintenance_report(request):
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    machine_id = request.GET.get('machine_id')
+    start_date = request.GET.get('start_date','null')
+    end_date = request.GET.get('end_date','null')
+    machine_id = request.GET.get('machine_id','null')
     maintenance_type_id = request.GET.get('maintenance_type_id')
     maintenance_data = Machine_Maintenance.objects.all()
     machine_data = Machines.objects.all().values('machine_name','machine_number_plate','machine_id')
     maintenance_types_list = Maintenance_Types.objects.filter().values()
     maintenance_categorical_data = []
     machine_wise_maintenance_data = []
-    if start_date:
+    if start_date != 'null':
        maintenance_data = maintenance_data.filter(machine_maintenance_date__gt=start_date)
     
-    if end_date:
+    if end_date != 'null':
        maintenance_data = maintenance_data.filter(machine_maintenance_date__lt=end_date)
     
-    if machine_id:
+    if machine_id != 'null':
        maintenance_data = maintenance_data.filter(machine_machine_id=machine_id)
     
-    if maintenance_type_id:
+    if maintenance_type_id != 'null':
        maintenance_data = maintenance_data.filter(machine_maintenance_types_id=maintenance_type_id)
 
     for x in machine_data:

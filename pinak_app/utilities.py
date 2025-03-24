@@ -406,3 +406,48 @@ def bank_debit_report_data(bank_id):
     bank_cash_trasfer_data_total = bank_cash.objects.filter(bank_id=bank_obj,credit_debit='Debit').aggregate(total=Sum('amount'))['total'] or 0
     return {'bank_datails':bank_datails,'project_person_data_trasactions':project_person_data_trasactions,'project_person_data_trasactions_total':project_person_data_trasactions_total,'money_credit_into_bank':money_debit_into_bank,'money_credit_into_bank_total':money_debit_into_bank_total,'project_expense_data':project_expense_data,'project_expense_data_total':project_expense_data_total,'bank_cash_trasfer_data':bank_cash_trasfer_data,'bank_cash_trasfer_data_total':bank_cash_trasfer_data_total}
     
+
+
+
+
+
+def rokad_hisab_amount(request):
+    initial_amount = Company_Details.objects.first().company_sharuaati_shilak
+    credit_in_bank = bank_cash.objects.filter(credit_debit='Credit').aggregate(total=Sum('amount'))['total'] or 0
+    credit_in_bank_data = bank_cash.objects.filter(credit_debit='Credit').values('credit_debit','amount','bank_id__bank_name','bank_id__bank_id','date','details')
+
+    debit_in_bank = bank_cash.objects.filter(credit_debit='Debit').aggregate(total=Sum('amount'))['total'] or 0
+    bnak_transfer = credit_in_bank-debit_in_bank
+    debit_in_bank_data = bank_cash.objects.filter(credit_debit='Debit').values('credit_debit','amount','bank_id__bank_name','bank_id__bank_id','date','details')
+
+    total_maintenance_amount = Machine_Maintenance.objects.filter(machine_maintenance_amount_paid=True).filter(Q(machine_maintenance_amount_paid_by = 'Pinak_Enterprise') | Q(machine_maintenance_amount_paid_by = 'Company_Owner')).aggregate(
+            total_amount=Sum('machine_maintenance_amount')
+            )['total_amount'] or 0
+    total_maintenance_amount_data = Machine_Maintenance.objects.filter(machine_maintenance_amount_paid=True).filter(Q(machine_maintenance_amount_paid_by = 'Pinak_Enterprise') | Q(machine_maintenance_amount_paid_by = 'Company_Owner')).values('machine_maintenance_amount','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id','machine_maintenance_driver_id__person_name','machine_maintenance_driver_id__person_id')
+
+    projectperson_rokad_pay = Project_Person_Data.objects.filter(person_payment_mode='Cash').aggregate(total=Sum('project_person_total_price'))['total'] or 0
+    projectperson_rokad_pay_data = Project_Person_Data.objects.filter(person_payment_mode='Cash').values('person_id__person_name', 'person_id__person_id', 'person_id__person_contact_number',
+        'work_type_id__work_type_name', 'project_person_work_num', 'project_person_price',
+        'project_person_total_price', 'project_person_paid_by', 'project_id__project_name',
+        'project_id__project_owner_name__person_name')
+
+    projectExpense_rokad_pay = Project_Expense.objects.filter(project_payment_mode='Cash').aggregate(total=Sum('project_expense_amount'))['total'] or 0
+    projectExpense_rokad_pay_data = Project_Expense.objects.filter(project_payment_mode='Cash').values('project_expense_id',
+        'project_expense_name',
+        'project_id__project_name',
+        'project_expense_date',
+        'project_expense_amount',
+        'project_payment_mode',
+        'bank_id__bank_name',
+        'project_expense_desc',)
+
+
+    # avak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH',receiver_person_id__person_id=1).exclude(pay_type_id__pay_type_name='વ્યક્તિ ડિસ્કાઉન્ટ').aggregate(total=Sum('money_amount'))['total'] or 0
+    # avak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH',receiver_person_id__person_id=1).exclude(pay_type_id__pay_type_name='વ્યક્તિ ડિસ્કાઉન્ટ')
+
+
+    # javak_in_rokad = Money_Debit_Credit.objects.filter(money_payment_mode='CASH', sender_person_id__person_id=1).exclude(pay_type_id__pay_type_name='વ્યક્તિ ડિસ્કાઉન્ટ').aggregate(total=Sum('money_amount'))['total'] or 0
+    # avak_javak_rokad = avak_in_rokad - javak_in_rokad
+    # print('avak_javak_cash_pay',avak_javak_rokad)
+    # current_rokad_Amount = initial_amount - total_maintenance_amount - bnak_transfer - projectperson_rokad_pay - projectExpense_rokad_pay + avak_javak_rokad
+    return {'initial_amount':initial_amount,'credit_in_bank_data':credit_in_bank_data,'debit_in_bank_data':debit_in_bank_data,'total_maintenance_amount':total_maintenance_amount,'total_maintenance_amount_data':total_maintenance_amount_data,'projectperson_rokad_pay_total':projectperson_rokad_pay,'projectperson_rokad_pay_data':projectperson_rokad_pay_data,'projectExpense_rokad_pay_total':projectExpense_rokad_pay,'projectExpense_rokad_pay_data':projectExpense_rokad_pay_data}

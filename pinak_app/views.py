@@ -4968,3 +4968,9 @@ def show_bill(request):
 
     })
 
+
+
+@api_view(['GET'])
+def show_cash_report(request):
+    data = rokad_hisab_amount(request)
+    return Response({'data':data,'status':True,'message':'success'})

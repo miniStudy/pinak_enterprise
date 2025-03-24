@@ -182,6 +182,7 @@ urlpatterns = [
     path('machines_list/',views.machines_list, name='machines_list'),
     path('project_list/',views.project_list, name='project_list'),
     path('show_bill/',views.show_bill, name='show_bill'),
+    path('show_cash_report/',views.show_cash_report, name='show_cash_report'),
 
 
     

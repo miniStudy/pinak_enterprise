@@ -4874,7 +4874,10 @@ def maintenance_report(request):
     machine_id = request.GET.get('machine_id')
     maintenance_type_id = request.GET.get('maintenance_type_id')
     maintenance_data = Machine_Maintenance.objects.all()
-    maintenance_types_list = Maintenance_Types.objects.filter()
+    machine_data = Machines.objects.all().values('machine_name','machine_number_plate','machine_id')
+    maintenance_types_list = Maintenance_Types.objects.filter().values()
+    maintenance_categorical_data = []
+    machine_wise_maintenance_data = []
     if start_date:
        maintenance_data = maintenance_data.filter(machine_maintenance_date__gt=start_date)
     
@@ -4887,9 +4890,16 @@ def maintenance_report(request):
     if maintenance_type_id:
        maintenance_data = maintenance_data.filter(machine_maintenance_types_id=maintenance_type_id)
 
-    data = maintenance_data.values('machine_maintenance_amount','machine_machine_id__machine_name','machine_machine_id__machine_number_plate','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id')
-    maintenance_total = maintenance_data.aggregate(total=Sum('machine_maintenance_amount'))
-    maintenance_categorical_data = []
+    for x in machine_data:
+        categorical_total = maintenance_data.filter(machine_machine_id__machine_id = x['machine_id']).aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
+        machine_wise_maintenance_data.append({'machine_name':f"{x['machine_name']}({x['machine_number_plate']})",'total':categorical_total})
+
     for x in maintenance_types_list:
-        categorical_total = maintenance_data.aggregate(total=Sum('machine_maintenance_amount'))
-    return Response({'data':data,'message':'Success','status':True,'maintenance_total':maintenance_total})
+        categorical_total = maintenance_data.filter(machine_maintenance_types_id__maintenance_type_id=x['maintenance_type_id']).aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
+        maintenance_categorical_data.append({'category_name':x['maintenance_type_name'],'total':categorical_total})
+
+    data = maintenance_data.values('machine_maintenance_amount','machine_machine_id__machine_name','machine_machine_id__machine_number_plate','machine_maintenance_date','machine_maintenance_amount_paid_by','machine_maintenance_amount_paid','machine_maintenance_types_id__maintenance_type_id','machine_maintenance_types_id__maintenance_type_name','machine_maintenance_details','machine_maintenance_person_id__person_name','machine_maintenance_person_id__person_id')
+    maintenance_total = maintenance_data.aggregate(total=Sum('machine_maintenance_amount'))['total'] or 0
+    
+    
+    return Response({'data':data,'message':'Success','status':True,'maintenance_total':maintenance_total,'maintenance_categorical_data':maintenance_categorical_data,'machine_wise_maintenance_data':machine_wise_maintenance_data})
